@@ -1,11 +1,13 @@
 NAME        :=	ircserv
 CXX         :=	c++
-CXXFLAGS    :=	-Wall -Wextra -Werror -MMD -std=c++98
+CXXFLAGS    :=	-Wall -Wextra -Werror -MMD -std=c++98 -g3
 
 BUILD_DIR   :=	build
 
 SRCS        :=	src/core/main.cpp \
-								src/core/Server.cpp
+								src/core/Server.cpp \
+								src/user/User.cpp \
+								src/user/UserManager.cpp
 
 OBJS        := $(SRCS:src/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
