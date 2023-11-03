@@ -2,10 +2,12 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
+#include <string>
 
 struct args
 {
     int port;
+    std::string portStr;
     std::string password;
 };
 
@@ -19,6 +21,7 @@ struct args parseArgs(char *port, char *pwd)
     ss.str("");
     ss << pwd;
     res.password = ss.str();
+    res.portStr = std::string(port);
     return res;
 }
 
@@ -35,6 +38,7 @@ int main(int ac, char **av)
     struct args parsed = parseArgs(av[1], av[2]);
     if (parsed.password.empty() || (parsed.port < 1024 || parsed.port > 65535))
         printUsageExit();
-    Server irc(parsed.port, parsed.password);
+    Server ircServ(parsed.portStr, parsed.password);
+    ircServ.start();
     return 0;
 }
