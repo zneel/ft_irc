@@ -1,6 +1,8 @@
 #include "Server.h"
-#include <algorithm>
-#include <iterator>
+
+#include <asm-generic/socket.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), run_(true), listener_(-1)
 {
@@ -12,61 +14,24 @@ Server::~Server()
 
 void Server::start()
 {
-    if ((listener_ = listenForConn()) < 0)
-        errorExit("cannot get listening socket");
+    if ((listener_ = listenForConn_()) < 0)
+        errorExit_("cannot get listening socket");
 
-    addToPollFds(listener_);
-    std::cout << "ircserver listening on port " << port_ << std::endl;
+    addClient_(listener_);
+    std::cout << "ircserver: listening on port: " << port_ << std::endl;
     while (run_)
     {
-        if (poll(pfds_.data(), pfds_.size(), -1) <= 0)
-            errorExit("poll");
-        for (size_t i = 0; i < pfds_.size(); ++i)
+        if (poll(clients_.data(), clients_.size(), -1) <= 0)
+            errorExit_("poll");
+
+        for (size_t i = 0; i < clients_.size(); ++i)
         {
-            if (pfds_[i].revents & POLLIN)
+            if (clients_[i].revents & POLLIN)
             {
-                if (pfds_[i].fd == listener_)
-                {
-                    struct sockaddr_storage remoteAddr;
-                    socklen_t addrlen = sizeof(remoteAddr);
-                    int newFd;
-                    if ((newFd = accept(listener_, (struct sockaddr *)&remoteAddr, &addrlen)) < 0)
-                        std::cerr << "error: accept" << std::endl;
-                    else
-                    {
-                        addToPollFds(newFd);
-                        uManager_.create(newFd);
-                        fcntl(newFd, F_SETFL, O_NONBLOCK);
-                        char *remoteIp = inet_ntoa(*(struct in_addr *)getInAddr((struct sockaddr *)&remoteAddr));
-                        std::cout << "new connection from ip: " << remoteIp << std::endl;
-                    }
-                }
+                if (clients_[i].fd == listener_)
+                    acceptConn_();
                 else
-                {
-                    std::fill_n(buff_, sizeof(buff_), 0);
-                    int nbytes = recv(pfds_[i].fd, buff_, sizeof(buff_), 0);
-                    if (nbytes <= 0)
-                    {
-                        if (nbytes == 0)
-                            std::cerr << "connection closed" << std::endl;
-                        else
-                            std::cerr << "error: recv" << std::endl;
-                        close(pfds_[i].fd);
-                        std::vector<pollfd>::iterator it = pfds_.begin() + i;
-                        pfds_.erase(it);
-                    }
-                    else
-                    {
-                        for (std::vector<pollfd>::iterator it1 = pfds_.begin(); it1 != pfds_.end(); ++it1)
-                        {
-                            if (it1->fd != listener_ && it1->fd != pfds_[i].fd)
-                            {
-                                if (send(it1->fd, buff_, nbytes, 0) == -1)
-                                    std::cerr << "error: send" << std::endl;
-                            }
-                        }
-                    }
-                }
+                    handleClient_(clients_[i], i);
             }
         }
     }
@@ -89,29 +54,30 @@ Server &Server::operator=(Server const &rhs)
     return *this;
 }
 
-void Server::errorExit(std::string const &msg) const
+void Server::errorExit_(std::string const &msg) const
 {
     std::cerr << "error: " << msg << std::endl;
     Server::~Server();
     exit(1);
 }
 
-void Server::addToPollFds(int fd)
+void Server::addClient_(int fd)
 {
     struct pollfd pfd;
     pfd.events = POLLIN;
     pfd.fd = fd;
-    pfds_.push_back(pfd);
+    pfd.revents = 0;
+    clients_.push_back(pfd);
 }
 
-void *Server::getInAddr(struct sockaddr *sa)
+void *Server::getInAddr_(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET)
         return &(((struct sockaddr_in *)sa)->sin_addr);
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int Server::listenForConn()
+int Server::listenForConn_()
 {
     struct addrinfo hints, *addr, *curr;
     int status;
@@ -123,7 +89,7 @@ int Server::listenForConn()
     hints.ai_socktype = SOCK_STREAM;
     if ((status = getaddrinfo(NULL, port_.c_str(), &hints, &addr)) != 0)
     {
-        std::cerr << "error: getaddrinfo" << std::endl;
+        std::cerr << "error: getaddrinfo: " << strerror(errno) << std::endl;
         exit(1);
     }
     for (curr = addr; curr; curr = curr->ai_next)
@@ -141,8 +107,62 @@ int Server::listenForConn()
     freeaddrinfo(addr);
     if (!curr)
         return -1;
-    if (listen(sockfd, 10) < 0)
+
+    if (listen(sockfd, MAX_LISTENER) < 0)
         return -1;
-    fcntl(sockfd, F_SETFL, O_NONBLOCK);
+
     return sockfd;
+}
+
+void Server::acceptConn_()
+{
+    struct sockaddr_storage remAddr;
+    socklen_t addrlen = sizeof(remAddr);
+    int newFd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
+    if (newFd < 0)
+        std::cerr << "error: accept: " << strerror(errno) << std::endl;
+    else
+    {
+        addClient_(newFd);
+        uManager_.create(newFd);
+        char remoteIp[INET6_ADDRSTRLEN];
+        // @TODO REWRITE inet_ntop
+        // @TODO REWRITE inet_ntop
+        // @TODO REWRITE inet_ntop
+        // @TODO REWRITE inet_ntop
+        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp,
+                  INET6_ADDRSTRLEN); // @TODO REWRITE inet_ntop
+        // inet_ntoa(*(struct in_addr *)getInAddr_((struct sockaddr *)&remAddr));
+        std::cout << "new connection from ip: " << remoteIp << std::endl;
+    }
+}
+
+void Server::handleClient_(struct pollfd pfd, int i)
+{
+    std::fill_n(buff_, sizeof(buff_), 0);
+    int nbytes = recv(pfd.fd, buff_, sizeof(buff_), 0);
+    if (nbytes <= 0)
+    {
+        if (nbytes == 0)
+            std::cerr << "connection closed" << std::endl;
+        else
+            std::cerr << "error: recv: " << strerror(errno) << std::endl;
+        disconnectClient_(pfd.fd, i);
+    }
+    else
+    {
+        for (PfdIterator it1 = clients_.begin(); it1 != clients_.end(); ++it1)
+        {
+            // dispatch messages to all clients but the sender
+            std::cout << "message: " << buff_ << std::endl;
+        }
+    }
+}
+
+void Server::disconnectClient_(int fd, int i)
+{
+    uManager_.remove(fd);
+    close(fd);
+    PfdIterator it = clients_.begin() + i;
+    clients_.erase(it);
 }

@@ -1,4 +1,5 @@
 #include "UserManager.h"
+
 #include <utility>
 
 UserManager::UserManager()
@@ -7,7 +8,7 @@ UserManager::UserManager()
 
 UserManager::~UserManager()
 {
-    for (std::map<int, User *>::iterator it = users_.begin(); it != users_.end(); ++it)
+    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
         delete it->second;
     users_.clear();
 }
@@ -25,7 +26,7 @@ void UserManager::create(int fd)
 
 void UserManager::remove(int fd)
 {
-    std::map<int, User *>::iterator it = users_.find(fd);
+    UserMapIterator it = users_.find(fd);
     if (it != users_.end())
     {
         delete it->second;
