@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 
+#include "../ft_irc.h"
 #include "../user/User.h"
 #include "../user/UserManager.h"
 
@@ -25,7 +26,8 @@
 
 class Server
 {
-    typedef std::vector<pollfd>::iterator PfdIterator;
+    typedef std::vector<pollfd>::iterator ClientIterator;
+    typedef std::vector<pollfd>::reverse_iterator ClientRevIterator;
 
   public:
     Server(std::string port, std::string password);
@@ -36,11 +38,6 @@ class Server
      *
      */
     void start();
-
-    /**
-     * @brief Stops the server and closes all connections.
-     */
-    void stop();
 
   private:
     Server(Server const &other);
@@ -101,6 +98,5 @@ class Server
     UserManager uManager_;
     std::vector<pollfd> clients_;
 
-    bool run_;
     int listener_;
 };

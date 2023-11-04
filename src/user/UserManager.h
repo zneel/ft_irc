@@ -25,6 +25,11 @@ class UserManager
      */
     void remove(int fd);
 
+    /**
+     * @brief Removes all users from the user manager.
+     */
+    void removeAll();
+
   private:
     UserManager &operator=(UserManager const &rhs);
     UserManager(UserManager const &other);

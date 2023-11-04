@@ -1,9 +1,5 @@
 #include "User.h"
 
-#include <sys/socket.h>
-
-#include <cstring>
-
 User::User(int fd) : fd_(fd)
 {
 }

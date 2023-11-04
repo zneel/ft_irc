@@ -5,6 +5,7 @@ CXXFLAGS    :=	-Wall -Wextra -Werror -MMD -std=c++98 -g3
 BUILD_DIR   :=	build
 
 SRCS        :=	src/main.cpp \
+								src/signals.cpp \
 								src/core/Server.cpp \
 								src/user/User.cpp \
 								src/user/UserManager.cpp
