@@ -1,10 +1,13 @@
 #pragma once
 
-#include "User.h"
 #include <map>
+
+#include "User.h"
 
 class UserManager
 {
+    typedef std::map<int, User *>::iterator UserMapIterator;
+
   public:
     UserManager();
     ~UserManager();
