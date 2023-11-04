@@ -33,3 +33,10 @@ void UserManager::remove(int fd)
         users_.erase(it);
     }
 }
+
+void UserManager::removeAll()
+{
+    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
+        delete it->second;
+    users_.clear();
+}

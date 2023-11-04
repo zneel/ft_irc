@@ -1,15 +1,15 @@
 #include "Server.h"
 
-#include <asm-generic/socket.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-
-Server::Server(std::string port, std::string password) : port_(port), password_(password), run_(true), listener_(-1)
+Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
 }
 
 Server::~Server()
 {
+    uManager_.removeAll();
+    for (ClientRevIterator it = clients_.rbegin(); it != clients_.rend(); ++it)
+        close(it->fd);
+    clients_.clear();
 }
 
 void Server::start()
@@ -19,10 +19,10 @@ void Server::start()
 
     addClient_(listener_);
     std::cout << "ircserver: listening on port: " << port_ << std::endl;
-    while (run_)
+    while (!stop)
     {
-        if (poll(clients_.data(), clients_.size(), -1) <= 0)
-            errorExit_("poll");
+        if ((poll(clients_.data(), clients_.size(), -1) <= 0))
+            break;
 
         for (size_t i = 0; i < clients_.size(); ++i)
         {
@@ -35,11 +35,6 @@ void Server::start()
             }
         }
     }
-}
-
-void Server::stop()
-{
-    run_ = false;
 }
 
 Server::Server(Server const &other) : port_(other.port_), password_(other.password_)
@@ -130,8 +125,7 @@ void Server::acceptConn_()
         // @TODO REWRITE inet_ntop
         // @TODO REWRITE inet_ntop
         // @TODO REWRITE inet_ntop
-        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp,
-                  INET6_ADDRSTRLEN); // @TODO REWRITE inet_ntop
+        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
         // inet_ntoa(*(struct in_addr *)getInAddr_((struct sockaddr *)&remAddr));
         std::cout << "new connection from ip: " << remoteIp << std::endl;
     }
@@ -151,7 +145,7 @@ void Server::handleClient_(struct pollfd pfd, int i)
     }
     else
     {
-        for (PfdIterator it1 = clients_.begin(); it1 != clients_.end(); ++it1)
+        for (ClientIterator it1 = clients_.begin(); it1 != clients_.end(); ++it1)
         {
             // dispatch messages to all clients but the sender
             std::cout << "message: " << buff_ << std::endl;
@@ -163,6 +157,6 @@ void Server::disconnectClient_(int fd, int i)
 {
     uManager_.remove(fd);
     close(fd);
-    PfdIterator it = clients_.begin() + i;
+    ClientIterator it = clients_.begin() + i;
     clients_.erase(it);
 }

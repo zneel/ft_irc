@@ -1,9 +1,9 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include <string>
 
 #include "core/Server.h"
+#include "ft_irc.h"
 
 struct args
 {
@@ -39,6 +39,7 @@ int main(int ac, char **av)
     struct args parsed = parseArgs(av[1], av[2]);
     if (parsed.password.empty() || (parsed.port < 1024 || parsed.port > 65535))
         printUsageExit();
+    setupsig();
     Server ircServ(parsed.portStr, parsed.password);
     ircServ.start();
     return 0;
