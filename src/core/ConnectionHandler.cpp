@@ -18,26 +18,21 @@ void ConnectionHandler::setLogger(Logger &logger)
     logger_ = &logger;
 }
 
-bool ConnectionHandler::sendData(int fd, ClientBuffer &cb)
+bool ConnectionHandler::sendData(int fd, std::string &message)
 {
-    ssize_t bytesSent = send(fd, cb.buffer.data() + cb.bytesSent, cb.buffer.size() - cb.bytesSent, MSG_NOSIGNAL);
+    ssize_t bytesSent = send(fd, message.data(), message.size(), 0);
     if (bytesSent == -1)
     {
-        if (errno == EAGAIN || errno == EWOULDBLOCK)
-            return true;
         logger_->log("send: " + std::string(strerror(errno)), Logger::ERROR);
         return false;
     }
-    if (bytesSent < static_cast<ssize_t>(cb.buffer.size()))
-        cb.bytesSent += bytesSent;
-    logger_->log("sent: " + std::string(cb.buffer.begin(), cb.buffer.end()), Logger::INFO);
     return true;
 }
 
-bool ConnectionHandler::recvData(int fd, ClientBuffer &cb)
+bool ConnectionHandler::recvData(int fd, std::string &buffer)
 {
-    std::vector<char> tmpBuff(1024, 0);
-    ssize_t bytesRead = recv(fd, tmpBuff.data(), tmpBuff.size(), MSG_DONTWAIT);
+    char tmpBuff[1024];
+    ssize_t bytesRead = recv(fd, tmpBuff, sizeof(tmpBuff), 0);
     if (bytesRead <= 0)
     {
         if (bytesRead == 0)
@@ -47,6 +42,6 @@ bool ConnectionHandler::recvData(int fd, ClientBuffer &cb)
         close(fd);
         return false;
     }
-    cb.buffer.insert(cb.buffer.end(), tmpBuff.begin(), tmpBuff.begin() + bytesRead);
+    buffer.append(tmpBuff, bytesRead);
     return true;
 }

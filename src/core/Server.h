@@ -45,6 +45,8 @@ class Server
     void handleClient(struct pollfd pfd, int i);
     void removeFromPolling(int fd, int i);
     void initListener();
+    bool hasCRLF(std::string &buffer);
+    bool hasLF(std::string &buffer);
 
     std::string const port_;
     std::string const password_;
@@ -52,10 +54,9 @@ class Server
 
     UserManager uManager_;
 
-    std::vector<pollfd> pollFds_;
-    std::vector<ConnectionHandler::ClientBuffer> clientBuffers_;
+    std::vector<pollfd> poller_;
 
-    ConnectionHandler connectionHandler_;
+    ConnectionHandler handler_;
 
     int listener_;
 };

@@ -15,16 +15,11 @@ class ConnectionHandler
 {
 
   public:
-    struct ClientBuffer
-    {
-        std::vector<char> buffer;
-        size_t bytesSent;
-    };
     ConnectionHandler();
     ~ConnectionHandler();
     void setLogger(Logger &logger);
-    bool sendData(int fd, ClientBuffer &buffer);
-    bool recvData(int fd, ClientBuffer &buffer);
+    bool recvData(int fd, std::string &buffer);
+    bool sendData(int fd, std::string &message);
 
   private:
     Logger *logger_;
