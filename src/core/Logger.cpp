@@ -86,7 +86,7 @@ std::string Logger::getTimestamp() const
     time(&rawtime);
     timeinfo = localtime(&rawtime);
 
-    strftime(buffer, sizeof(buffer), "%d-%m-%Y %H:%M:%S", timeinfo);
+    strftime(buffer, sizeof(buffer), "%Y-%m-%dT%H:%M:%S%z", timeinfo);
     std::string str(buffer);
 
     return str;
