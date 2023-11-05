@@ -1,5 +1,6 @@
 #include "UserManager.h"
 
+#include <iostream>
 #include <utility>
 
 UserManager::UserManager()
@@ -9,7 +10,7 @@ UserManager::UserManager()
 UserManager::~UserManager()
 {
     for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
-        delete it->second;
+        remove(it->first);
     users_.clear();
 }
 

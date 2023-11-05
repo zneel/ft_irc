@@ -1,68 +1,68 @@
 #include "Server.h"
+#include <fcntl.h>
+#include <unistd.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
+    connectionHandler_.setLogger(logger_);
 }
 
 Server::~Server()
 {
     uManager_.removeAll();
-    for (ClientRevIterator it = clients_.rbegin(); it != clients_.rend(); ++it)
+    for (PollFdsIterator it = pollFds_.begin(); it != pollFds_.end(); ++it)
         close(it->fd);
-    clients_.clear();
+    pollFds_.clear();
 }
 
 void Server::start()
 {
-    if ((listener_ = listenForConn_()) < 0)
-        errorExit_("cannot get listening socket");
+    if ((listener_ = listenForConnection()) < 0)
+        throw std::runtime_error("listenForConnection");
 
-    addClient_(listener_);
-    std::cout << "ircserver: listening on port: " << port_ << std::endl;
+    initListener();
+    logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        if ((poll(clients_.data(), clients_.size(), -1) <= 0))
-            break;
-
-        for (size_t i = 0; i < clients_.size(); ++i)
+        int pollCount = poll(pollFds_.data(), pollFds_.size(), 100);
+        if (pollCount < 0)
         {
-            if (clients_[i].revents & POLLIN)
+            logger_.log("poll: " + std::string(strerror(errno)), Logger::ERROR);
+            break;
+        }
+        for (size_t i = 0; i < pollFds_.size(); i++)
+        {
+            if (pollFds_[i].revents & POLLIN)
             {
-                if (clients_[i].fd == listener_)
-                    acceptConn_();
+                if (pollFds_[i].fd == listener_)
+                    acceptConnection();
                 else
-                    handleClient_(clients_[i], i);
+                {
+                    std::string data = connectionHandler_.recvData(pollFds_[i].fd);
+                    std::cout << "size: " << data.size() << std::endl;
+                    std::cout << "data: " << data << std::endl;
+                    if (data.empty())
+                    {
+                        removeFromPolling(pollFds_[i].fd, i);
+                        continue;
+                    }
+                    for (size_t j = 0; j < pollFds_.size(); j++)
+                    {
+                        if (pollFds_[j].fd == listener_)
+                            continue;
+                        if (pollFds_[i].fd == pollFds_[j].fd)
+                            continue;
+                        connectionHandler_.sendData(pollFds_[j].fd, data);
+                    }
+                }
             }
         }
     }
 }
 
-Server::Server(Server const &other) : port_(other.port_), password_(other.password_)
+void Server::setLogger(Logger &logger)
 {
-}
-
-Server &Server::operator=(Server const &rhs)
-{
-    if (this != &rhs)
-    {
-    }
-    return *this;
-}
-
-void Server::errorExit_(std::string const &msg) const
-{
-    std::cerr << "error: " << msg << std::endl;
-    Server::~Server();
-    exit(1);
-}
-
-void Server::addClient_(int fd)
-{
-    struct pollfd pfd;
-    pfd.events = POLLIN;
-    pfd.fd = fd;
-    pfd.revents = 0;
-    clients_.push_back(pfd);
+    logger_ = logger;
 }
 
 void *Server::getInAddr_(struct sockaddr *sa)
@@ -72,7 +72,50 @@ void *Server::getInAddr_(struct sockaddr *sa)
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
 
-int Server::listenForConn_()
+void Server::acceptConnection()
+{
+    struct sockaddr_storage remAddr;
+    socklen_t addrlen = sizeof(remAddr);
+    int newFd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
+    if (newFd < 0)
+        logger_.log("accept", Logger::ERROR);
+    else
+    {
+        connectAndAddToPolling(newFd);
+        uManager_.create(newFd);
+        char remoteIp[INET6_ADDRSTRLEN];
+        // @TODO REWRITE inet_ntop
+        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
+        logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
+    }
+}
+
+void Server::connectAndAddToPolling(int fd)
+{
+    struct pollfd pfd;
+    pfd.events = POLLIN | POLLOUT;
+    pfd.fd = fd;
+    pfd.revents = 0;
+    pollFds_.push_back(pfd);
+}
+
+void Server::removeFromPolling(int fd, int i)
+{
+    uManager_.remove(fd);
+    PollFdsIterator pollIt = pollFds_.begin() + i;
+    pollFds_.erase(pollIt);
+}
+
+void Server::initListener()
+{
+    struct pollfd pfd;
+    pfd.events = POLLIN;
+    pfd.fd = listener_;
+    pfd.revents = 0;
+    pollFds_.push_back(pfd);
+}
+
+int Server::listenForConnection()
 {
     struct addrinfo hints, *addr, *curr;
     int status;
@@ -84,7 +127,7 @@ int Server::listenForConn_()
     hints.ai_socktype = SOCK_STREAM;
     if ((status = getaddrinfo(NULL, port_.c_str(), &hints, &addr)) != 0)
     {
-        std::cerr << "error: getaddrinfo: " << strerror(errno) << std::endl;
+        logger_.log("getaddrinfo: " + std::string(strerror(errno)), Logger::ERROR);
         exit(1);
     }
     for (curr = addr; curr; curr = curr->ai_next)
@@ -105,58 +148,5 @@ int Server::listenForConn_()
 
     if (listen(sockfd, MAX_LISTENER) < 0)
         return -1;
-
     return sockfd;
-}
-
-void Server::acceptConn_()
-{
-    struct sockaddr_storage remAddr;
-    socklen_t addrlen = sizeof(remAddr);
-    int newFd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
-    if (newFd < 0)
-        std::cerr << "error: accept: " << strerror(errno) << std::endl;
-    else
-    {
-        addClient_(newFd);
-        uManager_.create(newFd);
-        char remoteIp[INET6_ADDRSTRLEN];
-        // @TODO REWRITE inet_ntop
-        // @TODO REWRITE inet_ntop
-        // @TODO REWRITE inet_ntop
-        // @TODO REWRITE inet_ntop
-        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
-        // inet_ntoa(*(struct in_addr *)getInAddr_((struct sockaddr *)&remAddr));
-        std::cout << "new connection from ip: " << remoteIp << std::endl;
-    }
-}
-
-void Server::handleClient_(struct pollfd pfd, int i)
-{
-    std::fill_n(buff_, sizeof(buff_), 0);
-    int nbytes = recv(pfd.fd, buff_, sizeof(buff_), 0);
-    if (nbytes <= 0)
-    {
-        if (nbytes == 0)
-            std::cerr << "connection closed" << std::endl;
-        else
-            std::cerr << "error: recv: " << strerror(errno) << std::endl;
-        disconnectClient_(pfd.fd, i);
-    }
-    else
-    {
-        for (ClientIterator it1 = clients_.begin(); it1 != clients_.end(); ++it1)
-        {
-            // dispatch messages to all clients but the sender
-            std::cout << "message: " << buff_ << std::endl;
-        }
-    }
-}
-
-void Server::disconnectClient_(int fd, int i)
-{
-    uManager_.remove(fd);
-    close(fd);
-    ClientIterator it = clients_.begin() + i;
-    clients_.erase(it);
 }

@@ -5,7 +5,6 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <poll.h>
-#include <sys/fcntl.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -21,13 +20,14 @@
 #include "../ft_irc.h"
 #include "../user/User.h"
 #include "../user/UserManager.h"
+#include "ConnectionHandler.h"
+#include "Logger.h"
 
 #define MAX_LISTENER 10
 
 class Server
 {
-    typedef std::vector<pollfd>::iterator ClientIterator;
-    typedef std::vector<pollfd>::reverse_iterator ClientRevIterator;
+    typedef std::vector<pollfd>::iterator PollFdsIterator;
 
   public:
     Server(std::string port, std::string password);
@@ -39,23 +39,20 @@ class Server
      */
     void start();
 
-  private:
-    Server(Server const &other);
-    Server &operator=(Server const &rhs);
-
     /**
-     * @brief Exits the program with an error message.
+     * @brief Sets the logger for the server.
      *
-     * @param msg The error message to display.
+     * @param logger The logger to set.
      */
-    void errorExit_(std::string const &msg) const;
+    void setLogger(Logger &logger);
 
+  private:
     /**
      * @brief Adds a file descriptor to the list of file descriptors to poll.
      *
      * @param fd The file descriptor to add.
      */
-    void addClient_(int fd);
+    void connectAndAddToPolling(int fd);
 
     /**
      * Returns a pointer to the address portion of the given sockaddr struct.
@@ -69,34 +66,38 @@ class Server
      * Listens for incoming connections on the server socket.
      * @return The file descriptor of the accepted connection.
      */
-    int listenForConn_();
+    int listenForConnection();
 
     /**
      * @brief Accepts a new incoming connection.
      *
      * @return int The file descriptor of the accepted connection.
      */
-    void acceptConn_();
+    void acceptConnection();
 
     /**
      * @brief Handles a client connection.
      *
      */
-    void handleClient_(struct pollfd pfd, int i);
+    void handleClient(struct pollfd pfd, int i);
 
     /**
      * @brief Disconnects a client with the given file descriptor.
      *
      * @param fd The file descriptor of the client to disconnect.
      */
-    void disconnectClient_(int fd, int i);
+    void removeFromPolling(int fd, int i);
+
+    void initListener();
 
     std::string const port_;
     std::string const password_;
-    char buff_[60];
+    Logger logger_;
 
     UserManager uManager_;
-    std::vector<pollfd> clients_;
+
+    std::vector<pollfd> pollFds_;
+    ConnectionHandler connectionHandler_;
 
     int listener_;
 };

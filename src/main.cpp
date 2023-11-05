@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "core/Logger.h"
 #include "core/Server.h"
 #include "ft_irc.h"
 
@@ -40,7 +41,9 @@ int main(int ac, char **av)
     if (parsed.password.empty() || (parsed.port < 1024 || parsed.port > 65535))
         printUsageExit();
     setupsig();
+    Logger logger(std::cout);
     Server ircServ(parsed.portStr, parsed.password);
+    ircServ.setLogger(logger);
     ircServ.start();
     return 0;
 }

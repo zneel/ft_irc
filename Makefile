@@ -7,6 +7,8 @@ BUILD_DIR   :=	build
 SRCS        :=	src/main.cpp \
 								src/signals.cpp \
 								src/core/Server.cpp \
+								src/core/Logger.cpp \
+								src/core/ConnectionHandler.cpp \
 								src/user/User.cpp \
 								src/user/UserManager.cpp
 
