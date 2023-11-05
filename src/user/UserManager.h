@@ -12,6 +12,7 @@ class UserManager
     UserManager();
     ~UserManager();
     int getUserCount();
+
     /**
      * @brief Creates a new user.
      *
