@@ -19,6 +19,14 @@ int UserManager::getUserCount()
     return users_.size();
 }
 
+User *UserManager::get(int fd)
+{
+    UserMapIterator it = users_.find(fd);
+    if (it != users_.end())
+        return it->second;
+    return NULL;
+}
+
 void UserManager::create(int fd)
 {
     User *newUser = new User(fd);

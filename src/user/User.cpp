@@ -13,6 +13,11 @@ int User::getFd() const
     return fd_;
 }
 
+std::string &User::getMessage()
+{
+    return message_;
+}
+
 User::User(User const &other) : fd_(other.fd_)
 {
 }

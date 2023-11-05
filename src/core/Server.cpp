@@ -1,18 +1,21 @@
 #include "Server.h"
+#include "ConnectionHandler.h"
 #include <fcntl.h>
+#include <string>
+#include <sys/types.h>
 #include <unistd.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
-    connectionHandler_.setLogger(logger_);
+    handler_.setLogger(logger_);
 }
 
 Server::~Server()
 {
     uManager_.removeAll();
-    for (PollFdsIterator it = pollFds_.begin(); it != pollFds_.end(); ++it)
+    for (PollFdsIterator it = poller_.begin(); it != poller_.end(); ++it)
         close(it->fd);
-    pollFds_.clear();
+    poller_.clear();
 }
 
 void Server::start()
@@ -24,39 +27,37 @@ void Server::start()
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        int pollCount = poll(pollFds_.data(), pollFds_.size(), 100);
-        if (pollCount < 0)
+        poll(poller_.data(), poller_.size(), -1);
+        for (size_t i = 0; i < poller_.size(); i++)
         {
-            logger_.log("poll: " + std::string(strerror(errno)), Logger::ERROR);
-            break;
-        }
-        for (size_t i = 0; i < pollFds_.size(); i++)
-        {
-            if (pollFds_[i].revents & POLLIN)
+            if (poller_[i].revents & POLLIN)
             {
-                if (pollFds_[i].fd == listener_)
+                if (poller_[i].fd == listener_)
                     acceptConnection();
                 else
                 {
-                    std::string data = connectionHandler_.recvData(pollFds_[i].fd);
-                    std::cout << "size: " << data.size() << std::endl;
-                    std::cout << "data: " << data << std::endl;
-                    if (data.empty())
+                    bool received = handler_.recvData(poller_[i].fd, uManager_.get(poller_[i].fd)->getMessage());
+                    if (!received)
                     {
-                        removeFromPolling(pollFds_[i].fd, i);
+                        removeFromPolling(poller_[i].fd, i);
                         continue;
                     }
-                    for (size_t j = 0; j < pollFds_.size(); j++)
+                    for (size_t j = 0; j < poller_.size(); j++)
                     {
-                        if (pollFds_[j].fd == listener_)
+                        if (poller_[j].fd == listener_ || poller_[j].fd == poller_[i].fd)
                             continue;
-                        if (pollFds_[i].fd == pollFds_[j].fd)
-                            continue;
-                        connectionHandler_.sendData(pollFds_[j].fd, data);
+                        if (hasLF(uManager_.get(poller_[i].fd)->getMessage()))
+                            handler_.sendData(poller_[j].fd, uManager_.get(poller_[i].fd)->getMessage());
                     }
+                    // advance to linefeed
+                    if (hasLF(uManager_.get(poller_[i].fd)->getMessage()))
+                        uManager_.get(poller_[i].fd)
+                            ->getMessage()
+                            .erase(0, uManager_.get(poller_[i].fd)->getMessage().find("\n") + 1);
                 }
             }
         }
+        usleep(1000);
     }
 }
 
@@ -76,13 +77,14 @@ void Server::acceptConnection()
 {
     struct sockaddr_storage remAddr;
     socklen_t addrlen = sizeof(remAddr);
-    int newFd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
-    if (newFd < 0)
+    int fd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
+    if (fd < 0)
         logger_.log("accept", Logger::ERROR);
     else
     {
-        connectAndAddToPolling(newFd);
-        uManager_.create(newFd);
+        fcntl(fd, F_SETFL, O_NONBLOCK);
+        addToPolling(fd);
+        uManager_.create(fd);
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
@@ -90,20 +92,20 @@ void Server::acceptConnection()
     }
 }
 
-void Server::connectAndAddToPolling(int fd)
+void Server::addToPolling(int fd)
 {
     struct pollfd pfd;
     pfd.events = POLLIN | POLLOUT;
     pfd.fd = fd;
     pfd.revents = 0;
-    pollFds_.push_back(pfd);
+    poller_.push_back(pfd);
 }
 
 void Server::removeFromPolling(int fd, int i)
 {
     uManager_.remove(fd);
-    PollFdsIterator pollIt = pollFds_.begin() + i;
-    pollFds_.erase(pollIt);
+    PollFdsIterator pollIt = poller_.begin() + i;
+    poller_.erase(pollIt);
 }
 
 void Server::initListener()
@@ -112,7 +114,17 @@ void Server::initListener()
     pfd.events = POLLIN;
     pfd.fd = listener_;
     pfd.revents = 0;
-    pollFds_.push_back(pfd);
+    poller_.push_back(pfd);
+}
+
+bool Server::hasCRLF(std::string &buffer)
+{
+    return (buffer.find("\r\n") != std::string::npos);
+}
+
+bool Server::hasLF(std::string &buffer)
+{
+    return (buffer.find("\n") != std::string::npos);
 }
 
 int Server::listenForConnection()
@@ -122,7 +134,7 @@ int Server::listenForConnection()
     int sockfd;
     int yes = 1;
 
-    memset(&hints, 0, sizeof hints);
+    memset(&hints, 0, sizeof(hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     if ((status = getaddrinfo(NULL, port_.c_str(), &hints, &addr)) != 0)
@@ -148,5 +160,6 @@ int Server::listenForConnection()
 
     if (listen(sockfd, MAX_LISTENER) < 0)
         return -1;
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return sockfd;
 }

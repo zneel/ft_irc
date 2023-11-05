@@ -1,7 +1,9 @@
 #include "ConnectionHandler.h"
 #include <cstdlib>
+#include <iterator>
 #include <sstream>
 #include <sys/socket.h>
+#include <sys/types.h>
 
 ConnectionHandler::ConnectionHandler()
 {
@@ -16,12 +18,9 @@ void ConnectionHandler::setLogger(Logger &logger)
     logger_ = &logger;
 }
 
-bool ConnectionHandler::sendData(int fd, std::string const &data)
+bool ConnectionHandler::sendData(int fd, std::string &message)
 {
-    const char *buffer = data.c_str();
-    ssize_t bytesSent = 0;
-
-    bytesSent = send(fd, buffer, data.size(), MSG_NOSIGNAL);
+    ssize_t bytesSent = send(fd, message.data(), message.size(), 0);
     if (bytesSent == -1)
     {
         logger_->log("send: " + std::string(strerror(errno)), Logger::ERROR);
@@ -30,11 +29,10 @@ bool ConnectionHandler::sendData(int fd, std::string const &data)
     return true;
 }
 
-std::string ConnectionHandler::recvData(int fd)
+bool ConnectionHandler::recvData(int fd, std::string &buffer)
 {
-    std::vector<char> buffer(1024);
-    ssize_t bytesRead = 0;
-    bytesRead = recv(fd, buffer.data(), buffer.size(), MSG_DONTWAIT);
+    char tmpBuff[1024];
+    ssize_t bytesRead = recv(fd, tmpBuff, sizeof(tmpBuff), 0);
     if (bytesRead <= 0)
     {
         if (bytesRead == 0)
@@ -42,6 +40,8 @@ std::string ConnectionHandler::recvData(int fd)
         else
             logger_->log("recv: " + std::string(strerror(errno)), Logger::ERROR);
         close(fd);
+        return false;
     }
-    return std::string(buffer.begin(), buffer.begin() + bytesRead);
+    buffer.append(tmpBuff, bytesRead);
+    return true;
 }

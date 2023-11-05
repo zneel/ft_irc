@@ -1,5 +1,6 @@
 #pragma once
 #include <netdb.h>
+#include <string>
 #include <sys/socket.h>
 
 class User
@@ -9,6 +10,7 @@ class User
     ~User();
 
     int getFd() const;
+    std::string &getMessage();
 
   private:
     User(User const &other);
@@ -16,5 +18,6 @@ class User
     bool operator==(User const &rhs);
 
     int fd_;
+    std::string message_;
     struct sockaddr_storage addr_;
 };
