@@ -1,5 +1,7 @@
 #include "Server.h"
+#include "ConnectionHandler.h"
 #include <fcntl.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
@@ -24,7 +26,7 @@ void Server::start()
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        int pollCount = poll(pollFds_.data(), pollFds_.size(), 100);
+        int pollCount = poll(pollFds_.data(), pollFds_.size(), -1);
         if (pollCount < 0)
         {
             logger_.log("poll: " + std::string(strerror(errno)), Logger::ERROR);
@@ -38,21 +40,24 @@ void Server::start()
                     acceptConnection();
                 else
                 {
-                    std::string data = connectionHandler_.recvData(pollFds_[i].fd);
-                    std::cout << "size: " << data.size() << std::endl;
-                    std::cout << "data: " << data << std::endl;
-                    if (data.empty())
+                    bool received = connectionHandler_.recvData(pollFds_[i].fd, clientBuffers_[i]);
+                    if (!received)
                     {
                         removeFromPolling(pollFds_[i].fd, i);
                         continue;
                     }
+                    bool sentToAll = true;
                     for (size_t j = 0; j < pollFds_.size(); j++)
                     {
-                        if (pollFds_[j].fd == listener_)
+                        if (pollFds_[j].fd == listener_ || pollFds_[j].fd == pollFds_[i].fd)
                             continue;
-                        if (pollFds_[i].fd == pollFds_[j].fd)
-                            continue;
-                        connectionHandler_.sendData(pollFds_[j].fd, data);
+                        if (!connectionHandler_.sendData(pollFds_[j].fd, clientBuffers_[i]))
+                            sentToAll = false;
+                    }
+                    if (sentToAll)
+                    {
+                        clientBuffers_[i].buffer.clear();
+                        clientBuffers_[i].bytesSent = 0;
                     }
                 }
             }
@@ -76,13 +81,14 @@ void Server::acceptConnection()
 {
     struct sockaddr_storage remAddr;
     socklen_t addrlen = sizeof(remAddr);
-    int newFd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
-    if (newFd < 0)
+    int fd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
+    if (fd < 0)
         logger_.log("accept", Logger::ERROR);
     else
     {
-        connectAndAddToPolling(newFd);
-        uManager_.create(newFd);
+        fcntl(fd, F_SETFL, O_NONBLOCK);
+        addToPolling(fd);
+        uManager_.create(fd);
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
@@ -90,13 +96,14 @@ void Server::acceptConnection()
     }
 }
 
-void Server::connectAndAddToPolling(int fd)
+void Server::addToPolling(int fd)
 {
     struct pollfd pfd;
-    pfd.events = POLLIN | POLLOUT;
+    pfd.events = POLLIN;
     pfd.fd = fd;
     pfd.revents = 0;
     pollFds_.push_back(pfd);
+    clientBuffers_.push_back(ConnectionHandler::ClientBuffer());
 }
 
 void Server::removeFromPolling(int fd, int i)
@@ -109,10 +116,11 @@ void Server::removeFromPolling(int fd, int i)
 void Server::initListener()
 {
     struct pollfd pfd;
-    pfd.events = POLLIN;
+    pfd.events = POLLIN | POLLOUT;
     pfd.fd = listener_;
     pfd.revents = 0;
     pollFds_.push_back(pfd);
+    clientBuffers_.push_back(ConnectionHandler::ClientBuffer());
 }
 
 int Server::listenForConnection()
@@ -123,7 +131,7 @@ int Server::listenForConnection()
     int yes = 1;
 
     memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
     if ((status = getaddrinfo(NULL, port_.c_str(), &hints, &addr)) != 0)
     {
@@ -148,5 +156,6 @@ int Server::listenForConnection()
 
     if (listen(sockfd, MAX_LISTENER) < 0)
         return -1;
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return sockfd;
 }

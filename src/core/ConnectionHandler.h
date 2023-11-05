@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../ft_irc.h"
 #include "Logger.h"
 #include <cerrno>
 #include <cstring>
@@ -12,12 +13,18 @@
 
 class ConnectionHandler
 {
+
   public:
+    struct ClientBuffer
+    {
+        std::vector<char> buffer;
+        size_t bytesSent;
+    };
     ConnectionHandler();
     ~ConnectionHandler();
     void setLogger(Logger &logger);
-    bool sendData(int fd, std::string const &data);
-    std::string recvData(int fd);
+    bool sendData(int fd, ClientBuffer &buffer);
+    bool recvData(int fd, ClientBuffer &buffer);
 
   private:
     Logger *logger_;
