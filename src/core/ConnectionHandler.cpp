@@ -18,20 +18,9 @@ void ConnectionHandler::setLogger(Logger &logger)
     logger_ = &logger;
 }
 
-bool ConnectionHandler::sendData(int fd, std::string &message)
+ssize_t ConnectionHandler::recvData(int fd, std::string &buffer)
 {
-    ssize_t bytesSent = send(fd, message.data(), message.size(), 0);
-    if (bytesSent == -1)
-    {
-        logger_->log("send: " + std::string(strerror(errno)), Logger::ERROR);
-        return false;
-    }
-    return true;
-}
-
-bool ConnectionHandler::recvData(int fd, std::string &buffer)
-{
-    char tmpBuff[1024];
+    char tmpBuff[BUFFER_SIZE];
     ssize_t bytesRead = recv(fd, tmpBuff, sizeof(tmpBuff), 0);
     if (bytesRead <= 0)
     {
@@ -40,8 +29,19 @@ bool ConnectionHandler::recvData(int fd, std::string &buffer)
         else
             logger_->log("recv: " + std::string(strerror(errno)), Logger::ERROR);
         close(fd);
-        return false;
+        return bytesRead;
     }
     buffer.append(tmpBuff, bytesRead);
-    return true;
+    return bytesRead;
+}
+
+ssize_t ConnectionHandler::sendData(int fd, std::string &message)
+{
+    ssize_t bytesSent = send(fd, message.data(), message.size(), 0);
+    if (bytesSent == -1)
+    {
+        logger_->log("send: " + std::string(strerror(errno)), Logger::ERROR);
+        return bytesSent;
+    }
+    return bytesSent;
 }

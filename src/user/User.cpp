@@ -13,9 +13,24 @@ int User::getFd() const
     return fd_;
 }
 
-std::string &User::getMessage()
+std::string &User::getSendBuffer()
 {
-    return message_;
+    return sendBuffer_;
+}
+
+std::string &User::getRecvBuffer()
+{
+    return recvBuffer_;
+}
+
+void User::setSendBuffer(std::string const &sendBuffer)
+{
+    sendBuffer_ = sendBuffer;
+}
+
+void User::setRecvBuffer(std::string const &recvBuffer)
+{
+    recvBuffer_ = recvBuffer;
 }
 
 User::User(User const &other) : fd_(other.fd_)

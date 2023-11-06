@@ -27,10 +27,11 @@ User *UserManager::get(int fd)
     return NULL;
 }
 
-void UserManager::create(int fd)
+User *UserManager::create(int fd)
 {
     User *newUser = new User(fd);
     users_[fd] = newUser;
+    return users_[fd];
 }
 
 void UserManager::remove(int fd)
