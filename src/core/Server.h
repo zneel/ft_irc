@@ -63,4 +63,5 @@ class Server
     ConnectionHandler handler_;
 
     int listener_;
+    std::string welcomeMessage_;
 };
