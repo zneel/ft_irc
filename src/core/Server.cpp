@@ -9,6 +9,17 @@
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
     handler_.setLogger(logger_);
+    welcomeMessage_.append(LINE1) + "\r\n";
+    welcomeMessage_.append(LINE2) + "\r\n";
+    welcomeMessage_.append(LINE3) + "\r\n";
+    welcomeMessage_.append(LINE4) + "\r\n";
+    welcomeMessage_.append(LINE5) + "\r\n";
+    welcomeMessage_.append(LINE6) + "\r\n";
+    welcomeMessage_.append(LINE7) + "\r\n";
+    welcomeMessage_.append(LINE8) + "\r\n";
+    welcomeMessage_.append(LINE9) + "\r\n";
+    welcomeMessage_.append(LINE10) + "\r\n";
+    welcomeMessage_.append(LINE11) + "\r\n";
 }
 
 Server::~Server()
