@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <sstream>
 
@@ -44,6 +45,13 @@ int main(int ac, char **av)
     Logger logger(std::cout);
     Server ircServ(parsed.portStr, parsed.password);
     ircServ.setLogger(logger);
-    ircServ.start();
+    try
+    {
+        ircServ.start();
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
     return 0;
 }

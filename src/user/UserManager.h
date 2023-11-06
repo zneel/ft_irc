@@ -18,7 +18,7 @@ class UserManager
      * @brief Creates a new user.
      *
      */
-    void create(int fd);
+    User *create(int fd);
 
     /**
      * @brief Removes a user from the user manager.

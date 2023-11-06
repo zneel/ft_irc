@@ -10,7 +10,12 @@ class User
     ~User();
 
     int getFd() const;
-    std::string &getMessage();
+
+    std::string &getSendBuffer();
+    std::string &getRecvBuffer();
+
+    void setSendBuffer(std::string const &sendBuffer);
+    void setRecvBuffer(std::string const &recvBuffer);
 
   private:
     User(User const &other);
@@ -18,6 +23,6 @@ class User
     bool operator==(User const &rhs);
 
     int fd_;
-    std::string message_;
-    struct sockaddr_storage addr_;
+    std::string sendBuffer_;
+    std::string recvBuffer_;
 };

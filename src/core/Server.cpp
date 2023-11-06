@@ -36,28 +36,39 @@ void Server::start()
                     acceptConnection();
                 else
                 {
-                    bool received = handler_.recvData(poller_[i].fd, uManager_.get(poller_[i].fd)->getMessage());
-                    if (!received)
+                    ssize_t received = handler_.recvData(poller_[i].fd, uManager_.get(poller_[i].fd)->getRecvBuffer());
+                    if (received == 0)
                     {
                         removeFromPolling(poller_[i].fd, i);
                         continue;
                     }
-                    for (size_t j = 0; j < poller_.size(); j++)
+                    std::cout << "received buffer: " << uManager_.get(poller_[i].fd)->getRecvBuffer() << std::endl;
+                    if (received > 0)
                     {
-                        if (poller_[j].fd == listener_ || poller_[j].fd == poller_[i].fd)
-                            continue;
-                        if (hasLF(uManager_.get(poller_[i].fd)->getMessage()))
-                            handler_.sendData(poller_[j].fd, uManager_.get(poller_[i].fd)->getMessage());
+                        if (hasCRLF(uManager_.get(poller_[i].fd)->getRecvBuffer()))
+                        {
+                            // copy to send buffer
+                            poller_[i].events |= POLLOUT;
+                        }
                     }
-                    // advance to linefeed
-                    if (hasLF(uManager_.get(poller_[i].fd)->getMessage()))
-                        uManager_.get(poller_[i].fd)
-                            ->getMessage()
-                            .erase(0, uManager_.get(poller_[i].fd)->getMessage().find("\n") + 1);
                 }
             }
+            if (poller_[i].revents & POLLOUT)
+            {
+                if (poller_[i].fd == listener_)
+                    continue;
+                ssize_t bytesSent = handler_.sendData(poller_[i].fd, uManager_.get(poller_[i].fd)->getSendBuffer());
+                ssize_t len = uManager_.get(poller_[i].fd)->getSendBuffer().size();
+                std::cout << "sent message: " << uManager_.get(poller_[i].fd)->getSendBuffer() << std::endl;
+                if (len - bytesSent == 0)
+                {
+                    uManager_.get(poller_[i].fd)->getSendBuffer().clear();
+                    poller_[i].events = POLLIN;
+                }
+                else
+                    uManager_.get(poller_[i].fd)->getSendBuffer().erase(0, bytesSent);
+            }
         }
-        usleep(1000);
     }
 }
 
@@ -84,18 +95,19 @@ void Server::acceptConnection()
     {
         fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
-        uManager_.create(fd);
+        User *u = uManager_.create(fd);
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
         logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
+        u->setSendBuffer(std::string("001 Welcome to the Internet Relay Network <nick>!<user>@<host>\r\n"));
     }
 }
 
 void Server::addToPolling(int fd)
 {
     struct pollfd pfd;
-    pfd.events = POLLIN | POLLOUT;
+    pfd.events = POLLIN;
     pfd.fd = fd;
     pfd.revents = 0;
     poller_.push_back(pfd);

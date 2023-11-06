@@ -10,16 +10,16 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+#define BUFFER_SIZE 1024
 
 class ConnectionHandler
 {
-
   public:
     ConnectionHandler();
     ~ConnectionHandler();
     void setLogger(Logger &logger);
-    bool recvData(int fd, std::string &buffer);
-    bool sendData(int fd, std::string &message);
+    ssize_t recvData(int fd, std::string &buffer);
+    ssize_t sendData(int fd, std::string &message);
 
   private:
     Logger *logger_;
