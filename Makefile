@@ -11,7 +11,8 @@ SRCS        :=	src/main.cpp \
 								src/core/ConnectionHandler.cpp \
 								src/user/User.cpp \
 								src/user/UserManager.cpp \
-								src/buffer/Buffer.cpp
+								src/buffer/Buffer.cpp \
+								src/message/Message.cpp
 
 OBJS        := $(SRCS:src/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)

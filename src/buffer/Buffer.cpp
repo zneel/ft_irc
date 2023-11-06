@@ -21,7 +21,9 @@ void Buffer::treatBuffer(std::string &recvBuffer, std::string &sendBuffer)
         if (nextCRLF != recvBuffer.begin())
         {
             std::string::iterator begin = recvBuffer.begin();
-            sendBuffer.append(begin, nextCRLF);
+            t_Message msg = newMessage(std::string (begin, nextCRLF));
+            sendBuffer.append("command: " + msg.command);
+            sendBuffer.append("/param: " + msg.parameters);
             recvBuffer.erase(0, *nextCRLF);
         }
     }

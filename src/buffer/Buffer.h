@@ -3,6 +3,8 @@
 #include <string>
 #include <sstream>
 #include <iostream>
+#include "../message/Message.h"
+
 class Buffer
 {
   public:
