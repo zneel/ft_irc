@@ -1,6 +1,6 @@
 NAME        :=	ircserv
 CXX         :=	c++
-CXXFLAGS    :=	-Wall -Wextra -Werror -MMD -std=c++98 -g3
+CXXFLAGS    :=	-Wall -Wextra -Werror -fsanitize=address -MMD -std=c++98 -g3
 
 BUILD_DIR   :=	build
 
@@ -10,7 +10,8 @@ SRCS        :=	src/main.cpp \
 								src/core/Logger.cpp \
 								src/core/ConnectionHandler.cpp \
 								src/user/User.cpp \
-								src/user/UserManager.cpp
+								src/user/UserManager.cpp \
+								src/buffer/Buffer.cpp
 
 OBJS        := $(SRCS:src/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
