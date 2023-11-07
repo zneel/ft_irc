@@ -39,6 +39,7 @@ void Server::start()
         throw std::runtime_error("epoll_create1: " + std::string(strerror(errno)));
     if ((listener_ = listenForConnection()) < 0)
         throw std::runtime_error("listenForConnection");
+    CommandManager commands(&cManager_, &uManager_);
     initListener();
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
@@ -61,7 +62,7 @@ void Server::start()
                 if (events_[i].data.fd == listener_)
                     acceptConnection();
                 else
-                    recvData(events_[i], i);
+                    recvData(events_[i], commands, i);
             }
             if (events_[i].events & EPOLLOUT)
                 sendData(events_[i]);
@@ -128,7 +129,7 @@ void Server::sendData(struct epoll_event &event)
         uManager_.get(event.data.fd)->getSendBuffer().erase(0, bytesSent);
 }
 
-void Server::recvData(struct epoll_event &event, int i)
+void Server::recvData(struct epoll_event &event, CommandManager &commands, int i)
 {
     ssize_t received = handler_.recvData(event.data.fd, uManager_.get(event.data.fd)->getRecvBuffer());
     if (received == 0)
@@ -143,8 +144,9 @@ void Server::recvData(struct epoll_event &event, int i)
     {
         if (hasCRLF(uManager_.get(event.data.fd)->getRecvBuffer()))
         {
-            Buffer::treatBuffer(uManager_.get(event.data.fd)->getRecvBuffer(),
-                                uManager_.get(event.data.fd)->getSendBuffer());
+            std::deque<Message> msgs;
+            Buffer::bufferToMessage(uManager_.get(event.data.fd)->getRecvBuffer(), msgs);
+            commands.doCommands(msgs, uManager_.get(event.data.fd));
             event.events = EPOLLOUT;
         }
     }

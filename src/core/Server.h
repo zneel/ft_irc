@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <cstdlib>
 #include <cstring>
+#include <deque>
 #include <errno.h>
 #include <fcntl.h>
 #include <iostream>
@@ -17,6 +18,9 @@
 #include <unistd.h>
 #include <vector>
 
+#include "../buffer/Buffer.h"
+#include "../channel/ChannelManager.h"
+#include "../commands/CommandManager.h"
 #include "../ft_irc.h"
 #include "../user/User.h"
 #include "../user/UserManager.h"
@@ -38,6 +42,9 @@ class Server
     void setLogger(Logger &logger);
 
   private:
+    Server(Server const &other);
+    Server &operator=(Server const &rhs);
+
     void *getInAddr_(struct sockaddr *sa);
     void initListener();
 
@@ -48,19 +55,22 @@ class Server
     void addToPolling(int fd);
 
     void sendData(struct epoll_event &event);
-    void recvData(struct epoll_event &event, int i);
+    void recvData(struct epoll_event &event, CommandManager &commands, int i);
 
     bool hasCRLF(std::string &buffer);
 
     std::string const port_;
     std::string const password_;
+
     Logger logger_;
 
     UserManager uManager_;
-    int epollfd_;
-    std::vector<epoll_event> events_;
+    ChannelManager cManager_;
 
     ConnectionHandler handler_;
+
+    int epollfd_;
+    std::vector<epoll_event> events_;
 
     int listener_;
     std::string welcomeMessage_;

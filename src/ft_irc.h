@@ -4,11 +4,23 @@
 #include <iostream>
 #include <signal.h>
 
-#define RPL_WELCOME(client, nick, host) "001 " x " :Welcome to ft_irc " x "!" x "@" host
-#define RPL_YOURHOST(client, servname, vers) "002 " client " :Your host is " servname ", running version " vers
-#define RPL_CREATED(client, datetime) "003 " client " :This server was created " datetime
-#define RPL_MYINFO(client, servname, vers, umodes, cmodes) "004 " client " " servname " " vers " " umodes " " cmodes
-#define RPL_ISUPPORT(client, tokens) "005 " client " " tokens
+#define MAX_SIZE_SEND_BUFFER 510
+
+#define CRLF "\r\n"
+
+#define RPL_WELCOME(client, nick, host) "001 " #client " :Welcome to ft_irc " #nick "!" #nick "@" #host CRLF
+#define RPL_YOURHOST(client, servname, vers) "002 " #client " :Your host is " #servname ", running version " #vers CRLF
+#define RPL_CREATED(client, datetime) "003 " #client " :This server was created " #datetime CRLF
+#define RPL_MYINFO(client, sname, vers, umodes, cmodes) "004 " #client " " #sname " " #vers " " #umodes " " #cmodes CRLF
+#define RPL_ISUPPORT(client, tokens) "005 " #client " " #tokens CRLF
+
+#define ERR_PASSWDMISMATCH(client) #client " :Password incorrect" CRLF
+
+#define ERR_NICKNAMEINUSE(client, nick) #client #nick " :Nickname is already in use" CRLF
+#define ERR_NONICKNAMEGIVEN(client) #client " :No nickname given" CRLF
+#define ERR_ERRONEUSNICKNAME(client, nick) #client #nick " :Erroneus nickname" CRLF
+
+#define ERROR(reason) "ERROR :" #reason CRLF
 
 #define LINE1 " ________  _________         _____  _______      ______  \n"
 #define LINE2 "|_   __  ||  _   _  |       |_   _||_   __ \\   .' ___  | \n"

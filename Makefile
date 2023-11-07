@@ -12,8 +12,11 @@ SRCS        :=	src/main.cpp \
 								src/user/User.cpp \
 								src/user/UserManager.cpp \
 								src/buffer/Buffer.cpp \
-								src/message/Message.cpp
-								src/user/UserManager.cpp\
+								src/message/Message.cpp \
+								src/channel/Channel.cpp \
+								src/channel/ChannelManager.cpp \
+								src/commands/CommandManager.cpp \
+								src/commands/connection/cap.cpp
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \
@@ -29,7 +32,6 @@ SRCS        :=	src/main.cpp \
 								# src/commands/connection/pong.cpp \
 								# src/commands/connection/quit.cpp \
 								# src/commands/connection/oper.cpp \
-								# src/commands/connection/cap.cpp \
 								# src/commands/connection/ping.cpp \
 								# src/commands/connection/nick.cpp \
 								# src/commands/connection/error.cpp \
@@ -41,7 +43,7 @@ SRCS        :=	src/main.cpp \
 								# src/commands/server/admin.cpp \
 								# src/commands/server/mode.cpp \
 								# src/commands/server/help.cpp \
-								# src/commands/server/time.cpp
+								# src/commands/server/time.cpp \
 
 OBJS        := $(SRCS:src/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
