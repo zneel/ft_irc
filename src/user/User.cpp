@@ -1,6 +1,8 @@
 #include "User.h"
 
-User::User(int fd) : fd_(fd)
+User::User(int fd, std::string ip)
+    : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false),
+      passSent_(false)
 {
 }
 
@@ -24,10 +26,6 @@ std::string &User::getRecvBuffer()
     return recvBuffer_;
 }
 
-void User::setNick(std::string const &nick) {
-  nick_ = nick;
-}
-
 void User::setSendBuffer(std::string const &sendBuffer)
 {
     sendBuffer_ = sendBuffer;
@@ -36,6 +34,36 @@ void User::setSendBuffer(std::string const &sendBuffer)
 void User::setRecvBuffer(std::string const &recvBuffer)
 {
     recvBuffer_ = recvBuffer;
+}
+
+bool User::shouldDisconnect() const
+{
+    return shouldDisconnect_ == true;
+}
+
+void User::setShouldDisconnect(bool shouldDisconnect)
+{
+    shouldDisconnect_ = shouldDisconnect;
+}
+
+bool User::isRegistered() const
+{
+    return registered_ == true;
+}
+
+void User::setRegistered(bool registered)
+{
+    registered_ = registered;
+}
+
+void User::setPassSent(bool passSent)
+{
+    passSent_ = passSent;
+}
+
+bool User::isPassSent() const
+{
+    return passSent_ == true;
 }
 
 void User::disconnect()

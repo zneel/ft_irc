@@ -51,13 +51,15 @@ class Server
     int listenForConnection();
     void acceptConnection();
 
-    void removeFromPolling(int fd, int i);
+    void removeFromPolling(int fd);
     void addToPolling(int fd);
 
     void sendData(struct epoll_event &event);
-    void recvData(struct epoll_event &event, CommandManager &commands, int i);
+    void recvData(struct epoll_event &event, CommandManager &commands);
 
     bool hasCRLF(std::string &buffer);
+
+    void disconnectUsers();
 
     std::string const port_;
     std::string const password_;

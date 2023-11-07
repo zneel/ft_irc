@@ -6,11 +6,12 @@
 #include "../user/User.h"
 #include "../user/UserManager.h"
 #include <deque>
+#include <string>
 
 class CommandManager
 {
   public:
-    CommandManager(ChannelManager *cManager, UserManager *uManager);
+    CommandManager(ChannelManager *cManager, UserManager *uManager, std::string const &pwd);
     ~CommandManager();
 
     void doCommands(std::deque<Message> &msgs, User *sender);
@@ -19,6 +20,10 @@ class CommandManager
   private:
     ChannelManager *cManager_;
     UserManager *uManager_;
+    std::string pwd_;
 };
 
-std::string cap(Message msg, User *user);
+std::string cap(Message &msg, User *user);
+std::string pass(Message &msg, User *user, std::string &password);
+std::string nick(Message &msg, User *user, UserManager *uManager);
+std::string user(Message &msg, User *user);

@@ -9,17 +9,17 @@
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
     handler_.setLogger(logger_);
-    welcomeMessage_.append(LINE1) + "\r\n";
-    welcomeMessage_.append(LINE2) + "\r\n";
-    welcomeMessage_.append(LINE3) + "\r\n";
-    welcomeMessage_.append(LINE4) + "\r\n";
-    welcomeMessage_.append(LINE5) + "\r\n";
-    welcomeMessage_.append(LINE6) + "\r\n";
-    welcomeMessage_.append(LINE7) + "\r\n";
-    welcomeMessage_.append(LINE8) + "\r\n";
-    welcomeMessage_.append(LINE9) + "\r\n";
-    welcomeMessage_.append(LINE10) + "\r\n";
-    welcomeMessage_.append(LINE11) + "\r\n";
+    welcomeMessage_.append(LINE1) + CRLF;
+    welcomeMessage_.append(LINE2) + CRLF;
+    welcomeMessage_.append(LINE3) + CRLF;
+    welcomeMessage_.append(LINE4) + CRLF;
+    welcomeMessage_.append(LINE5) + CRLF;
+    welcomeMessage_.append(LINE6) + CRLF;
+    welcomeMessage_.append(LINE7) + CRLF;
+    welcomeMessage_.append(LINE8) + CRLF;
+    welcomeMessage_.append(LINE9) + CRLF;
+    welcomeMessage_.append(LINE10) + CRLF;
+    welcomeMessage_.append(LINE11) + CRLF;
 }
 
 Server::~Server()
@@ -39,11 +39,12 @@ void Server::start()
         throw std::runtime_error("epoll_create1: " + std::string(strerror(errno)));
     if ((listener_ = listenForConnection()) < 0)
         throw std::runtime_error("listenForConnection");
-    CommandManager commands(&cManager_, &uManager_);
+    CommandManager commands(&cManager_, &uManager_, password_);
     initListener();
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
+        disconnectUsers();
         ssize_t eventCount = epoll_wait(epollfd_, events_.data(), events_.size(), -1);
         if (eventCount < 0)
             throw std::runtime_error("epoll_wait: " + std::string(strerror(errno)));
@@ -51,8 +52,8 @@ void Server::start()
         {
             if (events_[i].events & EPOLLHUP)
             {
+                removeFromPolling(events_[i].data.fd);
                 uManager_.remove(events_[i].data.fd);
-                removeFromPolling(events_[i].data.fd, i);
                 continue;
             }
             if (events_[i].events & EPOLLIN)
@@ -60,7 +61,11 @@ void Server::start()
                 if (events_[i].data.fd == listener_)
                     acceptConnection();
                 else
-                    recvData(events_[i], commands, i);
+                {
+                    if (uManager_.get(events_[i].data.fd)->shouldDisconnect())
+                        continue;
+                    recvData(events_[i], commands);
+                }
             }
             if (events_[i].events & EPOLLOUT)
                 sendData(events_[i]);
@@ -89,13 +94,13 @@ void Server::acceptConnection()
         logger_.log("accept", Logger::ERROR);
     else
     {
-        int flags = fcntl(fd, F_GETFL, 0);
-        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
-        addToPolling(fd);
-        uManager_.create(fd);
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
+        int flags = fcntl(fd, F_GETFL, 0);
+        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+        addToPolling(fd);
+        uManager_.create(fd, remoteIp);
         logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
     }
 }
@@ -127,13 +132,13 @@ void Server::sendData(struct epoll_event &event)
         uManager_.get(event.data.fd)->getSendBuffer().erase(0, bytesSent);
 }
 
-void Server::recvData(struct epoll_event &event, CommandManager &commands, int i)
+void Server::recvData(struct epoll_event &event, CommandManager &commands)
 {
     ssize_t received = handler_.recvData(event.data.fd, uManager_.get(event.data.fd)->getRecvBuffer());
     if (received == 0)
     {
 
-        removeFromPolling(event.data.fd, i);
+        removeFromPolling(event.data.fd);
         uManager_.remove(event.data.fd);
         return;
     }
@@ -150,12 +155,19 @@ void Server::recvData(struct epoll_event &event, CommandManager &commands, int i
     }
 }
 
-void Server::removeFromPolling(int fd, int i)
+void Server::removeFromPolling(int fd)
 {
     logger_.log("connection closed", Logger::INFO);
     if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, NULL) < 0)
         throw std::runtime_error("epoll_ctl: " + std::string(strerror(errno)));
-    events_.erase(events_.begin() + i);
+    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
+    {
+        if (it->data.fd == fd)
+        {
+            events_.erase(it);
+            break;
+        }
+    }
 }
 
 void Server::initListener()
@@ -172,6 +184,21 @@ void Server::initListener()
 bool Server::hasCRLF(std::string &buffer)
 {
     return (buffer.find("\r\n") != std::string::npos);
+}
+
+void Server::disconnectUsers()
+{
+    std::vector<int> toRemove;
+    for (std::map<int, User *>::iterator it = uManager_.getUsers().begin(); it != uManager_.getUsers().end(); ++it)
+    {
+        if (it->second->shouldDisconnect() && it->second->getSendBuffer().empty())
+            toRemove.push_back(it->first);
+    }
+    for (std::vector<int>::iterator it = toRemove.begin(); it != toRemove.end(); ++it)
+    {
+        removeFromPolling(*it);
+        uManager_.remove(*it);
+    }
 }
 
 int Server::listenForConnection()

@@ -1,24 +1,26 @@
 #include "../CommandManager.h"
 
-bool isErrChar(std::string nickname)
+bool isErrChar(std::string &nickname)
 {
-	for (std::string::iterator it = nickname.begin(); it != nickname.end(); it++) 
-	{
-		if (*it == ' ' || *it == ':' || (it == nickname.begin() && *it == '#'))
-			return true;
-	}
+    for (std::string::iterator it = nickname.begin(); it != nickname.end(); it++)
+    {
+        if (*it == ' ' || *it == ':' || (it == nickname.begin() && *it == '#'))
+            return true;
+    }
     return false;
 }
 
-void nick(Message msg, User *user)
+std::string nick(Message &msg, User *user, UserManager *uManager)
 {
     if (msg.parameters.empty())
-        user->getSendBuffer().append(ERR_NONICKNAMEGIVEN(""));
-    // IF nickname already used
-    else if (1)
-        user->getSendBuffer().append(ERR_NICKNAMEINUSE("", msg.parameters));
+        return ERR_NONICKNAMEGIVEN("");
+    else if (msg.parameters.length() > MAX_SIZE_NICK)
+        msg.parameters.erase(MAX_SIZE_NICK, std::string::npos);
+    else if (uManager->nickAlreadyUsed(msg.parameters))
+        return ERR_NICKNAMEINUSE("", msg.parameters);
     else if (isErrChar(msg.parameters))
-        user->getSendBuffer().append(ERR_ERRONEUSNICKNAME("", ""));
+        return ERR_ERRONEUSNICKNAME("", "");
     else
-        user->setNick(msg.parameters);
+        user->nick = msg.parameters;
+    return "";
 }
