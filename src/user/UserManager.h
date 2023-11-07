@@ -20,7 +20,7 @@ class UserManager
      * @brief Creates a new user.
      *
      */
-    User *create(int fd);
+    User *create(int fd, std::string ip);
 
     /**
      * @brief Removes a user from the user manager.

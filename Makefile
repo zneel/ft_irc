@@ -16,6 +16,8 @@ SRCS        :=	src/main.cpp \
 								src/channel/Channel.cpp \
 								src/channel/ChannelManager.cpp \
 								src/commands/CommandManager.cpp \
+								src/replies/ircRPL.cpp \
+								src/replies/ircERR.cpp \
 								src/commands/connection/cap.cpp \
 								src/commands/connection/pass.cpp \
 								src/commands/connection/user.cpp \

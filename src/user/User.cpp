@@ -1,7 +1,8 @@
 #include "User.h"
 
-User::User(int fd)
-    : nick(""), username(""), realname(""), fd_(fd), shouldDisconnect_(false), registered_(false), passSent_(false)
+User::User(int fd, std::string ip)
+    : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false),
+      passSent_(false)
 {
 }
 

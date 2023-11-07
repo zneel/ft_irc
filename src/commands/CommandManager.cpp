@@ -31,7 +31,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         !sender->realname.empty())
     {
         sender->setRegistered(true);
-        append(sender->getSendBuffer(), RPL_WELCOME(sender->nick, sender->nick, sender->nick));
+        append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip));
     }
     if (!sender->isRegistered())
         sender->setShouldDisconnect(true);

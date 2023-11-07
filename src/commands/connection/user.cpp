@@ -10,5 +10,5 @@ std::string user(Message &msg, User *user)
         user->realname = std::string(msg.parameters, pos2, std::string::npos);
         return "";
     }
-    return ERR_NEEDMOREPARAMS(client, cmd);
+    return ERR_NEEDMOREPARAMS("", msg.command);
 }

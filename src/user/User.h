@@ -7,7 +7,7 @@
 class User
 {
   public:
-    User(int fd);
+    User(int fd, std::string ip);
     ~User();
 
     int getFd() const;
@@ -32,6 +32,7 @@ class User
     std::string nick;
     std::string username;
     std::string realname;
+    std::string ip;
 
   private:
     User(User const &other);

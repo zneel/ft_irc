@@ -32,9 +32,9 @@ User *UserManager::get(int fd)
     return NULL;
 }
 
-User *UserManager::create(int fd)
+User *UserManager::create(int fd, std::string ip)
 {
-    User *newUser = new User(fd);
+    User *newUser = new User(fd, ip);
     users_[fd] = newUser;
     return users_[fd];
 }
