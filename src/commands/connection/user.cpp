@@ -1,5 +1,5 @@
 #include "../CommandManager.h"
-// ebouvier ebouvier 1 :Elliot BOUVIER
+
 std::string user(Message &msg, User *user)
 {
     if (!user->username.empty() && !user->realname.empty())

@@ -27,7 +27,8 @@
 #include "ConnectionHandler.h"
 #include "Logger.h"
 
-#define MAX_LISTENER 10
+#define MAX_LISTENER 64
+#define MAX_EVENTS 512
 
 class Server
 {

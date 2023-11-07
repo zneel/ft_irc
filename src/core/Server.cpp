@@ -2,12 +2,14 @@
 #include "../buffer/Buffer.h"
 #include "ConnectionHandler.h"
 #include <asm-generic/socket.h>
+#include <cstring>
 #include <stdexcept>
 #include <sys/epoll.h>
 #include <sys/types.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
+    events_.reserve(MAX_EVENTS);
     handler_.setLogger(logger_);
     welcomeMessage_.append(LINE1) + CRLF;
     welcomeMessage_.append(LINE2) + CRLF;
@@ -54,20 +56,20 @@ void Server::start()
             {
                 removeFromPolling(events_[i].data.fd);
                 uManager_.remove(events_[i].data.fd);
-                continue;
+                break;
             }
-            if (events_[i].events & EPOLLIN)
+            else if (events_[i].events & EPOLLIN)
             {
                 if (events_[i].data.fd == listener_)
                     acceptConnection();
                 else
                 {
-                    if (uManager_.get(events_[i].data.fd)->shouldDisconnect())
+                    if (uManager_.get(events_[i].data.fd) && uManager_.get(events_[i].data.fd)->shouldDisconnect())
                         continue;
                     recvData(events_[i], commands);
                 }
             }
-            if (events_[i].events & EPOLLOUT)
+            else if (events_[i].events & EPOLLOUT)
                 sendData(events_[i]);
         }
     }
@@ -91,14 +93,13 @@ void Server::acceptConnection()
     socklen_t addrlen = sizeof(remAddr);
     int fd = accept(listener_, (struct sockaddr *)&remAddr, &addrlen);
     if (fd < 0)
-        logger_.log("accept", Logger::ERROR);
+        logger_.log(std::string("accept: ") + strerror(errno), Logger::ERROR);
     else
     {
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
-        int flags = fcntl(fd, F_GETFL, 0);
-        fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+        fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
         uManager_.create(fd, remoteIp);
         logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
@@ -113,20 +114,39 @@ void Server::addToPolling(int fd)
     event.data.fd = fd;
     events_.push_back(event);
     if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, fd, &event) < 0)
-        throw std::runtime_error("epoll_ctl: " + std::string(strerror(errno)));
+        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
+}
+
+void Server::removeFromPolling(int fd)
+{
+    logger_.log("connection closed", Logger::INFO);
+    if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, NULL) < 0)
+        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
+    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
+    {
+        if (it->data.fd == fd)
+        {
+            events_.erase(it);
+            break;
+        }
+    }
 }
 
 void Server::sendData(struct epoll_event &event)
 {
-    if (event.data.fd == listener_)
+    if (!uManager_.get(event.data.fd))
         return;
     ssize_t bytesSent = handler_.sendData(event.data.fd, uManager_.get(event.data.fd)->getSendBuffer());
     ssize_t len = uManager_.get(event.data.fd)->getSendBuffer().size();
-    std::cout << "sent message: " << uManager_.get(event.data.fd)->getSendBuffer() << std::endl;
     if (len - bytesSent == 0)
     {
+        std::string s = uManager_.get(event.data.fd)->getSendBuffer();
+        for (size_t pos = 0; (pos = s.find("\r\n", pos)) != std::string::npos; s.replace(pos, 2, "\\r\\n"), pos += 2)
+            ;
+        logger_.log(">" + s, Logger::INFO);
         uManager_.get(event.data.fd)->getSendBuffer().clear();
         event.events = EPOLLIN;
+        epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
     }
     else
         uManager_.get(event.data.fd)->getSendBuffer().erase(0, bytesSent);
@@ -134,38 +154,25 @@ void Server::sendData(struct epoll_event &event)
 
 void Server::recvData(struct epoll_event &event, CommandManager &commands)
 {
+    if (!uManager_.get(event.data.fd))
+        return;
     ssize_t received = handler_.recvData(event.data.fd, uManager_.get(event.data.fd)->getRecvBuffer());
     if (received == 0)
     {
-
         removeFromPolling(event.data.fd);
         uManager_.remove(event.data.fd);
         return;
     }
-    std::cout << "received buffer: " << uManager_.get(event.data.fd)->getRecvBuffer() << std::endl;
     if (received > 0)
     {
+        std::cout << "received buffer: " << uManager_.get(event.data.fd)->getRecvBuffer() << std::endl;
         if (hasCRLF(uManager_.get(event.data.fd)->getRecvBuffer()))
         {
             std::deque<Message> msgs;
             Buffer::bufferToMessage(uManager_.get(event.data.fd)->getRecvBuffer(), msgs);
             commands.doCommands(msgs, uManager_.get(event.data.fd));
             event.events = EPOLLOUT;
-        }
-    }
-}
-
-void Server::removeFromPolling(int fd)
-{
-    logger_.log("connection closed", Logger::INFO);
-    if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, NULL) < 0)
-        throw std::runtime_error("epoll_ctl: " + std::string(strerror(errno)));
-    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
-    {
-        if (it->data.fd == fd)
-        {
-            events_.erase(it);
-            break;
+            epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
         }
     }
 }
@@ -178,7 +185,7 @@ void Server::initListener()
     event.data.fd = listener_;
     events_.push_back(event);
     if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, listener_, &event) < 0)
-        throw std::runtime_error("epoll_ctl: " + std::string(strerror(errno)));
+        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
 }
 
 bool Server::hasCRLF(std::string &buffer)
@@ -231,7 +238,6 @@ int Server::listenForConnection()
 
     if (listen(sockfd, MAX_LISTENER) < 0)
         return -1;
-    int flags = fcntl(sockfd, F_GETFL, 0);
-    fcntl(sockfd, F_SETFL, flags | O_NONBLOCK);
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return sockfd;
 }

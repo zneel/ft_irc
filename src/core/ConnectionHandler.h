@@ -10,7 +10,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-#define BUFFER_SIZE 1024
+
+#define BUFFER_SIZE 4096
 
 class ConnectionHandler
 {

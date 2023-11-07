@@ -27,3 +27,5 @@ std::string cap(Message &msg, User *user);
 std::string pass(Message &msg, User *user, std::string &password);
 std::string nick(Message &msg, User *user, UserManager *uManager);
 std::string user(Message &msg, User *user);
+
+std::string ping(Message &msg, User *user);

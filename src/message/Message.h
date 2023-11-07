@@ -5,8 +5,7 @@
 
 struct Message
 {
+    Message(std::string line);
     std::string command;
     std::string parameters;
 };
-
-Message newMessage(std::string line);

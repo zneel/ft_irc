@@ -1,6 +1,6 @@
 NAME        :=	ircserv
 CXX         :=	c++
-CXXFLAGS    :=	-Wall -Wextra -Werror  -MMD -std=c++98 -g3
+CXXFLAGS    :=	-Wall -Wextra -Werror  -MMD -std=c++98 -g3 -O2
 
 BUILD_DIR   :=	build
 
@@ -21,7 +21,8 @@ SRCS        :=	src/main.cpp \
 								src/commands/connection/cap.cpp \
 								src/commands/connection/pass.cpp \
 								src/commands/connection/user.cpp \
-								src/commands/connection/nick.cpp
+								src/commands/connection/nick.cpp \
+								src/commands/connection/ping.cpp
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \
@@ -36,7 +37,6 @@ SRCS        :=	src/main.cpp \
 								# src/commands/connection/pong.cpp \
 								# src/commands/connection/quit.cpp \
 								# src/commands/connection/oper.cpp \
-								# src/commands/connection/ping.cpp \
 								# src/commands/connection/error.cpp \
 								# src/commands/connection/authenticate.cpp \
 								# src/commands/privmsg.cpp \
