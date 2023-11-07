@@ -3,14 +3,20 @@
 
 t_Message newMessage(std::string line)
 {
-	t_Message msg;
-	std::string::iterator begin = line.begin();
-	std::string::iterator end = line.end();
-	size_t tmp = line.find(" ");
-	std::string::iterator mid = line.begin() + tmp * (tmp != std::string::npos);
-	msg.command.append(std::string (begin, mid));
-	++mid;
-	msg.parameters.append(std::string (mid, end));
-	std::cout << msg.command << msg.parameters << std::endl;
-	return msg;
+    t_Message msg;
+    std::string::iterator begin = line.begin();
+    std::string::iterator end = line.end();
+    size_t tmp = line.find(" ");
+    if (tmp != std::string::npos)
+    {
+        std::string::iterator mid = line.begin() + tmp;
+        msg.command.append(std::string(begin, mid));
+        ++mid;
+        msg.parameters.append(std::string(mid, end));
+    }
+    else
+    {
+        msg.command.append(begin, end);
+    }
+    return msg;
 }

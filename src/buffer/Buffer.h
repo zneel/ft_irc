@@ -1,9 +1,9 @@
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <iostream>
 #include "../message/Message.h"
+#include <iostream>
+#include <sstream>
+#include <string>
 
 class Buffer
 {
