@@ -1,6 +1,6 @@
 NAME        :=	ircserv
 CXX         :=	c++
-CXXFLAGS    :=	-Wall -Wextra -Werror -fsanitize=address -MMD -std=c++98 -g3
+CXXFLAGS    :=	-Wall -Wextra -Werror  -MMD -std=c++98
 
 BUILD_DIR   :=	build
 

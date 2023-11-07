@@ -21,7 +21,7 @@ void Buffer::treatBuffer(std::string &recvBuffer, std::string &sendBuffer)
         if (nextCRLF != recvBuffer.begin())
         {
             std::string::iterator begin = recvBuffer.begin();
-            t_Message msg = newMessage(std::string(begin, nextCRLF));
+            Message msg = newMessage(std::string(begin, nextCRLF));
             // sendBuffer.append("return value of exec");
             recvBuffer.erase(0, *nextCRLF);
         }

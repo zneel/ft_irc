@@ -1,9 +1,9 @@
 #include "Message.h"
 #include <iostream>
 
-t_Message newMessage(std::string line)
+Message newMessage(std::string line)
 {
-    t_Message msg;
+    Message msg;
     std::string::iterator begin = line.begin();
     std::string::iterator end = line.end();
     size_t tmp = line.find(" ");

@@ -3,10 +3,10 @@
 #include <sstream>
 #include <string>
 
-typedef struct s_Message
+struct Message
 {
     std::string command;
     std::string parameters;
-} t_Message;
+};
 
-t_Message newMessage(std::string line);
+Message newMessage(std::string line);
