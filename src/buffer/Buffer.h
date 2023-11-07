@@ -1,11 +1,14 @@
 #pragma once
 
+#include "../message/Message.h"
+#include <iostream>
+#include <sstream>
 #include <string>
+
 class Buffer
 {
   public:
-    void swapBuffer(std::string &buffer1, std::string &buffer2);
-    void treatBuffer(std::string &recvBuffer, std::string &sendBuffer);
+    static void treatBuffer(std::string &recvBuffer, std::string &sendBuffer);
 
   private:
     Buffer();

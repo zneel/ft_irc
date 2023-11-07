@@ -1,15 +1,12 @@
-
 #pragma once
 
+#include <sstream>
 #include <string>
 
-class Message
+struct Message
 {
-  public:
-    Message(std::string content);
-    virtual ~Message();
-
-  private:
-    std::string command_;
-    std::string parameters_;
+    std::string command;
+    std::string parameters;
 };
+
+Message newMessage(std::string line);

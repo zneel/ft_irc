@@ -1,4 +1,5 @@
 #include "Server.h"
+#include "../buffer/Buffer.h"
 #include "ConnectionHandler.h"
 #include <fcntl.h>
 #include <string>
@@ -47,7 +48,8 @@ void Server::start()
                     {
                         if (hasCRLF(uManager_.get(poller_[i].fd)->getRecvBuffer()))
                         {
-                            // copy to send buffer
+                            Buffer::treatBuffer(uManager_.get(poller_[i].fd)->getRecvBuffer(),
+                                                uManager_.get(poller_[i].fd)->getSendBuffer());
                             poller_[i].events |= POLLOUT;
                         }
                     }
@@ -95,12 +97,11 @@ void Server::acceptConnection()
     {
         fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
-        User *u = uManager_.create(fd);
+        uManager_.create(fd);
         char remoteIp[INET6_ADDRSTRLEN];
         // @TODO REWRITE inet_ntop
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
         logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
-        u->setSendBuffer(std::string("001 Welcome to the Internet Relay Network <nick>!<user>@<host>\r\n"));
     }
 }
 
