@@ -12,7 +12,7 @@ int howManyCRLF(std::string &buffer)
     return nbCRLF;
 }
 
-void Buffer::treatBuffer(std::string &recvBuffer, std::string &sendBuffer)
+void Buffer::bufferToMessage(std::string &recvBuffer, std::deque<Message> &msgs)
 {
     int nbCRLF = howManyCRLF(recvBuffer);
     for (int i = 0; i < nbCRLF; i++)
@@ -21,8 +21,7 @@ void Buffer::treatBuffer(std::string &recvBuffer, std::string &sendBuffer)
         if (nextCRLF != recvBuffer.begin())
         {
             std::string::iterator begin = recvBuffer.begin();
-            Message msg = newMessage(std::string(begin, nextCRLF));
-            // sendBuffer.append("return value of exec");
+            msgs.push_back(newMessage(std::string(begin, nextCRLF)));
             recvBuffer.erase(0, *nextCRLF);
         }
     }

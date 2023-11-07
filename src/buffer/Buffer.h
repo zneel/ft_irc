@@ -4,11 +4,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <deque>
 
 class Buffer
 {
   public:
-    static void treatBuffer(std::string &recvBuffer, std::string &sendBuffer);
+    static void bufferToMessage(std::string &recvBuffer, std::deque<Message> &msgs);
 
   private:
     Buffer();

@@ -24,6 +24,10 @@ std::string &User::getRecvBuffer()
     return recvBuffer_;
 }
 
+void User::setNick(std::string const &nick) {
+  nick_ = nick;
+}
+
 void User::setSendBuffer(std::string const &sendBuffer)
 {
     sendBuffer_ = sendBuffer;
