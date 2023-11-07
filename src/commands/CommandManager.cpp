@@ -35,7 +35,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
             !sender->realname.empty())
         {
             sender->setRegistered(true);
-            append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip));
+            append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip + "@localhost"));
         }
     }
 }
