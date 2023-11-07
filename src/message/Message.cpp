@@ -9,6 +9,8 @@ t_Message newMessage(std::string line)
 	size_t tmp = line.find(" ");
 	std::string::iterator mid = line.begin() + tmp * (tmp != std::string::npos);
 	msg.command.append(std::string (begin, mid));
+	++mid;
 	msg.parameters.append(std::string (mid, end));
+	std::cout << msg.command << msg.parameters << std::endl;
 	return msg;
 }
