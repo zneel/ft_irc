@@ -2,6 +2,7 @@
 #include <netdb.h>
 #include <string>
 #include <sys/socket.h>
+#include <unistd.h>
 
 class User
 {
@@ -16,6 +17,8 @@ class User
 
     void setSendBuffer(std::string const &sendBuffer);
     void setRecvBuffer(std::string const &recvBuffer);
+
+    void disconnect();
 
   private:
     User(User const &other);

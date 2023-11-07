@@ -1,20 +1,20 @@
 #pragma once
 
 #include <arpa/inet.h>
+#include <cstdlib>
+#include <cstring>
 #include <errno.h>
+#include <fcntl.h>
+#include <iostream>
+#include <iterator>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <poll.h>
-#include <sys/poll.h>
+#include <string>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <iterator>
-#include <string>
 #include <vector>
 
 #include "../ft_irc.h"
@@ -28,7 +28,7 @@
 class Server
 {
 
-    typedef std::vector<pollfd>::iterator PollFdsIterator;
+    typedef std::vector<epoll_event>::iterator EventsIterator;
 
   public:
     Server(std::string port, std::string password);
@@ -38,23 +38,27 @@ class Server
     void setLogger(Logger &logger);
 
   private:
-    void addToPolling(int fd);
     void *getInAddr_(struct sockaddr *sa);
+    void initListener();
+
     int listenForConnection();
     void acceptConnection();
-    void handleClient(struct pollfd pfd, int i);
+
     void removeFromPolling(int fd, int i);
-    void initListener();
+    void addToPolling(int fd);
+
+    void sendData(struct epoll_event &event);
+    void recvData(struct epoll_event &event, int i);
+
     bool hasCRLF(std::string &buffer);
-    bool hasLF(std::string &buffer);
 
     std::string const port_;
     std::string const password_;
     Logger logger_;
 
     UserManager uManager_;
-
-    std::vector<pollfd> poller_;
+    int epollfd_;
+    std::vector<epoll_event> events_;
 
     ConnectionHandler handler_;
 

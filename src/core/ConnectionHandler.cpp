@@ -22,13 +22,9 @@ ssize_t ConnectionHandler::recvData(int fd, std::string &buffer)
 {
     char tmpBuff[BUFFER_SIZE];
     ssize_t bytesRead = recv(fd, tmpBuff, sizeof(tmpBuff), 0);
-    if (bytesRead <= 0)
+    if (bytesRead < 0)
     {
-        if (bytesRead == 0)
-            logger_->log("connection closed", Logger::INFO);
-        else
-            logger_->log("recv: " + std::string(strerror(errno)), Logger::ERROR);
-        close(fd);
+        logger_->log("recv: " + std::string(strerror(errno)), Logger::ERROR);
         return bytesRead;
     }
     buffer.append(tmpBuff, bytesRead);

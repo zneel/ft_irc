@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -51,7 +52,7 @@ int main(int ac, char **av)
     }
     catch (std::exception &e)
     {
-        std::cerr << e.what() << std::endl;
+        logger.log(e.what(), Logger::ERROR);
     }
     return 0;
 }
