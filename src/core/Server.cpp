@@ -47,8 +47,6 @@ void Server::start()
         ssize_t eventCount = epoll_wait(epollfd_, events_.data(), events_.size(), -1);
         if (eventCount < 0)
             throw std::runtime_error("epoll_wait: " + std::string(strerror(errno)));
-        for (int i = 0; i < eventCount; ++i)
-            std::cout << "event: " << events_[i].data.fd << std::endl;
         for (ssize_t i = 0; i < eventCount; ++i)
         {
             if (events_[i].events & EPOLLHUP)
