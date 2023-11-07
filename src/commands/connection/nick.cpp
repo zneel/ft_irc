@@ -13,11 +13,13 @@ bool isErrChar(std::string &nickname)
 std::string nick(Message &msg, User *user, UserManager *uManager)
 {
     if (msg.parameters.empty())
-        user->getSendBuffer().append(ERR_NONICKNAMEGIVEN(""));
+        return ERR_NONICKNAMEGIVEN("");
+    else if (msg.parameters.length() > 31)
+        msg.parameters.erase(31, std::string::npos);
     else if (uManager->nickAlreadyUsed(msg.parameters))
-        user->getSendBuffer().append(ERR_NICKNAMEINUSE("", msg.parameters));
+        return ERR_NICKNAMEINUSE("", msg.parameters);
     else if (isErrChar(msg.parameters))
-        user->getSendBuffer().append(ERR_ERRONEUSNICKNAME("", ""));
+        return ERR_ERRONEUSNICKNAME("", "");
     else
         user->nick = msg.parameters;
     return "";

@@ -19,22 +19,28 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         std::cout << "Params: " << msgs.front().parameters << std::endl;
         if (msgs.front().command.compare("CAP") == 0)
             append(sender->getSendBuffer(), cap(msgs.front(), sender));
-        else if (msgs.front().command.compare("PASS") == 0)
+        if (msgs.front().command.compare("PASS") == 0)
             append(sender->getSendBuffer(), pass(msgs.front(), sender, pwd_));
-        else if (msgs.front().command.compare("NICK") == 0)
-            append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
-        else if (msgs.front().command.compare("USER") == 0)
-            append(sender->getSendBuffer(), user(msgs.front(), sender));
+        if (sender->isPassSent())
+        {
+            if (msgs.front().command.compare("NICK") == 0)
+                append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
+            if (msgs.front().command.compare("USER") == 0)
+                append(sender->getSendBuffer(), user(msgs.front(), sender));
+        }
+        if (sender->isRegistered())
+        {
+            // Other command
+        }
+        append(sender->getSendBuffer(), ERR_UNKNOWNCOMMAND("", msgs.front().command));
         msgs.pop_front();
+        if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty() &&
+            !sender->realname.empty())
+        {
+            sender->setRegistered(true);
+            append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip));
+        }
     }
-    if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty() &&
-        !sender->realname.empty())
-    {
-        sender->setRegistered(true);
-        append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip));
-    }
-    if (!sender->isRegistered())
-        sender->setShouldDisconnect(true);
 }
 
 void CommandManager::append(std::string &sendBuffer, std::string toAdd)

@@ -35,3 +35,8 @@ std::string const ERR_ERROR(std::string const &reason)
 {
     return "ERROR :" + reason + CRLF;
 }
+
+std::string const ERR_UNKNOWNCOMMAND(std::string const &client, std::string const &command)
+{
+    return "421 " + client + " " + command + " :Unknown command" + CRLF;
+}

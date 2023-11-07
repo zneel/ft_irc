@@ -38,3 +38,4 @@ std::string const ERR_NICKNAMEINUSE(std::string const &client, std::string const
 std::string const ERR_NONICKNAMEGIVEN(std::string const &client);
 std::string const ERR_ERRONEUSNICKNAME(std::string const &client, std::string const &nick);
 std::string const ERR_ERROR(std::string const &reason);
+std::string const ERR_UNKNOWNCOMMAND(std::string const &client, std::string const &command);

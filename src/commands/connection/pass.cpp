@@ -4,7 +4,7 @@ std::string pass(Message &msg, User *user, std::string &serverPassword)
 {
     if (msg.parameters.empty())
         return ERR_NEEDMOREPARAMS(user->nick, "PASS");
-    if (user->isRegistered())
+    if (user->isPassSent())
         return ERR_ALREADYREGISTERED(user->nick);
     if (msg.parameters.compare(serverPassword) != 0)
     {
