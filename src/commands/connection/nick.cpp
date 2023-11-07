@@ -14,8 +14,8 @@ std::string nick(Message &msg, User *user, UserManager *uManager)
 {
     if (msg.parameters.empty())
         return ERR_NONICKNAMEGIVEN("");
-    else if (msg.parameters.length() > 31)
-        msg.parameters.erase(31, std::string::npos);
+    else if (msg.parameters.length() > MAX_SIZE_NICK)
+        msg.parameters.erase(MAX_SIZE_NICK, std::string::npos);
     else if (uManager->nickAlreadyUsed(msg.parameters))
         return ERR_NICKNAMEINUSE("", msg.parameters);
     else if (isErrChar(msg.parameters))

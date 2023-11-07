@@ -19,20 +19,18 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         std::cout << "Params: " << msgs.front().parameters << std::endl;
         if (msgs.front().command.compare("CAP") == 0)
             append(sender->getSendBuffer(), cap(msgs.front(), sender));
-        if (msgs.front().command.compare("PASS") == 0)
+        else if (msgs.front().command.compare("PASS") == 0)
             append(sender->getSendBuffer(), pass(msgs.front(), sender, pwd_));
-        if (sender->isPassSent())
-        {
-            if (msgs.front().command.compare("NICK") == 0)
-                append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
-            if (msgs.front().command.compare("USER") == 0)
-                append(sender->getSendBuffer(), user(msgs.front(), sender));
-        }
-        if (sender->isRegistered())
+        else if (msgs.front().command.compare("NICK") == 0 && sender->isPassSent())
+            append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
+        else if (msgs.front().command.compare("USER") == 0 && sender->isPassSent())
+            append(sender->getSendBuffer(), user(msgs.front(), sender));
+        else if (/*other command &&*/ sender->isRegistered())
         {
             // Other command
         }
-        append(sender->getSendBuffer(), ERR_UNKNOWNCOMMAND("", msgs.front().command));
+        else
+            append(sender->getSendBuffer(), ERR_UNKNOWNCOMMAND("", msgs.front().command));
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty() &&
             !sender->realname.empty())

@@ -5,6 +5,7 @@
 #include <signal.h>
 
 #define MAX_SIZE_SEND_BUFFER 510
+#define MAX_SIZE_NICK 31
 
 #define CRLF "\r\n"
 
