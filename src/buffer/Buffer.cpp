@@ -22,7 +22,7 @@ void Buffer::treatBuffer(std::string &recvBuffer, std::string &sendBuffer)
         {
             std::string::iterator begin = recvBuffer.begin();
             Message msg = newMessage(std::string(begin, nextCRLF));
-            // sendBuffer.append("return value of exec");
+            sendBuffer.append("return value of exec");
             recvBuffer.erase(0, *nextCRLF);
         }
     }
