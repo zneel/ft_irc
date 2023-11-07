@@ -132,8 +132,8 @@ void Server::recvData(struct epoll_event &event, int i)
     {
         if (hasCRLF(uManager_.get(event.data.fd)->getRecvBuffer()))
         {
-            Buffer::treatBuffer(uManager_.get(poller_[i].fd)->getRecvBuffer(),
-                                uManager_.get(poller_[i].fd)->getSendBuffer());
+            Buffer::treatBuffer(uManager_.get(event.data.fd)->getRecvBuffer(),
+                                uManager_.get(event.data.fd)->getSendBuffer());
             event.events = EPOLLOUT;
         }
     }
