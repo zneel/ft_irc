@@ -6,6 +6,7 @@ User::User(int fd) : fd_(fd)
 
 User::~User()
 {
+    disconnect();
 }
 
 int User::getFd() const
@@ -31,6 +32,12 @@ void User::setSendBuffer(std::string const &sendBuffer)
 void User::setRecvBuffer(std::string const &recvBuffer)
 {
     recvBuffer_ = recvBuffer;
+}
+
+void User::disconnect()
+{
+    close(fd_);
+    fd_ = -1;
 }
 
 User::User(User const &other) : fd_(other.fd_)
