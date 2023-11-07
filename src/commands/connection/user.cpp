@@ -2,7 +2,7 @@
 // ebouvier ebouvier 1 :Elliot BOUVIER
 std::string user(Message &msg, User *user)
 {
-    if (user->username.compare("") && user->realname.compare(""))
+    if (!user->username.empty() && !user->realname.empty())
         return ERR_ALREADYREGISTERED("");
     if (msg.parameters.find(" ") != std::string::npos && msg.parameters.find(":") != std::string::npos)
     {
