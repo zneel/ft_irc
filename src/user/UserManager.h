@@ -6,12 +6,14 @@
 
 class UserManager
 {
+
     typedef std::map<int, User *>::iterator UserMapIterator;
 
   public:
     UserManager();
     ~UserManager();
     int getUserCount();
+    std::map<int, User *> &getUsers();
     User *get(int fd);
 
     /**
@@ -31,6 +33,8 @@ class UserManager
      * @brief Removes all users from the user manager.
      */
     void removeAll();
+
+    bool nickAlreadyUsed(std::string const &nick);
 
   private:
     UserManager &operator=(UserManager const &rhs);

@@ -15,7 +15,8 @@
 #define RPL_ISUPPORT(client, tokens) "005 " #client " " #tokens CRLF
 
 #define ERR_PASSWDMISMATCH(client) #client " :Password incorrect" CRLF
-
+#define ERR_ALREADYREGISTERED(client) #client " :You may not reregister" CRLF
+#define ERR_NEEDMOREPARAMS(client, cmd) #client " " #cmd " :Not enough parameters" CRLF
 #define ERR_NICKNAMEINUSE(client, nick) #client #nick " :Nickname is already in use" CRLF
 #define ERR_NONICKNAMEGIVEN(client) #client " :No nickname given" CRLF
 #define ERR_ERRONEUSNICKNAME(client, nick) #client #nick " :Erroneus nickname" CRLF

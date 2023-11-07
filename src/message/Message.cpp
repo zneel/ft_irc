@@ -3,6 +3,8 @@
 
 Message newMessage(std::string line)
 {
+    if (line.size() > 512)
+        line.erase(512, std::string::npos);
     Message msg;
     std::string::iterator begin = line.begin();
     std::string::iterator end = line.end();

@@ -19,6 +19,11 @@ int UserManager::getUserCount()
     return users_.size();
 }
 
+std::map<int, User *> &UserManager::getUsers()
+{
+    return users_;
+}
+
 User *UserManager::get(int fd)
 {
     UserMapIterator it = users_.find(fd);
@@ -49,4 +54,14 @@ void UserManager::removeAll()
     for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
         delete it->second;
     users_.clear();
+}
+
+bool UserManager::nickAlreadyUsed(std::string const &nick)
+{
+    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
+    {
+        if (it->second->nick == nick)
+            return true;
+    }
+    return false;
 }
