@@ -15,8 +15,6 @@ t_Message newMessage(std::string line)
         msg.parameters.append(std::string(mid, end));
     }
     else
-    {
         msg.command.append(begin, end);
-    }
     return msg;
 }
