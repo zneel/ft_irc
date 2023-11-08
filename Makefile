@@ -24,7 +24,8 @@ SRCS        :=	src/main.cpp \
 								src/commands/connection/user.cpp \
 								src/commands/connection/nick.cpp \
 								src/commands/connection/ping.cpp \
-								src/commands/channel/join.cpp 
+								src/commands/channel/join.cpp \
+								src/commands/privmsg.cpp
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \
@@ -40,7 +41,6 @@ SRCS        :=	src/main.cpp \
 								# src/commands/connection/oper.cpp \
 								# src/commands/connection/error.cpp \
 								# src/commands/connection/authenticate.cpp \
-								# src/commands/privmsg.cpp \
 								# src/commands/server/version.cpp \
 								# src/commands/server/motd.cpp \
 								# src/commands/server/admin.cpp \

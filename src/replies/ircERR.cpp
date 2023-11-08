@@ -95,3 +95,8 @@ std::string const ERR_INVALIDKEY(std::string const &client, std::string const &c
 {
     return "525 " + client + " " + channel + " :Key is not well-formed";
 }
+
+std::string const ERR_CANNOTSENDTOCHAN(std::string const &client, std::string const &channel)
+{
+    return "404 " + client + " " + channel + " :Cannot send to channel";
+}
