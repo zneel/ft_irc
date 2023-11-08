@@ -1,6 +1,5 @@
 #include "CommandManager.h"
 #include "../user/UserManager.h"
-#include <string>
 
 CommandManager::CommandManager(ChannelManager *cManager, UserManager *uManager, std::string const &pwd)
     : cManager_(cManager), uManager_(uManager), pwd_(pwd)
