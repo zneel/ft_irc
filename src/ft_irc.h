@@ -59,6 +59,7 @@ std::string const RPL_CREATED(std::string const &client, std::string const &date
 std::string const RPL_MYINFO(std::string const &client, std::string const &sname, std::string const &vers,
                              std::string const &umodes, std::string const &cmodes);
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens);
+std::string const RPL_YOUREOPER(std::string const &client);
 
 // RPL CHANNELS
 std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
@@ -87,3 +88,4 @@ std::string const ERR_BADCHANMASK(std::string const &client, std::string const &
 std::string const ERR_INVALIDMODEPARAM(std::string const &client, std::string const &target, std::string const &mode,
                                        std::string const &parameter, std::string const &reason);
 std::string const ERR_INVALIDKEY(std::string const &client, std::string const &channel);
+std::string const ERR_NOOPERHOST(std::string const &client);

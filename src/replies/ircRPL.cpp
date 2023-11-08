@@ -46,3 +46,8 @@ std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &c
 {
     return "366 " + client + " " + channel + " :End of /NAMES list";
 }
+
+std::string const RPL_YOUREOPER(std::string const &client)
+{
+    return "381 " + client + " :You are now an IRC operator";
+}
