@@ -7,6 +7,34 @@
 #define MAX_SIZE_SEND_BUFFER 510
 #define MAX_SIZE_NICK 31
 
+#define NB_ISUPPORT_TOKEN_PACK 2
+// TOKEN PACK 1
+#define AWAYLEN " AWAYLEN=200"
+#define CASEMAPPING " CASEMAPPING=ascii"
+#define CHANLIMIT " CHANLIMIT=#:50"
+#define CHANMODES " CHANMODES="
+#define CHANNELLEN " CHANNELLEN=32"
+#define CHANTYPES " CHANTYPES=#"
+#define ELIST " ELIST=T" // C for creation time | M for mask | N for !mask | T for topic | U for user count
+#define EXCEPTS " EXCEPTS="
+#define EXTBAN " EXTBAN="
+#define HOSTLEN " HOSTLEN=64"
+#define INVEX " INVEX="
+#define KICKLEN " KICKLEN=200"
+#define MAXLIST " MAXLIST="
+#define MAXTARGET " MAXTARGET=4"
+#define MODES " MODES="
+// TOKEN PACK 2
+#define NETWORK " NETWORK=ft_irc"
+#define NICKLEN " NICKLEN=31" // same len as MAX_SIZE_NICK
+#define PREFIX " PREFIX="
+#define SAFELIST " SAFELIST"
+#define SILENCE " SILENCE=15"
+#define STATUSMSG " STATUSMSG=@+"
+#define TARGMAX " TARGMAX=KICK:1,LIST:1,PRIVMSG:4,WHOIS:1"
+#define TOPICLEN " TOPICLEN=300"
+#define USERLEN " USERLEN=18"
+
 #define CRLF "\r\n"
 
 #define LINE1 " ________  _________         _____  _______      ______  \n"
