@@ -25,10 +25,11 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
             append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
         else if (sender->isPassSent() && msgs.front().command.compare("USER") == 0)
             append(sender->getSendBuffer(), user(msgs.front(), sender));
-        else if (sender->isRegistered())
-        {
-            if (msgs.front().command.compare("PING") == 0)
+        else if (sender->isRegistered() && msgs.front().command.compare("PING") == 0)
                 append(sender->getSendBuffer(), ping(msgs.front(), sender));
+        else {
+            if (sender->isPassSent())
+                append(sender->getSendBuffer(), ERR_UNKNOWNCOMMAND(sender->nick, msgs.front().command));
         }
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty() &&
