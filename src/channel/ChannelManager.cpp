@@ -1,4 +1,5 @@
 #include "ChannelManager.h"
+#include "Channel.h"
 
 ChannelManager::ChannelManager()
 {
@@ -6,6 +7,7 @@ ChannelManager::ChannelManager()
 
 ChannelManager::~ChannelManager()
 {
+    removeAll();
 }
 
 Channel *ChannelManager::get(std::string &name) const
@@ -13,11 +15,16 @@ Channel *ChannelManager::get(std::string &name) const
     return channels_.find(name)->second;
 }
 
-Channel *ChannelManager::create(std::string name, int mode, int type)
+Channel *ChannelManager::create(std::string name, Channel::Mode mode, Channel::Type type)
 {
     Channel *channel = new Channel(name, mode, type);
     channels_.insert(std::pair<std::string, Channel *>(name, channel));
     return channel;
+}
+
+std::map<std::string, Channel *> ChannelManager::getAll() const
+{
+    return channels_;
 }
 
 void ChannelManager::remove(std::string name)
@@ -31,6 +38,13 @@ void ChannelManager::removeAll()
     for (std::map<std::string, Channel *>::iterator it = channels_.begin(); it != channels_.end(); ++it)
         delete it->second;
     channels_.clear();
+}
+
+void ChannelManager::broadcast(std::string const &message, Channel *channel)
+{
+    std::map<int, User *> users = channel->getUsers();
+    for (std::map<int, User *>::iterator it = users.begin(); it != users.end(); ++it)
+        it->second->send(message);
 }
 
 ChannelManager &ChannelManager::operator=(ChannelManager const &rhs)
