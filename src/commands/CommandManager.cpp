@@ -40,8 +40,7 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(" MAXTARGET=" + std::to_string(MAXTARGET));
         buf.append(" MODES=");
         buf.append(MODES);
-        buf.append(CRLF);
-        append(sender->getSendBuffer(), buf);
+        append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
         sender->isupportTokenPackCount = 1;
     }
     else if (sender->isupportTokenPackCount == 1)
@@ -61,8 +60,7 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(TARGMAX);
         buf.append(" TOPICLEN=" + std::to_string(TOPICLEN));
         buf.append(" USERLEN=" + std::to_string(USERLEN));
-        buf.append(CRLF);
-        append(sender->getSendBuffer(), buf);
+        append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
         sender->isupportTokenPackCount = 2;
     }
 }
