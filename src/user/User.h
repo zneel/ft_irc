@@ -33,7 +33,6 @@ class User
     std::string username;
     std::string realname;
     std::string ip;
-    int isupportTokenPackCount;
 
   private:
     User(User const &other);
