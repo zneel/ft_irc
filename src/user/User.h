@@ -31,6 +31,9 @@ class User
     void setPassSent(bool passSent);
     bool isPassSent() const;
 
+    void setOp(bool op);
+    bool isOp() const;
+
     void disconnect();
 
     std::string nick;
@@ -50,6 +53,8 @@ class User
     bool registered_;
 
     bool passSent_;
+
+    bool op_;
 
     std::string sendBuffer_;
     std::string recvBuffer_;

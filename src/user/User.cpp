@@ -70,6 +70,16 @@ void User::setPassSent(bool passSent)
     passSent_ = passSent;
 }
 
+void User::setOp(bool op)
+{
+    op_ = op;
+}
+
+bool User::isOp() const
+{
+    return op_;
+}
+
 bool User::isPassSent() const
 {
     return passSent_ == true;

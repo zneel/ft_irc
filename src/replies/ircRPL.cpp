@@ -27,6 +27,11 @@ std::string const RPL_ISUPPORT(std::string const &client, std::string const &tok
     return "005 " + client + " " + tokens;
 }
 
+std::string const RPL_YOUREOPER(std::string const &client)
+{
+    return "381 " + client + " :You are now an IRC operator";
+}
+
 ////
 // CHANNELS
 ////
