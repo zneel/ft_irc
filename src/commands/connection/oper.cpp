@@ -13,6 +13,7 @@ std::string oper(Message &msg, User *user, UserManager uManager, std::string opP
         return ERR_NOOPERHOST(nick);
     if (pwd.compare(opPassword) != 0)
         return ERR_PASSWDMISMATCH(user->nick);
+    user->setOp(true);
     return RPL_YOUREOPER(user->nick);
     // return MODE message too
 }
