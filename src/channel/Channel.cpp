@@ -1,6 +1,6 @@
 #include "Channel.h"
 
-Channel::Channel(std::string name, int mode, int type) : name_(name), mode_(mode), type_(type)
+Channel::Channel(std::string name, Mode mode, Type type) : name(name), password(""), topic(""), mode_(mode), type_(type)
 {
 }
 
@@ -16,16 +16,6 @@ std::map<int, User *> Channel::getUsers()
 std::map<int, User *> Channel::getOperators()
 {
     return operators_;
-}
-
-std::string Channel::getName() const
-{
-    return name_;
-}
-
-void Channel::setName(std::string name)
-{
-    name_ = name;
 }
 
 int Channel::getMode()
@@ -88,7 +78,78 @@ void Channel::removeOperator(User *user)
     operators_.erase(user->getFd());
 }
 
+std::string Channel::modeToString()
+{
+    std::string mode;
+    if (hasMode(Channel::BAN))
+        mode += "+b";
+    if (hasMode(Channel::EXCEPTION))
+        mode += "+e";
+    if (hasMode(Channel::CLIENT_LIMIT))
+        mode += "+l";
+    if (hasMode(Channel::INVITE_ONLY))
+        mode += "+i";
+    if (hasMode(Channel::INVITE_EXCEPTION))
+        mode += "+I";
+    if (hasMode(Channel::KEY))
+        mode += "+k";
+    if (hasMode(Channel::MODERATED))
+        mode += "+m";
+    if (hasMode(Channel::SECRET))
+        mode += "+s";
+    if (hasMode(Channel::PROTECTED_TOPIC))
+        mode += "+t";
+    if (hasMode(Channel::NO_EXTERNAL_MESSAGES))
+        mode += "+n";
+    return mode;
+}
+
 int Channel::getUserCount()
 {
     return users_.size();
+}
+
+bool Channel::isUserBanned(User *user)
+{
+    return ban_.find(user->nickmask) != ban_.end();
+}
+
+void Channel::addBan(User *user)
+{
+    ban_[user->nickmask] = user;
+}
+
+void Channel::removeBan(User *user)
+{
+    ban_.erase(user->nickmask);
+}
+
+bool Channel::isUserOnExceptionList(User *user)
+{
+    return exceptionList_.find(user->nickmask) != exceptionList_.end();
+}
+
+void Channel::addException(User *user)
+{
+    exceptionList_[user->nickmask] = user;
+}
+
+void Channel::removeException(User *user)
+{
+    exceptionList_.erase(user->nickmask);
+}
+
+bool Channel::isOnInviteList(User *user)
+{
+    return inviteList_.find(user->nickmask) != inviteList_.end();
+}
+
+void Channel::addInvite(User *user)
+{
+    inviteList_[user->nickmask] = user;
+}
+
+void Channel::removeInvite(User *user)
+{
+    inviteList_.erase(user->nickmask);
 }
