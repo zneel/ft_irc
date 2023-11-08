@@ -38,6 +38,11 @@ bool Channel::hasMode(int mode)
     return mode_ & mode;
 }
 
+bool Channel::hasModes(int modes)
+{
+    return (mode_ & modes) == modes;
+}
+
 int Channel::getType()
 {
     return type_;
@@ -152,4 +157,14 @@ void Channel::addInvite(User *user)
 void Channel::removeInvite(User *user)
 {
     inviteList_.erase(user->nickmask);
+}
+
+void Channel::broadcast(std::string const &message, User *sender)
+{
+    for (std::map<int, User *>::iterator it = users_.begin(); it != users_.end(); ++it)
+    {
+        if (it->second == sender)
+            continue;
+        it->second->send(message);
+    }
 }

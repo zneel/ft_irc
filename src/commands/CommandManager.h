@@ -30,3 +30,4 @@ std::string user(Message &msg, User *user);
 
 std::string ping(Message &msg, User *user);
 std::string join(Message &msg, User *user, ChannelManager *cManager);
+std::string privmsg(Message &msg, User *sender, ChannelManager *cManager);

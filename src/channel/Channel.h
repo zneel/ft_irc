@@ -50,6 +50,7 @@ class Channel
     void setMode(int mode);
     void addMode(int mode);
     bool hasMode(int mode);
+    bool hasModes(int modes);
 
     int getType();
     void setType(int type);
@@ -77,6 +78,8 @@ class Channel
     bool isOnInviteList(User *user);
     void addInvite(User *user);
     void removeInvite(User *user);
+
+    void broadcast(std::string const &message, User *sender);
 
   private:
     int mode_;
