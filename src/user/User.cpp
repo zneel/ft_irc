@@ -1,7 +1,7 @@
 #include "User.h"
 
 User::User(int fd, std::string ip)
-    : nick(""), username(""), realname(""), isupportTokenPackCount(0), ip(ip), fd_(fd), shouldDisconnect_(false),
+    : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false),
       registered_(false), passSent_(false)
 {
 }

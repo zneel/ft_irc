@@ -10,19 +10,26 @@ CommandManager::~CommandManager()
 {
 }
 
+std::string toString(int nb)
+{
+    std::stringstream ss;
+    ss << nb;
+    std::string str = ss.str();
+    return str;
+}
+
 void CommandManager::sendIsupport(User *sender)
 {
-    if (sender->isupportTokenPackCount == 0)
     {
         std::string buf;
-        buf.append(" AWAYLEN=" + std::to_string(AWAYLEN));
+        buf.append(" AWAYLEN=" + toString(AWAYLEN));
         buf.append(" CASEMAPPING=");
         buf.append(CASEMAPPING);
         buf.append(" CHANLIMIT=");
         buf.append(CHANLIMIT);
         buf.append(" CHANMODES=");
         buf.append(CHANMODES);
-        buf.append(" CHANNELLEN=" + std::to_string(CHANNELLEN));
+        buf.append(" CHANNELLEN=" + toString(CHANNELLEN));
         buf.append(" CHANTYPES=");
         buf.append(CHANTYPES);
         buf.append(" ELIST=");
@@ -31,37 +38,34 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(EXCEPTS);
         buf.append(" EXTBAN=");
         buf.append(EXTBAN);
-        buf.append(" HOSTLEN=" + std::to_string(HOSTLEN));
+        buf.append(" HOSTLEN=" + toString(HOSTLEN));
         buf.append(" INVEX=");
         buf.append(INVEX);
-        buf.append(" KICKLEN=" + std::to_string(KICKLEN));
-        buf.append(" MAXLIST=");
-        buf.append(MAXLIST);
-        buf.append(" MAXTARGET=" + std::to_string(MAXTARGET));
-        buf.append(" MODES=");
-        buf.append(MODES);
+        buf.append(" KICKLEN=" + toString(KICKLEN));
         append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
-        sender->isupportTokenPackCount = 1;
     }
-    else if (sender->isupportTokenPackCount == 1)
     {
         std::string buf;
+        buf.append(" MAXLIST=");
+        buf.append(MAXLIST);
+        buf.append(" MAXTARGET=" + toString(MAXTARGET));
+        buf.append(" MODES=");
+        buf.append(MODES);
         buf.append(" NETWORK=");
         buf.append(NETWORK);
-        buf.append(" NICKLEN=" + std::to_string(NICKLEN));
+        buf.append(" NICKLEN=" + toString(NICKLEN));
         buf.append(" PREFIX=");
         buf.append(PREFIX);
-        buf.append(" SAFELIST=");
+        buf.append(" SAFELIST");
         buf.append(SAFELIST);
-        buf.append(" SILENCE=" + std::to_string(SILENCE));
+        buf.append(" SILENCE=" + toString(SILENCE));
         buf.append(" STATUSMSG=");
         buf.append(STATUSMSG);
         buf.append(" TARGMAX=");
         buf.append(TARGMAX);
-        buf.append(" TOPICLEN=" + std::to_string(TOPICLEN));
-        buf.append(" USERLEN=" + std::to_string(USERLEN));
+        buf.append(" TOPICLEN=" + toString(TOPICLEN));
+        buf.append(" USERLEN=" + toString(USERLEN));
         append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
-        sender->isupportTokenPackCount = 2;
     }
 }
 
@@ -91,9 +95,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         {
             sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sender->setRegistered(true);
-            sender->send(RPL_WELCOME(sender->username, sender->nickmask));
+            append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip + "@localhost"));
+            sendIsupport(sender);
         }
     }
-    if (sender->isupportTokenPackCount != 2)
-        sendIsupport(sender);
 }
