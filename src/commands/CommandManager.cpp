@@ -84,12 +84,15 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
             sender->send(nick(msgs.front(), sender, uManager_));
         else if (sender->isPassSent() && msgs.front().command.compare("USER") == 0)
             sender->send(user(msgs.front(), sender));
-        else if (sender->isRegistered() && msgs.front().command.compare("PING") == 0)
-            sender->send(ping(msgs.front(), sender));
-        else if (sender->isRegistered() && msgs.front().command.compare("JOIN") == 0)
-            sender->send(join(msgs.front(), sender, cManager_));
-        else
-            sender->send(ERR_UNKNOWNCOMMAND(sender->nick, msgs.front().command));
+        else if (sender->isRegistered())
+        {
+            if (msgs.front().command.compare("PING") == 0)
+                sender->send(ping(msgs.front(), sender));
+            if (msgs.front().command.compare("JOIN") == 0)
+                sender->send(join(msgs.front(), sender, cManager_));
+            if (msgs.front().command.compare("PRIVMSG") == 0)
+                sender->send(privmsg(msgs.front(), sender, cManager_));
+        }
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
         {

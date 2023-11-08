@@ -95,3 +95,8 @@ std::string const ERR_NOOPERHOST(std::string const &client)
 {
     return "491 " + client + " :No O-lines for your host";
 }
+
+std::string const ERR_CANNOTSENDTOCHAN(std::string const &client, std::string const &channel)
+{
+    return "404 " + client + " " + channel + " :Cannot send to channel";
+}
