@@ -15,6 +15,7 @@ class CommandManager
     ~CommandManager();
 
     void doCommands(std::deque<Message> &msgs, User *sender);
+    void sendIsupport(User *sender);
 
   private:
     ChannelManager *cManager_;

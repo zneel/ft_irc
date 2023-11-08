@@ -24,7 +24,7 @@ std::string const RPL_MYINFO(std::string const &client, std::string const &sname
 
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens)
 {
-    return "005 " + client + " " + tokens;
+    return "005 " + client + tokens;
 }
 
 std::string const RPL_YOUREOPER(std::string const &client)

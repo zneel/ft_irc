@@ -10,6 +10,65 @@ CommandManager::~CommandManager()
 {
 }
 
+std::string toString(int nb) 
+{
+    std::stringstream ss;
+    ss << nb;
+    std::string str = ss.str();
+    return str;
+}
+
+void CommandManager::sendIsupport(User *sender)
+{
+    {
+        std::string buf;
+        buf.append(" AWAYLEN=" + toString(AWAYLEN));
+        buf.append(" CASEMAPPING=");
+        buf.append(CASEMAPPING);
+        buf.append(" CHANLIMIT=");
+        buf.append(CHANLIMIT);
+        buf.append(" CHANMODES=");
+        buf.append(CHANMODES);
+        buf.append(" CHANNELLEN=" + toString(CHANNELLEN));
+        buf.append(" CHANTYPES=");
+        buf.append(CHANTYPES);
+        buf.append(" ELIST=");
+        buf.append(ELIST);
+        buf.append(" EXCEPTS=");
+        buf.append(EXCEPTS);
+        buf.append(" EXTBAN=");
+        buf.append(EXTBAN);
+        buf.append(" HOSTLEN=" + toString(HOSTLEN));
+        buf.append(" INVEX=");
+        buf.append(INVEX);
+        buf.append(" KICKLEN=" + toString(KICKLEN));
+        sender->send(RPL_ISUPPORT(sender->nick, buf));
+    }
+    {
+        std::string buf;
+        buf.append(" MAXLIST=");
+        buf.append(MAXLIST);
+        buf.append(" MAXTARGET=" + toString(MAXTARGET));
+        buf.append(" MODES=");
+        buf.append(MODES);
+        buf.append(" NETWORK=");
+        buf.append(NETWORK);
+        buf.append(" NICKLEN=" + toString(NICKLEN));
+        buf.append(" PREFIX=");
+        buf.append(PREFIX);
+        buf.append(" SAFELIST");
+        buf.append(SAFELIST);
+        buf.append(" SILENCE=" + toString(SILENCE));
+        buf.append(" STATUSMSG=");
+        buf.append(STATUSMSG);
+        buf.append(" TARGMAX=");
+        buf.append(TARGMAX);
+        buf.append(" TOPICLEN=" + toString(TOPICLEN));
+        buf.append(" USERLEN=" + toString(USERLEN));
+        sender->send(RPL_ISUPPORT(sender->nick, buf));
+    }
+}
+
 void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
 {
     (void)cManager_;
@@ -37,6 +96,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
             sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sender->setRegistered(true);
             sender->send(RPL_WELCOME(sender->username, sender->nickmask));
+            sendIsupport(sender);
         }
     }
 }
