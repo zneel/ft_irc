@@ -1,9 +1,9 @@
 #include "../ft_irc.h"
 #include <string>
 
-std::string const RPL_WELCOME(std::string const &client, std::string const &nick, std::string const &host)
+std::string const RPL_WELCOME(std::string const &client, std::string const &nickmask)
 {
-    return "001 " + client + " :Welcome to the Internet Relay Network " + nick + "!" + host;
+    return "001 " + client + " :Welcome to the Internet Relay Network " + nickmask;
 }
 
 std::string const RPL_YOURHOST(std::string const &client, std::string const &servname, std::string const &vers)
@@ -30,4 +30,24 @@ std::string const RPL_ISUPPORT(std::string const &client, std::string const &tok
 std::string const RPL_YOUREOPER(std::string const &client)
 {
     return "381 " + client + " :You are now an IRC operator";
+}
+
+////
+// CHANNELS
+////
+
+std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
+                                   std::string const &time)
+{
+    return "333 " + client + " " + channel + " " + nick + " " + time;
+}
+
+std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::string const &nicks)
+{
+    return "353 " + client + " = " + channel + " :" + nicks;
+}
+
+std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel)
+{
+    return "366 " + client + " " + channel + " :End of /NAMES list";
 }

@@ -1,11 +1,6 @@
 #include "Server.h"
 #include "../buffer/Buffer.h"
 #include "ConnectionHandler.h"
-#include <asm-generic/socket.h>
-#include <cstring>
-#include <stdexcept>
-#include <sys/epoll.h>
-#include <sys/types.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
@@ -83,8 +78,8 @@ void Server::setLogger(Logger &logger)
 void *Server::getInAddr_(struct sockaddr *sa)
 {
     if (sa->sa_family == AF_INET)
-        return &(((struct sockaddr_in *)sa)->sin_addr);
-    return &(((struct sockaddr_in6 *)sa)->sin6_addr);
+        return &reinterpret_cast<struct sockaddr_in *>(sa)->sin_addr;
+    return &reinterpret_cast<struct sockaddr_in6 *>(sa)->sin6_addr;
 }
 
 void Server::acceptConnection()
@@ -214,17 +209,23 @@ int Server::listenForConnection()
     int status;
     int sockfd;
     int yes = 1;
+    int no = 0;
 
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
+    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
     if ((status = getaddrinfo(NULL, port_.c_str(), &hints, &addr)) != 0)
         throw std::runtime_error("getaddrinfo: " + std::string(strerror(errno)));
     for (curr = addr; curr; curr = curr->ai_next)
     {
         if ((sockfd = socket(curr->ai_family, curr->ai_socktype, curr->ai_protocol)) < 0)
             continue;
-        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &yes, sizeof(int));
+
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEPORT, &yes, sizeof(yes));
+        setsockopt(sockfd, IPPROTO_IPV6, IPV6_V6ONLY, &no, sizeof(no));
+
         if (bind(sockfd, curr->ai_addr, curr->ai_addrlen) < 0)
         {
             close(sockfd);

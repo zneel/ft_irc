@@ -20,7 +20,7 @@ void ConnectionHandler::setLogger(Logger &logger)
 
 ssize_t ConnectionHandler::recvData(int fd, std::string &buffer)
 {
-    char tmpBuff[BUFFER_SIZE];
+    char tmpBuff[BUFFER_SIZE] = {0};
     ssize_t bytesRead = recv(fd, tmpBuff, sizeof(tmpBuff), 0);
     if (bytesRead < 0)
     {

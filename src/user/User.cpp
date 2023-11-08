@@ -36,6 +36,15 @@ void User::setRecvBuffer(std::string const &recvBuffer)
     recvBuffer_ = recvBuffer;
 }
 
+void User::send(std::string message)
+{
+    if (message.empty())
+        return;
+    if (message.length() > MAX_SIZE_SEND_BUFFER)
+        message.erase(MAX_SIZE_SEND_BUFFER, std::string::npos);
+    sendBuffer_.append(message + CRLF);
+}
+
 bool User::shouldDisconnect() const
 {
     return shouldDisconnect_ == true;
