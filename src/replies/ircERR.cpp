@@ -40,3 +40,8 @@ std::string const ERR_UNKNOWNCOMMAND(std::string const &client, std::string cons
 {
     return "421 " + client + " " + command + " :Unknown command";
 }
+
+std::string const ERR_NOOPERHOST(std::string const &client)
+{
+    return "491 " + client + " :No O-lines for your host";
+}

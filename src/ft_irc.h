@@ -30,6 +30,7 @@ std::string const RPL_CREATED(std::string const &client, std::string const &date
 std::string const RPL_MYINFO(std::string const &client, std::string const &sname, std::string const &vers,
                              std::string const &umodes, std::string const &cmodes);
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens);
+std::string const RPL_YOUREOPER(std::string const &client);
 
 // ERR
 std::string const ERR_PASSWDMISMATCH(std::string const &client);
@@ -40,3 +41,4 @@ std::string const ERR_NONICKNAMEGIVEN(std::string const &client);
 std::string const ERR_ERRONEUSNICKNAME(std::string const &client, std::string const &nick);
 std::string const ERR_ERROR(std::string const &reason);
 std::string const ERR_UNKNOWNCOMMAND(std::string const &client, std::string const &command);
+std::string const ERR_NOOPERHOST(std::string const &client);
