@@ -42,7 +42,7 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(" INVEX=");
         buf.append(INVEX);
         buf.append(" KICKLEN=" + toString(KICKLEN));
-        append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
+        sender->send(RPL_ISUPPORT(sender->nick, buf));
     }
     {
         std::string buf;
@@ -65,7 +65,7 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(TARGMAX);
         buf.append(" TOPICLEN=" + toString(TOPICLEN));
         buf.append(" USERLEN=" + toString(USERLEN));
-        append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
+        sender->send(RPL_ISUPPORT(sender->nick, buf));
     }
 }
 
@@ -75,36 +75,28 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
     while (!msgs.empty())
     {
         std::cout << "Command: " << msgs.front().command << std::endl;
-        std::cout << "Params: " << msgs.front().parameters << std::endl;
+        std::cout << "Params : " << msgs.front().parameters << std::endl;
         if (msgs.front().command.compare("CAP") == 0)
-            append(sender->getSendBuffer(), cap(msgs.front(), sender));
+            sender->send(cap(msgs.front(), sender));
         else if (msgs.front().command.compare("PASS") == 0)
-            append(sender->getSendBuffer(), pass(msgs.front(), sender, pwd_));
+            sender->send(pass(msgs.front(), sender, pwd_));
         else if (sender->isPassSent() && msgs.front().command.compare("NICK") == 0)
-            append(sender->getSendBuffer(), nick(msgs.front(), sender, uManager_));
+            sender->send(nick(msgs.front(), sender, uManager_));
         else if (sender->isPassSent() && msgs.front().command.compare("USER") == 0)
-            append(sender->getSendBuffer(), user(msgs.front(), sender));
-        else if (sender->isRegistered())
-        {
-            if (msgs.front().command.compare("PING") == 0)
-                append(sender->getSendBuffer(), ping(msgs.front(), sender));
-        }
+            sender->send(user(msgs.front(), sender));
+        else if (sender->isRegistered() && msgs.front().command.compare("PING") == 0)
+            sender->send(ping(msgs.front(), sender));
+        else if (sender->isRegistered() && msgs.front().command.compare("JOIN") == 0)
+            sender->send(join(msgs.front(), sender, cManager_));
+        else
+            sender->send(ERR_UNKNOWNCOMMAND(sender->nick, msgs.front().command));
         msgs.pop_front();
-        if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty() &&
-            !sender->realname.empty())
+        if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
         {
+            sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sender->setRegistered(true);
-            append(sender->getSendBuffer(), RPL_WELCOME(sender->username, sender->nick, sender->ip + "@localhost"));
+            sender->send(RPL_WELCOME(sender->username, sender->nickmask));
             sendIsupport(sender);
         }
     }
-}
-
-void CommandManager::append(std::string &sendBuffer, std::string toAdd)
-{
-    if (toAdd.empty())
-        return;
-    if (toAdd.length() > MAX_SIZE_SEND_BUFFER)
-        toAdd.erase(MAX_SIZE_SEND_BUFFER, std::string::npos);
-    sendBuffer.append(toAdd + CRLF);
 }

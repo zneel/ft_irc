@@ -1,4 +1,6 @@
 #pragma once
+#include "../ft_irc.h"
+
 #include <netdb.h>
 #include <string>
 #include <sys/socket.h>
@@ -18,6 +20,8 @@ class User
     void setSendBuffer(std::string const &sendBuffer);
     void setRecvBuffer(std::string const &recvBuffer);
 
+    void send(std::string message);
+
     bool shouldDisconnect() const;
     void setShouldDisconnect(bool shouldDisconnect);
 
@@ -27,12 +31,16 @@ class User
     void setPassSent(bool passSent);
     bool isPassSent() const;
 
+    void setOp(bool op);
+    bool isOp() const;
+
     void disconnect();
 
     std::string nick;
     std::string username;
     std::string realname;
     std::string ip;
+    std::string nickmask;
 
   private:
     User(User const &other);
@@ -45,6 +53,8 @@ class User
     bool registered_;
 
     bool passSent_;
+
+    bool op_;
 
     std::string sendBuffer_;
     std::string recvBuffer_;

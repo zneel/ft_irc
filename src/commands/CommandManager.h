@@ -16,7 +16,6 @@ class CommandManager
 
     void doCommands(std::deque<Message> &msgs, User *sender);
     void sendIsupport(User *sender);
-    void append(std::string &sendBuffer, std::string toAdd);
 
   private:
     ChannelManager *cManager_;
@@ -30,3 +29,4 @@ std::string nick(Message &msg, User *user, UserManager *uManager);
 std::string user(Message &msg, User *user);
 
 std::string ping(Message &msg, User *user);
+std::string join(Message &msg, User *user, ChannelManager *cManager);

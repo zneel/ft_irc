@@ -32,6 +32,9 @@
 #define TARGMAX "KICK:1,LIST:1,PRIVMSG:4,WHOIS:1"
 #define TOPICLEN 300
 #define USERLEN 18
+#define MAX_SIZE_NICK 31
+#define CHANNEL_MAX_USER 20
+#define CHANNEL_MAX_KEY_SIZE 50
 
 #define CRLF "\r\n"
 
@@ -50,12 +53,19 @@ extern volatile sig_atomic_t stop;
 void setupsig();
 
 // RPL
-std::string const RPL_WELCOME(std::string const &client, std::string const &nick, std::string const &host);
+std::string const RPL_WELCOME(std::string const &client, std::string const &nickmask);
 std::string const RPL_YOURHOST(std::string const &client, std::string const &servname, std::string const &vers);
 std::string const RPL_CREATED(std::string const &client, std::string const &datetime);
 std::string const RPL_MYINFO(std::string const &client, std::string const &sname, std::string const &vers,
                              std::string const &umodes, std::string const &cmodes);
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens);
+std::string const RPL_YOUREOPER(std::string const &client);
+
+// RPL CHANNELS
+std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
+                                   std::string const &time);
+std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::string const &nicks);
+std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel);
 
 // ERR
 std::string const ERR_PASSWDMISMATCH(std::string const &client);
@@ -66,3 +76,17 @@ std::string const ERR_NONICKNAMEGIVEN(std::string const &client);
 std::string const ERR_ERRONEUSNICKNAME(std::string const &client, std::string const &nick);
 std::string const ERR_ERROR(std::string const &reason);
 std::string const ERR_UNKNOWNCOMMAND(std::string const &client, std::string const &command);
+std::string const ERR_NOOPERHOST(std::string const &client);
+
+// ERR CHANNELS
+std::string const ERR_TOOMANYCHANNELS(std::string const &client, std::string const &channel);
+std::string const ERR_NOSUCHCHANNEL(std::string const &client, std::string const &channel);
+std::string const ERR_BADCHANNELKEY(std::string const &client, std::string const &channel);
+std::string const ERR_BANNEDFROMCHAN(std::string const &client, std::string const &channel);
+std::string const ERR_CHANNELISFULL(std::string const &client, std::string const &channel);
+std::string const ERR_INVITEONLYCHAN(std::string const &client, std::string const &channel);
+std::string const ERR_BADCHANMASK(std::string const &client, std::string const &channel);
+std::string const ERR_INVALIDMODEPARAM(std::string const &client, std::string const &target, std::string const &mode,
+                                       std::string const &parameter, std::string const &reason);
+std::string const ERR_INVALIDKEY(std::string const &client, std::string const &channel);
+

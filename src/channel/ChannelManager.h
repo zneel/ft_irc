@@ -10,9 +10,11 @@ class ChannelManager
     ~ChannelManager();
 
     Channel *get(std::string &name) const;
-    Channel *create(std::string name, int mode, int type);
+    Channel *create(std::string name, Channel::Mode mode, Channel::Type type);
+    std::map<std::string, Channel *> getAll() const;
     void remove(std::string name);
     void removeAll();
+    void broadcast(std::string const &message, Channel *channel);
 
   private:
     ChannelManager &operator=(ChannelManager const &rhs);
