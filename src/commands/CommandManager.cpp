@@ -1,5 +1,6 @@
 #include "CommandManager.h"
 #include "../user/UserManager.h"
+#include <string>
 
 CommandManager::CommandManager(ChannelManager *cManager, UserManager *uManager, std::string const &pwd)
     : cManager_(cManager), uManager_(uManager), pwd_(pwd)
@@ -8,6 +9,63 @@ CommandManager::CommandManager(ChannelManager *cManager, UserManager *uManager, 
 
 CommandManager::~CommandManager()
 {
+}
+
+void CommandManager::sendIsupport(User *sender)
+{
+    if (sender->isupportTokenPackCount == 0)
+    {
+        std::string buf;
+        buf.append(" AWAYLEN=" + std::to_string(AWAYLEN));
+        buf.append(" CASEMAPPING=");
+        buf.append(CASEMAPPING);
+        buf.append(" CHANLIMIT=");
+        buf.append(CHANLIMIT);
+        buf.append(" CHANMODES=");
+        buf.append(CHANMODES);
+        buf.append(" CHANNELLEN=" + std::to_string(CHANNELLEN));
+        buf.append(" CHANTYPES=");
+        buf.append(CHANTYPES);
+        buf.append(" ELIST=");
+        buf.append(ELIST);
+        buf.append(" EXCEPTS=");
+        buf.append(EXCEPTS);
+        buf.append(" EXTBAN=");
+        buf.append(EXTBAN);
+        buf.append(" HOSTLEN=" + std::to_string(HOSTLEN));
+        buf.append(" INVEX=");
+        buf.append(INVEX);
+        buf.append(" KICKLEN=" + std::to_string(KICKLEN));
+        buf.append(" MAXLIST=");
+        buf.append(MAXLIST);
+        buf.append(" MAXTARGET=" + std::to_string(MAXTARGET));
+        buf.append(" MODES=");
+        buf.append(MODES);
+        buf.append(CRLF);
+        append(sender->getSendBuffer(), buf);
+        sender->isupportTokenPackCount = 1;
+    }
+    else if (sender->isupportTokenPackCount == 1)
+    {
+        std::string buf;
+        buf.append(" NETWORK=");
+        buf.append(NETWORK);
+        buf.append(" NICKLEN=" + std::to_string(NICKLEN));
+        buf.append(" PREFIX=");
+        buf.append(PREFIX);
+        buf.append(" SAFELIST=");
+        buf.append(SAFELIST);
+        buf.append(" SILENCE=" + std::to_string(SILENCE));
+        buf.append(" STATUSMSG=");
+        buf.append(STATUSMSG);
+        buf.append(" TARGMAX=");
+        buf.append(TARGMAX);
+        buf.append(" TOPICLEN=" + std::to_string(TOPICLEN));
+        buf.append(" USERLEN=" + std::to_string(USERLEN));
+        buf.append(CRLF);
+        append(sender->getSendBuffer(), buf);
+        sender->isupportTokenPackCount = 2;
+    }
 }
 
 void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
@@ -39,43 +97,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         }
     }
     if (sender->isupportTokenPackCount != 2)
-    {
-        if (sender->isupportTokenPackCount == 0)
-        {
-            std::string buf;
-            buf.append(AWAYLEN);
-            buf.append(CASEMAPPING);
-            buf.append(CHANLIMIT);
-            buf.append(CHANMODES);
-            buf.append(CHANNELLEN);
-            buf.append(CHANTYPES);
-            buf.append(ELIST);
-            buf.append(EXCEPTS);
-            buf.append(EXTBAN);
-            buf.append(HOSTLEN);
-            buf.append(INVEX);
-            buf.append(KICKLEN);
-            buf.append(MAXLIST);
-            buf.append(MAXTARGET);
-            buf.append(MODES);
-            append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
-        }
-        else if (sender->isupportTokenPackCount == 1)
-        {
-            std::string buf;
-            buf.append(NETWORK);
-            buf.append(NICKLEN);
-            buf.append(PREFIX);
-            buf.append(SAFELIST);
-            buf.append(SILENCE);
-            buf.append(STATUSMSG);
-            buf.append(TARGMAX);
-            buf.append(TOPICLEN);
-            buf.append(USERLEN);
-            append(sender->getSendBuffer(), RPL_ISUPPORT(sender->nick, buf));
-        }
-        sender->isupportTokenPackCount++;
-    }
+        sendIsupport(sender);
 }
 
 void CommandManager::append(std::string &sendBuffer, std::string toAdd)
