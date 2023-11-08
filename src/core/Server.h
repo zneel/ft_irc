@@ -1,6 +1,17 @@
 #pragma once
 
+#include "../buffer/Buffer.h"
+#include "../channel/ChannelManager.h"
+#include "../commands/CommandManager.h"
+#include "../ft_irc.h"
+#include "../user/User.h"
+#include "../user/UserManager.h"
+#include "ConnectionHandler.h"
+#include "Logger.h"
+
 #include <arpa/inet.h>
+#include <asm-generic/socket.h>
+#include <cstddef>
 #include <cstdlib>
 #include <cstring>
 #include <deque>
@@ -10,22 +21,13 @@
 #include <iterator>
 #include <netdb.h>
 #include <netinet/in.h>
-#include <poll.h>
+#include <stdexcept>
 #include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-
-#include "../buffer/Buffer.h"
-#include "../channel/ChannelManager.h"
-#include "../commands/CommandManager.h"
-#include "../ft_irc.h"
-#include "../user/User.h"
-#include "../user/UserManager.h"
-#include "ConnectionHandler.h"
-#include "Logger.h"
 
 #define MAX_LISTENER 64
 #define MAX_EVENTS 512
