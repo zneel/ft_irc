@@ -163,8 +163,7 @@ void Channel::broadcast(std::string const &message, User *sender)
 {
     for (std::map<int, User *>::iterator it = users_.begin(); it != users_.end(); ++it)
     {
-        if (it->second == sender)
-            continue;
-        it->second->send(message);
+        if (it->second != sender)
+            it->second->send(message);
     }
 }

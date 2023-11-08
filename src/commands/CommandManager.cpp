@@ -96,8 +96,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
         {
-            sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sender->setRegistered(true);
+            sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sender->send(RPL_WELCOME(sender->username, sender->nickmask));
             sendIsupport(sender);
         }

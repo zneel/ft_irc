@@ -5,6 +5,9 @@
 
 class ChannelManager
 {
+
+    typedef std::map<std::string, Channel *>::iterator ChannelMapIterator;
+
   public:
     ChannelManager();
     ~ChannelManager();

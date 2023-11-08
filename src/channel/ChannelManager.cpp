@@ -12,14 +12,16 @@ ChannelManager::~ChannelManager()
 
 Channel *ChannelManager::get(std::string &name) const
 {
+    if (channels_.find(name) == channels_.end())
+        return NULL;
     return channels_.find(name)->second;
 }
 
 Channel *ChannelManager::create(std::string name, Channel::Mode mode, Channel::Type type)
 {
     Channel *channel = new Channel(name, mode, type);
-    channels_.insert(std::pair<std::string, Channel *>(name, channel));
-    return channel;
+    channels_[name] = channel;
+    return channels_[name];
 }
 
 std::map<std::string, Channel *> ChannelManager::getAll() const
@@ -29,13 +31,17 @@ std::map<std::string, Channel *> ChannelManager::getAll() const
 
 void ChannelManager::remove(std::string name)
 {
-    delete channels_.find(name)->second;
-    channels_.erase(name);
+    ChannelMapIterator it = channels_.find(name);
+    if (it != channels_.end())
+    {
+        delete it->second;
+        channels_.erase(it);
+    }
 }
 
 void ChannelManager::removeAll()
 {
-    for (std::map<std::string, Channel *>::iterator it = channels_.begin(); it != channels_.end(); ++it)
+    for (ChannelMapIterator it = channels_.begin(); it != channels_.end(); ++it)
         delete it->second;
     channels_.clear();
 }
