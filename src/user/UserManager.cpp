@@ -9,9 +9,7 @@ UserManager::UserManager()
 
 UserManager::~UserManager()
 {
-    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
-        remove(it->first);
-    users_.clear();
+    removeAll();
 }
 
 int UserManager::getUserCount()

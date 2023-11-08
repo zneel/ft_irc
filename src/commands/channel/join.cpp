@@ -34,20 +34,20 @@ static std::vector<ChannelParsing> parseJoin(std::string const &channels, std::s
 
 std::string join(Message &msg, User *user, ChannelManager *cManager)
 {
-
     if (msg.parameters.empty())
-        return ERR_NEEDMOREPARAMS(user->nick, "JOIN");
+        return ERR_NEEDMOREPARAMS(user->nick, msg.command);
     std::vector<std::string> splitted = split(msg.parameters, " ");
     if (splitted.size() > 2)
-        return ERR_NEEDMOREPARAMS(user->nick, "JOIN");
+        return ERR_NEEDMOREPARAMS(user->nick, msg.command);
     std::vector<ChannelParsing> parsed = parseJoin(splitted[0], splitted.size() == 2 ? splitted[1] : "");
     std::map<std::string, Channel *> channels = cManager->getAll();
     for (std::vector<ChannelParsing>::iterator it = parsed.begin(); it != parsed.end(); ++it)
     {
+        std::string broadcastMessage = ":" + user->nickmask + " JOIN " + it->channelName;
         if (it->channelName[0] != '#' && it->channelName[0] != '&')
             return ERR_NOSUCHCHANNEL(user->nick, it->channelName);
 
-        if (it->channelName.length() > CHANNEL_MAX_KEY_SIZE)
+        if (it->channelName.length() <= 1 || it->channelName.length() > CHANNEL_MAX_KEY_SIZE)
             return ERR_NOSUCHCHANNEL(user->nick, it->channelName);
 
         if (it->channelName.find_first_of(", \a") != std::string::npos)
@@ -55,6 +55,7 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
 
         if (it->channelPassword.find_first_of(", \a") != std::string::npos)
             return ERR_INVALIDKEY(user->nick, it->channelName);
+
         if (channels.find(it->channelName) == channels.end())
         {
             Channel *newChannel = cManager->create(it->channelName, Channel::BAN, it->type);
@@ -62,12 +63,13 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
                 newChannel->password = it->channelPassword;
             newChannel->addUser(user);
             newChannel->addOperator(user);
+            newChannel->broadcast(broadcastMessage, user);
         }
         else
         {
             Channel *channel = channels.find(it->channelName)->second;
             if (!channel)
-                return "";
+                return ERR_NOSUCHCHANNEL(user->nick, it->channelName);
             if (channel->hasMode(Channel::BAN))
             {
                 if (channel->hasMode(Channel::EXCEPTION) && !channel->isUserOnExceptionList(user) &&
@@ -76,18 +78,27 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
                     return ERR_BANNEDFROMCHAN(user->nick, channel->name);
                 }
                 else if (!channel->isUserBanned(user))
+                {
                     channel->addUser(user);
+                    channel->broadcast(broadcastMessage, user);
+                }
                 else
                     return ERR_BANNEDFROMCHAN(user->nick, channel->name);
             }
             else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getUserCount() >= channel->maxUser)
                 return ERR_CHANNELISFULL(user->nick, channel->name);
+
             else if (channel->hasMode(Channel::INVITE_ONLY) && !channel->isOnInviteList(user))
                 return ERR_INVITEONLYCHAN(user->nick, channel->name);
+
             else if (channel->hasMode(Channel::KEY) && channel->password != it->channelPassword)
                 return ERR_BADCHANNELKEY(user->nick, channel->name);
+
             else
+            {
                 channel->addUser(user);
+                channel->broadcast(broadcastMessage, user);
+            }
         }
     }
     return "";

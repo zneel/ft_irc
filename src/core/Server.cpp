@@ -21,6 +21,7 @@ Server::Server(std::string port, std::string password) : port_(port), password_(
 
 Server::~Server()
 {
+    cManager_.removeAll();
     uManager_.removeAll();
     for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
         epoll_ctl(epollfd_, EPOLL_CTL_DEL, it->data.fd, NULL);

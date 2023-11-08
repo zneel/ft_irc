@@ -11,7 +11,7 @@
       "program": "${workspaceFolder}/ircserv",
       "args": [
         "3000",
-        "blalb"
+        "42irc"
       ],
       "cwd": "${workspaceFolder}"
     }
