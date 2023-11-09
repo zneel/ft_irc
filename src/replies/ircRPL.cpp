@@ -3,7 +3,7 @@
 
 std::string const RPL_WELCOME(std::string const &client, std::string const &nickmask)
 {
-    return "001 " + client + " :Welcome to the Internet Relay Network " + nickmask;
+    return "001 " + client + " :Welcome to ft_irc " + nickmask;
 }
 
 std::string const RPL_YOURHOST(std::string const &client, std::string const &servname, std::string const &vers)
@@ -24,7 +24,7 @@ std::string const RPL_MYINFO(std::string const &client, std::string const &sname
 
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens)
 {
-    return "005 " + client + tokens;
+    return "005 " + client + tokens + " :are supported by this server";
 }
 
 std::string const RPL_YOUREOPER(std::string const &client)
@@ -50,4 +50,9 @@ std::string const RPL_NAMREPLY(std::string const &client, std::string const &cha
 std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel)
 {
     return "366 " + client + " " + channel + " :End of /NAMES list";
+}
+
+std::string const RPL_MOTD(std::string const &client, std::string const &motd)
+{
+    return "372 " + client + " :" + motd;
 }

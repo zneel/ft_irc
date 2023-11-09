@@ -35,7 +35,6 @@
 #define MAX_SIZE_NICK 31
 #define CHANNEL_MAX_USER 20
 #define CHANNEL_MAX_KEY_SIZE 50
-
 #define CRLF "\r\n"
 
 #define LINE1 " ________  _________         _____  _______      ______  \n"
@@ -60,6 +59,7 @@ std::string const RPL_MYINFO(std::string const &client, std::string const &sname
                              std::string const &umodes, std::string const &cmodes);
 std::string const RPL_ISUPPORT(std::string const &client, std::string const &tokens);
 std::string const RPL_YOUREOPER(std::string const &client);
+std::string const RPL_MOTD(std::string const &client, std::string const &motd);
 
 // RPL CHANNELS
 std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,

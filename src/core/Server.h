@@ -75,5 +75,4 @@ class Server
     std::vector<epoll_event> events_;
 
     int listener_;
-    std::string welcomeMessage_;
 };

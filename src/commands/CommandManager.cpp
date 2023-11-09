@@ -42,7 +42,7 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(" INVEX=");
         buf.append(INVEX);
         buf.append(" KICKLEN=" + toString(KICKLEN));
-        sender->send(RPL_ISUPPORT(sender->nick, buf));
+        sender->send(SERVER_NAME + RPL_ISUPPORT(sender->nick, buf));
     }
     {
         std::string buf;
@@ -65,8 +65,23 @@ void CommandManager::sendIsupport(User *sender)
         buf.append(TARGMAX);
         buf.append(" TOPICLEN=" + toString(TOPICLEN));
         buf.append(" USERLEN=" + toString(USERLEN));
-        sender->send(RPL_ISUPPORT(sender->nick, buf));
+        sender->send(SERVER_NAME + RPL_ISUPPORT(sender->nick, buf));
     }
+}
+
+void CommandManager::sendMotd(User *sender)
+{
+    sender->send(motd(LINE1, sender));
+    sender->send(motd(LINE2, sender));
+    sender->send(motd(LINE3, sender));
+    sender->send(motd(LINE4, sender));
+    sender->send(motd(LINE5, sender));
+    sender->send(motd(LINE6, sender));
+    sender->send(motd(LINE7, sender));
+    sender->send(motd(LINE8, sender));
+    sender->send(motd(LINE9, sender));
+    sender->send(motd(LINE10, sender));
+    sender->send(motd(LINE11, sender));
 }
 
 void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
@@ -86,6 +101,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
             sender->send(user(msgs.front(), sender));
         else if (sender->isRegistered())
         {
+            if (msgs.front().command.compare("motd") == 0)
+                sendMotd(sender);
             if (msgs.front().command.compare("PING") == 0)
                 sender->send(ping(msgs.front(), sender));
             if (msgs.front().command.compare("JOIN") == 0)
@@ -98,8 +115,9 @@ void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
         {
             sender->setRegistered(true);
             sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
-            sender->send(RPL_WELCOME(sender->username, sender->nickmask));
             sendIsupport(sender);
+            sender->send(SERVER_NAME + RPL_WELCOME(sender->username, sender->nickmask));
+            sendMotd(sender);
         }
     }
 }

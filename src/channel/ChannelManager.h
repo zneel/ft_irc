@@ -20,7 +20,6 @@ class ChannelManager
     void broadcast(std::string const &message, Channel *channel);
 
   private:
-    std::string welcomeMessage_;
     ChannelManager &operator=(ChannelManager const &rhs);
     ChannelManager(ChannelManager const &other);
     std::map<std::string, Channel *> channels_;

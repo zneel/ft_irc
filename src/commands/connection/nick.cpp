@@ -2,24 +2,22 @@
 
 bool isErrChar(std::string &nickname)
 {
-    for (std::string::iterator it = nickname.begin(); it != nickname.end(); it++)
-    {
-        if (*it == ' ' || *it == ':' || (it == nickname.begin() && *it == '#'))
-            return true;
-    }
+    if (nickname.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]\\`_^{|}-") !=
+        std::string::npos)
+        return true;
     return false;
 }
 
 std::string nick(Message &msg, User *user, UserManager *uManager)
 {
     if (msg.parameters.empty())
-        return ERR_NONICKNAMEGIVEN("");
+        return SERVER_NAME + ERR_NONICKNAMEGIVEN("");
     else if (msg.parameters.length() > NICKLEN)
         msg.parameters.erase(NICKLEN, std::string::npos);
     else if (uManager->nickAlreadyUsed(msg.parameters))
-        return ERR_NICKNAMEINUSE("", msg.parameters);
+        return SERVER_NAME + ERR_NICKNAMEINUSE(msg.parameters, msg.parameters);
     else if (isErrChar(msg.parameters))
-        return ERR_ERRONEUSNICKNAME("", "");
+        return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.parameters);
     else
         user->nick = msg.parameters;
     return "";
