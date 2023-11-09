@@ -63,7 +63,7 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
                 newChannel->password = it->channelPassword;
             newChannel->addUser(user);
             newChannel->addOperator(user);
-            newChannel->broadcast(broadcastMessage, user);
+            newChannel->broadcast(broadcastMessage, user, true);
         }
         else
         {
@@ -80,7 +80,7 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
                 else if (!channel->isUserBanned(user))
                 {
                     channel->addUser(user);
-                    channel->broadcast(broadcastMessage, user);
+                    channel->broadcast(broadcastMessage, user, true);
                 }
                 else
                     return ERR_BANNEDFROMCHAN(user->nick, channel->name);
@@ -97,7 +97,7 @@ std::string join(Message &msg, User *user, ChannelManager *cManager)
             else
             {
                 channel->addUser(user);
-                channel->broadcast(broadcastMessage, user);
+                channel->broadcast(broadcastMessage, user, true);
             }
         }
     }

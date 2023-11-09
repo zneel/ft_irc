@@ -3,6 +3,17 @@
 
 ChannelManager::ChannelManager()
 {
+    welcomeMessage_.append(LINE1) + CRLF;
+    welcomeMessage_.append(LINE2) + CRLF;
+    welcomeMessage_.append(LINE3) + CRLF;
+    welcomeMessage_.append(LINE4) + CRLF;
+    welcomeMessage_.append(LINE5) + CRLF;
+    welcomeMessage_.append(LINE6) + CRLF;
+    welcomeMessage_.append(LINE7) + CRLF;
+    welcomeMessage_.append(LINE8) + CRLF;
+    welcomeMessage_.append(LINE9) + CRLF;
+    welcomeMessage_.append(LINE10) + CRLF;
+    welcomeMessage_.append(LINE11) + CRLF;
 }
 
 ChannelManager::~ChannelManager()
