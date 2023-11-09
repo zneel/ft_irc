@@ -1,6 +1,6 @@
 #include "../CommandManager.h"
 
-std::string user(Message &msg, User *user)
+std::string user(Message &msg, Client *user)
 {
     if (!user->username.empty() && !user->realname.empty())
         return SERVER_NAME + ERR_ALREADYREGISTERED("");

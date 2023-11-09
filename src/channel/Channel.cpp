@@ -8,12 +8,12 @@ Channel::~Channel()
 {
 }
 
-std::map<int, User *> Channel::getUsers()
+std::map<int, Client *> Channel::getUsers()
 {
     return users_;
 }
 
-std::map<int, User *> Channel::getOperators()
+std::map<int, Client *> Channel::getOperators()
 {
     return operators_;
 }
@@ -63,22 +63,22 @@ bool Channel::hasType(int type)
     return type_ & type;
 }
 
-void Channel::addUser(User *user)
+void Channel::addUser(Client *user)
 {
     users_[user->getFd()] = user;
 }
 
-void Channel::removeUser(User *user)
+void Channel::removeUser(Client *user)
 {
     users_.erase(user->getFd());
 }
 
-void Channel::addOperator(User *user)
+void Channel::addOperator(Client *user)
 {
     operators_[user->getFd()] = user;
 }
 
-void Channel::removeOperator(User *user)
+void Channel::removeOperator(Client *user)
 {
     operators_.erase(user->getFd());
 }
@@ -114,54 +114,54 @@ int Channel::getUserCount()
     return users_.size();
 }
 
-bool Channel::isUserBanned(User *user)
+bool Channel::isUserBanned(Client *user)
 {
     return ban_.find(user->nickmask) != ban_.end();
 }
 
-void Channel::addBan(User *user)
+void Channel::addBan(Client *user)
 {
     ban_[user->nickmask] = user;
 }
 
-void Channel::removeBan(User *user)
+void Channel::removeBan(Client *user)
 {
     ban_.erase(user->nickmask);
 }
 
-bool Channel::isUserOnExceptionList(User *user)
+bool Channel::isUserOnExceptionList(Client *user)
 {
     return exceptionList_.find(user->nickmask) != exceptionList_.end();
 }
 
-void Channel::addException(User *user)
+void Channel::addException(Client *user)
 {
     exceptionList_[user->nickmask] = user;
 }
 
-void Channel::removeException(User *user)
+void Channel::removeException(Client *user)
 {
     exceptionList_.erase(user->nickmask);
 }
 
-bool Channel::isOnInviteList(User *user)
+bool Channel::isOnInviteList(Client *user)
 {
     return inviteList_.find(user->nickmask) != inviteList_.end();
 }
 
-void Channel::addInvite(User *user)
+void Channel::addInvite(Client *user)
 {
     inviteList_[user->nickmask] = user;
 }
 
-void Channel::removeInvite(User *user)
+void Channel::removeInvite(Client *user)
 {
     inviteList_.erase(user->nickmask);
 }
 
-void Channel::broadcast(std::string const &message, User *sender, bool sendToSender)
+void Channel::broadcast(std::string const &message, Client *sender, bool sendToSender)
 {
-    for (std::map<int, User *>::iterator it = users_.begin(); it != users_.end(); ++it)
+    for (std::map<int, Client *>::iterator it = users_.begin(); it != users_.end(); ++it)
     {
         if (it->second != sender || sendToSender)
             it->second->send(message);

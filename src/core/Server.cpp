@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "../buffer/Buffer.h"
+#include <sys/epoll.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
@@ -41,23 +42,35 @@ void Server::start()
                 uManager_.remove(events_[i].data.fd);
                 break;
             }
-            if (events_[i].data.fd == listener_)
-                acceptConnection();
             else if (events_[i].events & EPOLLIN)
             {
-                if (uManager_.get(events_[i].data.fd) && uManager_.get(events_[i].data.fd)->shouldDisconnect())
+                if (events_[i].data.fd == listener_)
+                    acceptConnection();
+                else if (uManager_.get(events_[i].data.fd) && uManager_.get(events_[i].data.fd)->shouldDisconnect())
                     continue;
                 recvData(events_[i], commands);
             }
             sendData(events_[i]);
         }
-        usleep(1000);
     }
 }
 
 void Server::setLogger(Logger &logger)
 {
     logger_ = logger;
+}
+
+void Server::update(int fd, EPOLL_EVENTS event)
+{
+    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
+    {
+        if (it->data.fd == fd)
+        {
+            it->events = event;
+            epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &(*it));
+            break;
+        }
+    }
 }
 
 void *Server::getInAddr_(struct sockaddr *sa)
@@ -81,7 +94,7 @@ void Server::acceptConnection()
         inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
         fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
-        uManager_.create(fd, remoteIp);
+        uManager_.create(fd, remoteIp, this);
         logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
     }
 }
@@ -90,7 +103,7 @@ void Server::addToPolling(int fd)
 {
     struct epoll_event event;
     memset(&event, 0, sizeof(event));
-    event.events = EPOLLIN | EPOLLOUT;
+    event.events = EPOLLIN;
     event.data.fd = fd;
     events_.push_back(event);
     if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, fd, &event) < 0)
@@ -135,6 +148,8 @@ void Server::sendData(struct epoll_event &event)
     }
     else
         uManager_.get(event.data.fd)->getSendBuffer().erase(0, bytesSent);
+    event.events = EPOLLIN;
+    epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
 }
 
 void Server::recvData(struct epoll_event &event, CommandManager &commands)
@@ -161,6 +176,8 @@ void Server::recvData(struct epoll_event &event, CommandManager &commands)
         std::deque<Message> msgs;
         Buffer::bufferToMessage(uManager_.get(event.data.fd)->getRecvBuffer(), msgs);
         commands.doCommands(msgs, uManager_.get(event.data.fd));
+        event.events = EPOLLOUT;
+        epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
     }
 }
 
@@ -168,7 +185,7 @@ void Server::initListener()
 {
     struct epoll_event event;
     memset(&event, 0, sizeof(event));
-    event.events = EPOLLIN | EPOLLOUT;
+    event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
     event.data.fd = listener_;
     events_.push_back(event);
     if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, listener_, &event) < 0)
@@ -183,7 +200,7 @@ bool Server::hasCRLF(std::string &buffer)
 void Server::disconnectUsers()
 {
     std::vector<int> toRemove;
-    for (std::map<int, User *>::iterator it = uManager_.getUsers().begin(); it != uManager_.getUsers().end(); ++it)
+    for (std::map<int, Client *>::iterator it = uManager_.getUsers().begin(); it != uManager_.getUsers().end(); ++it)
     {
         if (it->second->shouldDisconnect() && it->second->getSendBuffer().empty())
             toRemove.push_back(it->first);

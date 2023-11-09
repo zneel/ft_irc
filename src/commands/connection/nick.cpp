@@ -8,7 +8,7 @@ bool isErrChar(std::string &nickname)
     return false;
 }
 
-std::string nick(Message &msg, User *user, UserManager *uManager)
+std::string nick(Message &msg, Client *user, ClientManager *uManager)
 {
     if (msg.parameters.empty())
         return SERVER_NAME + ERR_NONICKNAMEGIVEN("");

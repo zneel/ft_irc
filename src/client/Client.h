@@ -1,16 +1,18 @@
 #pragma once
+#include "../core/IObserver.h"
 #include "../ft_irc.h"
 
 #include <netdb.h>
 #include <string>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
-class User
+class Client
 {
   public:
-    User(int fd, std::string ip);
-    ~User();
+    Client(int fd, std::string ip, IObserver *observer);
+    ~Client();
 
     int getFd() const;
 
@@ -36,6 +38,7 @@ class User
 
     void disconnect();
 
+    IObserver *observer_;
     std::string nick;
     std::string username;
     std::string realname;
@@ -43,12 +46,12 @@ class User
     std::string nickmask;
 
   private:
-    User(User const &other);
-    User &operator=(User const &rhs);
-    bool operator==(User const &rhs);
+    Client(Client const &other);
+    Client &operator=(Client const &rhs);
+    bool operator==(Client const &rhs);
+    void notifyObserver(EPOLL_EVENTS event);
 
     int fd_;
-
     bool shouldDisconnect_;
     bool registered_;
 

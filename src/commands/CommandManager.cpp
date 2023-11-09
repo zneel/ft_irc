@@ -1,7 +1,7 @@
 #include "CommandManager.h"
-#include "../user/UserManager.h"
+#include "../client/ClientManager.h"
 
-CommandManager::CommandManager(ChannelManager *cManager, UserManager *uManager, std::string const &pwd)
+CommandManager::CommandManager(ChannelManager *cManager, ClientManager *uManager, std::string const &pwd)
     : cManager_(cManager), uManager_(uManager), pwd_(pwd)
 {
 }
@@ -18,7 +18,7 @@ std::string toString(int nb)
     return str;
 }
 
-void CommandManager::sendIsupport(User *sender)
+void CommandManager::sendIsupport(Client *sender)
 {
     {
         std::string buf;
@@ -69,7 +69,7 @@ void CommandManager::sendIsupport(User *sender)
     }
 }
 
-void CommandManager::sendMotd(User *sender)
+void CommandManager::sendMotd(Client *sender)
 {
     sender->send(motd(LINE1, sender));
     sender->send(motd(LINE2, sender));
@@ -84,7 +84,7 @@ void CommandManager::sendMotd(User *sender)
     sender->send(motd(LINE11, sender));
 }
 
-void CommandManager::doCommands(std::deque<Message> &msgs, User *sender)
+void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
 {
     (void)cManager_;
     while (!msgs.empty())

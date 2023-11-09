@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../user/User.h"
+#include "../client/Client.h"
 #include <map>
 #include <string>
 
@@ -43,8 +43,8 @@ class Channel
     std::string topic;
     int maxUser;
 
-    std::map<int, User *> getUsers();
-    std::map<int, User *> getOperators();
+    std::map<int, Client *> getUsers();
+    std::map<int, Client *> getOperators();
 
     int getMode();
     void setMode(int mode);
@@ -57,36 +57,36 @@ class Channel
     void addType(int type);
     bool hasType(int type);
 
-    void addUser(User *user);
-    void removeUser(User *user);
+    void addUser(Client *user);
+    void removeUser(Client *user);
 
-    void addOperator(User *user);
-    void removeOperator(User *user);
+    void addOperator(Client *user);
+    void removeOperator(Client *user);
 
     std::string modeToString();
 
     int getUserCount();
 
-    bool isUserBanned(User *user);
-    void addBan(User *user);
-    void removeBan(User *user);
+    bool isUserBanned(Client *user);
+    void addBan(Client *user);
+    void removeBan(Client *user);
 
-    bool isUserOnExceptionList(User *user);
-    void addException(User *user);
-    void removeException(User *user);
+    bool isUserOnExceptionList(Client *user);
+    void addException(Client *user);
+    void removeException(Client *user);
 
-    bool isOnInviteList(User *user);
-    void addInvite(User *user);
-    void removeInvite(User *user);
+    bool isOnInviteList(Client *user);
+    void addInvite(Client *user);
+    void removeInvite(Client *user);
 
-    void broadcast(std::string const &message, User *sender, bool sendToSender = false);
+    void broadcast(std::string const &message, Client *sender, bool sendToSender = false);
 
   private:
     int mode_;
     int type_;
-    std::map<int, User *> users_;
-    std::map<int, User *> operators_;
-    std::map<std::string, User *> ban_;
-    std::map<std::string, User *> exceptionList_;
-    std::map<std::string, User *> inviteList_;
+    std::map<int, Client *> users_;
+    std::map<int, Client *> operators_;
+    std::map<std::string, Client *> ban_;
+    std::map<std::string, Client *> exceptionList_;
+    std::map<std::string, Client *> inviteList_;
 };

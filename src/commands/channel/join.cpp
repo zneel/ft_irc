@@ -32,7 +32,7 @@ static std::vector<ChannelParsing> parseJoin(std::string const &channels, std::s
     return parsed;
 }
 
-std::string join(Message &msg, User *user, ChannelManager *cManager)
+std::string join(Message &msg, Client *user, ChannelManager *cManager)
 {
     if (msg.parameters.empty())
         return SERVER_NAME + ERR_NEEDMOREPARAMS(user->nick, msg.command);

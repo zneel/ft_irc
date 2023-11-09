@@ -1,6 +1,6 @@
 #include "../CommandManager.h"
 
-std::string pass(Message &msg, User *user, std::string &serverPassword)
+std::string pass(Message &msg, Client *user, std::string &serverPassword)
 {
     if (user->isRegistered())
         return SERVER_NAME + ERR_ALREADYREGISTERED(user->nick);
