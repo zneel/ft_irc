@@ -34,11 +34,13 @@ static std::vector<ChannelParsing> parseJoin(std::string const &channels, std::s
 
 std::string join(Message &msg, User *user, ChannelManager *cManager)
 {
-    if (msg.parameters.empty())
-        return ERR_NEEDMOREPARAMS(user->nick, msg.command);
-    std::vector<std::string> splitted = split(msg.parameters, " ");
+    if (msg.params.empty())
+        return ERR_NEEDMOREPARAMS(user->nick, msg.verb);
+    std::vector<std::string> splitted;
+    for (size_t i = 0; i < msg.params.size(); i++)
+        splitted.push_back(msg.params[i]);
     if (splitted.size() > 2)
-        return ERR_NEEDMOREPARAMS(user->nick, msg.command);
+        return ERR_NEEDMOREPARAMS(user->nick, msg.verb);
     std::vector<ChannelParsing> parsed = parseJoin(splitted[0], splitted.size() == 2 ? splitted[1] : "");
     std::map<std::string, Channel *> channels = cManager->getAll();
     for (std::vector<ChannelParsing>::iterator it = parsed.begin(); it != parsed.end(); ++it)

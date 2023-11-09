@@ -1,11 +1,12 @@
 #pragma once
 
-#include <sstream>
 #include <string>
+#include <deque>
 
 struct Message
 {
     Message(std::string line);
-    std::string command;
-    std::string parameters;
+    std::string verb;
+    std::deque<std::string> params;
+    std::string trailling;
 };

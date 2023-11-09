@@ -4,13 +4,12 @@ std::string user(Message &msg, User *user)
 {
     if (!user->username.empty() && !user->realname.empty())
         return ERR_ALREADYREGISTERED("");
-    if (msg.parameters.find(" ") != std::string::npos && msg.parameters.find(":") != std::string::npos)
+    if (msg.params.size() >= 3)
     {
-        std::string::size_type pos = msg.parameters.find(" ");
-        std::string::size_type pos2 = msg.parameters.find(":") + 1;
-        user->username = std::string(msg.parameters, 0, pos);
-        user->realname = std::string(msg.parameters, pos2, std::string::npos);
+        user->username = std::string(msg.params[0]);
+        user->realname = std::string(msg.params[2]);
         return "";
     }
-    return ERR_NEEDMOREPARAMS("", msg.command);
+    std::cout << msg.params.size() << std::endl;
+    return ERR_NEEDMOREPARAMS("", msg.verb);
 }

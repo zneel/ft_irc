@@ -1,20 +1,65 @@
 #include "Message.h"
+#include <algorithm>
+#include <cctype>
+#include <cstddef>
 #include <iostream>
+
+std::string recupVerb(std::string &line)
+{
+    size_t space = line.find(' ');
+    std::string verb(line, 0, space);
+    if (space == std::string::npos)
+        line.erase(0, space);
+    else
+        line.erase(0, space + 1);
+    for (std::string::iterator it = verb.begin(); it != verb.end(); it++)
+        *it = std::toupper(*it);
+    return verb;
+}
+
+std::deque<std::string> recupParams(std::string &line)
+{
+    std::deque<std::string> params;
+    size_t limiter = line.find_first_of(", :");
+    while (limiter != std::string::npos && *(line.begin() + limiter) != ':') 
+    {
+        params.push_back(std::string(line, 0, limiter));
+        line.erase(0, limiter + 1);
+        limiter = line.find_first_of(", :");
+    }
+    std::string tmp(line, 0, limiter);
+    if (*(line.begin() + limiter) != ':' && !tmp.empty())
+        params.push_back(tmp);
+    if (limiter != std::string::npos)
+        line.erase(0, limiter + 1);
+    else
+        line.erase(0, limiter);
+    return params;
+}
+
+std::string recupTrailing(std::string &line)
+{
+    std::string::iterator begin = line.begin();
+    std::string::iterator end = line.end();
+    return std::string(begin, end);
+}
 
 Message::Message(std::string line)
 {
     if (line.size() > 512)
         line.erase(512, std::string::npos);
-    std::string::iterator begin = line.begin();
-    std::string::iterator end = line.end();
-    size_t tmp = line.find(" ");
-    if (tmp != std::string::npos)
+
+    verb = recupVerb(line);
+    if (!verb.empty())
     {
-        std::string::iterator mid = line.begin() + tmp;
-        command.append(std::string(begin, mid));
-        ++mid;
-        parameters.append(std::string(mid, end));
+        params = recupParams(line);
+        trailling = recupTrailing(line);
     }
-    else
-        command.append(begin, end);
+    std::cout << "verb     :" << verb << ":" << std::endl;
+    for (size_t i = 0; i < params.size(); i++)
+        std::cout << "params" << i << "  :" << params[i] << ":" << std::endl;
+    if (params.empty())
+        std::cout << "params" << "   :" << "empty" << ":" << std::endl;
+    std::cout << "trailling:" << trailling << ":" << std::endl;
+    std::cout << "=============================================" << std::endl;
 }

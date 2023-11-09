@@ -3,10 +3,7 @@
 
 std::string ping(Message &msg, User *user)
 {
-    std::string token;
-
-    if (msg.parameters.empty())
+    if (msg.params.size() < 1)
         return ERR_NEEDMOREPARAMS(user->nick, "PING");
-    token = msg.parameters.substr(0, msg.parameters.find(" "));
-    return "PONG " + token + " :" + user->nick;
+    return "PONG " + msg.params[0] + " :" + user->nick;
 }
