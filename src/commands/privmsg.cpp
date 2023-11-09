@@ -1,6 +1,6 @@
 #include "CommandManager.h"
 
-std::string privmsg(Message &msg, User *sender, ChannelManager *cManager)
+std::string privmsg(Message &msg, Client *sender, ChannelManager *cManager)
 {
     if (msg.parameters.size() < 2)
         return ERR_NEEDMOREPARAMS(sender->nick, msg.command);

@@ -8,8 +8,8 @@ SRCS        :=	src/main.cpp \
 								src/signals.cpp \
 								src/core/Server.cpp \
 								src/core/Logger.cpp \
-								src/user/User.cpp \
-								src/user/UserManager.cpp \
+								src/client/Client.cpp \
+								src/client/ClientManager.cpp \
 								src/buffer/Buffer.cpp \
 								src/message/Message.cpp \
 								src/channel/Channel.cpp \

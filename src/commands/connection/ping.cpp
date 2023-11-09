@@ -1,7 +1,7 @@
 #include "../../ft_irc.h"
 #include "../CommandManager.h"
 
-std::string ping(Message &msg, User *user)
+std::string ping(Message &msg, Client *user)
 {
     std::string token;
 

@@ -2,10 +2,11 @@
 
 #include "../buffer/Buffer.h"
 #include "../channel/ChannelManager.h"
+#include "../client/Client.h"
+#include "../client/ClientManager.h"
 #include "../commands/CommandManager.h"
 #include "../ft_irc.h"
-#include "../user/User.h"
-#include "../user/UserManager.h"
+#include "IObserver.h"
 #include "Logger.h"
 
 #include <arpa/inet.h>
@@ -31,7 +32,7 @@
 #define MAX_LISTENER 64
 #define MAX_EVENTS 512
 
-class Server
+class Server : public IObserver
 {
 
     typedef std::vector<epoll_event>::iterator EventsIterator;
@@ -42,6 +43,7 @@ class Server
 
     void start();
     void setLogger(Logger &logger);
+    virtual void update(int fd, EPOLL_EVENTS event);
 
   private:
     Server(Server const &other);
@@ -68,7 +70,7 @@ class Server
 
     Logger logger_;
 
-    UserManager uManager_;
+    ClientManager uManager_;
     ChannelManager cManager_;
 
     int epollfd_;
