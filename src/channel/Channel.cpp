@@ -159,11 +159,11 @@ void Channel::removeInvite(User *user)
     inviteList_.erase(user->nickmask);
 }
 
-void Channel::broadcast(std::string const &message, User *sender)
+void Channel::broadcast(std::string const &message, User *sender, bool sendToSender)
 {
     for (std::map<int, User *>::iterator it = users_.begin(); it != users_.end(); ++it)
     {
-        if (it->second != sender)
+        if (it->second != sender || sendToSender)
             it->second->send(message);
     }
 }
