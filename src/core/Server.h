@@ -6,7 +6,6 @@
 #include "../ft_irc.h"
 #include "../user/User.h"
 #include "../user/UserManager.h"
-#include "ConnectionHandler.h"
 #include "Logger.h"
 
 #include <arpa/inet.h>
@@ -71,8 +70,6 @@ class Server
 
     UserManager uManager_;
     ChannelManager cManager_;
-
-    ConnectionHandler handler_;
 
     int epollfd_;
     std::vector<epoll_event> events_;

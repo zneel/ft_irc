@@ -79,7 +79,7 @@ class Channel
     void addInvite(User *user);
     void removeInvite(User *user);
 
-    void broadcast(std::string const &message, User *sender);
+    void broadcast(std::string const &message, User *sender, bool sendToSender = false);
 
   private:
     int mode_;
