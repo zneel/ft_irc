@@ -66,8 +66,6 @@ void Server::update(int fd, EPOLL_EVENTS event)
     {
         if (it->data.fd == fd)
         {
-            if (event == it->events)
-                return;
             it->events = event;
             epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &(*it));
             return;

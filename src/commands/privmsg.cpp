@@ -14,7 +14,8 @@ std::string privmsg(Message &msg, Client *sender, ChannelManager *cManager)
         Channel *channel = cManager->get(channelName);
         if (channel->hasMode(Channel::BAN))
         {
-            std::string message = ":" + sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
+            std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
+                                  sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
             // if (channel->hasMode(Channel::EXCEPTION) && channel->isUserOnExceptionList(sender))
             //     channel->broadcast(message);
             // else if (channel->isUserBanned(sender))

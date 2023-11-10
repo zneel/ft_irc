@@ -48,7 +48,7 @@ void ChannelManager::removeAll()
 
 void ChannelManager::broadcast(std::string const &message, Channel *channel)
 {
-    std::map<int, Client *> users = channel->getUsers();
+    std::map<int, Client *> users = channel->getClients();
     for (std::map<int, Client *>::iterator it = users.begin(); it != users.end(); ++it)
         it->second->send(message);
 }

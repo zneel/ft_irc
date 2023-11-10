@@ -1,107 +1,138 @@
 #include "../../utils/utils.h"
 #include "../CommandManager.h"
 
+#include <map>
 #include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
 
-struct ChannelParsing
+// clang-format off
+typedef std::vector<std::pair<std::string, std::string> > PairChannelNameAndPassword;
+// clang-format on
+std::string errorCheck(std::string const &channelName, std::string const &nick, std::string const &channelPassword)
 {
-    std::string channelName;
-    std::string channelPassword;
-    Channel::Type type;
-};
+    if (channelName[0] != '#' && channelName[0] != '&')
+        return SERVER_NAME + ERR_NOSUCHCHANNEL(nick, channelName);
 
-static std::vector<ChannelParsing> parseJoin(std::string const &channels, std::string const &passwords)
-{
-    std::vector<ChannelParsing> parsed;
-    std::vector<std::string> splittedChannels = split(channels, ",");
-    std::vector<std::string> splittedPasswords = split(passwords, ",");
-    for (size_t i = 0; i < splittedChannels.size(); i++)
-    {
-        ChannelParsing tmp;
-        tmp.channelName = splittedChannels[i];
-        if (i < splittedPasswords.size())
-            tmp.channelPassword = splittedPasswords[i];
-        else
-            tmp.channelPassword = "";
-        tmp.type = tmp.channelName[0] == '#' ? Channel::REGULAR : Channel::LOCAL;
-        parsed.push_back(tmp);
-    }
-    return parsed;
+    if (channelName.length() <= 1 || channelName.length() > CHANNELLEN)
+        return SERVER_NAME + ERR_NOSUCHCHANNEL(nick, channelName);
+
+    if (channelName.find_first_of(", \a") != std::string::npos)
+        return SERVER_NAME + ERR_NOSUCHCHANNEL(nick, channelName);
+
+    if (channelPassword.find_first_of(", \a") != std::string::npos)
+        return SERVER_NAME + ERR_INVALIDKEY(nick, channelName);
+    return "";
 }
 
-std::string join(Message &msg, Client *user, ChannelManager *cManager)
+std::vector<std::string> getUserList(Channel *channel, Client *client)
 {
-    if (msg.params.empty())
-        return SERVER_NAME + ERR_NEEDMOREPARAMS(user->nick, msg.verb);
-    std::vector<std::string> splitted;
-    for (size_t i = 0; i < msg.params.size(); i++)
-        splitted.push_back(msg.params[i]);
-    if (splitted.size() > 2)
-        return SERVER_NAME + ERR_NEEDMOREPARAMS(user->nick, msg.verb);
-    std::vector<ChannelParsing> parsed = parseJoin(splitted[0], splitted.size() == 2 ? splitted[1] : "");
-    std::map<std::string, Channel *> channels = cManager->getAll();
-    for (std::vector<ChannelParsing>::iterator it = parsed.begin(); it != parsed.end(); ++it)
+    std::vector<std::string> ret;
+    std::map<int, Client *> clients = channel->getClients();
+    std::vector<std::string> nicks;
+    int i = 0;
+    for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
-        std::string broadcastMessage = ":" + user->nickmask + " JOIN " + it->channelName;
-        if (it->channelName[0] != '#' && it->channelName[0] != '&')
-            return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, it->channelName);
-
-        if (it->channelName.length() <= 1 || it->channelName.length() > CHANNELLEN)
-            return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, it->channelName);
-
-        if (it->channelName.find_first_of(", \a") != std::string::npos)
-            return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, it->channelName);
-
-        if (it->channelPassword.find_first_of(", \a") != std::string::npos)
-            return SERVER_NAME + ERR_INVALIDKEY(user->nick, it->channelName);
-
-        if (channels.find(it->channelName) == channels.end())
+        nicks.push_back(client->RolePrefixToString(client->getRoleInChannel(channel->name)) + it->second->nick);
+        if (i % 15 == 0)
         {
-            Channel *newChannel = cManager->create(it->channelName, Channel::BAN, it->type);
-            if (!it->channelPassword.empty())
-                newChannel->password = it->channelPassword;
-            newChannel->addUser(user);
-            newChannel->addOperator(user);
-            newChannel->broadcast(broadcastMessage, user, true);
+            ret.push_back(RPL_NAMREPLY(client->nick, channel->name, nicks));
+            nicks.clear();
         }
+        i++;
+    }
+    return ret;
+}
+
+Channel::Type getChannelType(std::string const &channelName)
+{
+    if (channelName[0] == '#')
+        return Channel::REGULAR;
+    else
+        return Channel::LOCAL;
+}
+
+std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager)
+{
+    std::vector<std::string> ret;
+    std::map<std::string, Channel *> channels;
+    PairChannelNameAndPassword nameAndPassword;
+    std::string broadcastMessage, errMessage;
+    std::vector<std::string> userList;
+    Channel *newChannel, *channel;
+
+    if (msg.params.empty())
+    {
+        ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, msg.verb));
+        return ret;
+    }
+
+    channels = cManager->getAll();
+
+    for (std::deque<std::string>::iterator it = msg.params.begin(); it != msg.params.end(); ++it)
+    {
+        if (*it == "0" || *it == "1")
+            continue;
+        if ((*it)[0] == '#' || (*it)[0] == '&')
+            nameAndPassword.push_back(std::make_pair(*it, ""));
         else
+            nameAndPassword.back().second = *it;
+    }
+
+    for (PairChannelNameAndPassword::iterator it = nameAndPassword.begin(); it != nameAndPassword.end(); ++it)
+    {
+        std::string broadcastMessage = ":" + client->nickmask + " JOIN " + it->first;
+        std::string errMessage = errorCheck(it->first, client->nick, it->second);
+        if (!errMessage.empty())
+            ret.push_back(errMessage);
+        if (channels.find(it->first) == channels.end()) // create new channel
         {
-            Channel *channel = channels.find(it->channelName)->second;
+            newChannel = cManager->create(it->first, Channel::BAN, getChannelType(it->first));
+            if (!it->second.empty())
+                newChannel->password = it->second;
+            newChannel->addUser(client);
+            newChannel->addOperator(client);
+            client->setRoleInChannel(newChannel->name, Client::OPERATOR);
+            newChannel->broadcast(broadcastMessage, client, true);
+            if (!newChannel->topic.empty())
+                ret.push_back(RPL_TOPIC(client->nick, newChannel->name, newChannel->topic));
+            std::vector<std::string> userList = getUserList(newChannel, client);
+            for (std::vector<std::string>::iterator it = userList.begin(); it != userList.end(); ++it)
+                ret.push_back(*it);
+            ret.push_back(RPL_ENDOFNAMES(client->nick, newChannel->name));
+        }
+        else // join existing channel
+        {
+            channel = channels.find(it->first)->second;
             if (!channel)
-                return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, it->channelName);
-            if (channel->hasMode(Channel::BAN))
+                ret.push_back(SERVER_NAME + ERR_NOSUCHCHANNEL(client->nick, it->first));
+            else if (channel->hasMode(Channel::BAN) && channel->hasMode(Channel::EXCEPTION) &&
+                     !channel->isClientOnExceptionList(client) && channel->isClientBanned(client))
             {
-                if (channel->hasMode(Channel::EXCEPTION) && !channel->isUserOnExceptionList(user) &&
-                    channel->isUserBanned(user))
-                {
-                    return SERVER_NAME + ERR_BANNEDFROMCHAN(user->nick, channel->name);
-                }
-                else if (!channel->isUserBanned(user))
-                {
-                    channel->addUser(user);
-                    channel->broadcast(broadcastMessage, user, true);
-                }
-                else
-                    return SERVER_NAME + ERR_BANNEDFROMCHAN(user->nick, channel->name);
+                ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
             }
-            else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getUserCount() >= channel->maxUser)
-                return SERVER_NAME + ERR_CHANNELISFULL(user->nick, channel->name);
-
-            else if (channel->hasMode(Channel::INVITE_ONLY) && !channel->isOnInviteList(user))
-                return SERVER_NAME + ERR_INVITEONLYCHAN(user->nick, channel->name);
-
-            else if (channel->hasMode(Channel::KEY) && channel->password != it->channelPassword)
-                return SERVER_NAME + ERR_BADCHANNELKEY(user->nick, channel->name);
-
+            else if (channel->hasMode(Channel::BAN) && channel->isClientBanned(client))
+                ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
+            else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getClientCount() >= channel->maxUser)
+                ret.push_back(SERVER_NAME + ERR_CHANNELISFULL(client->nick, channel->name));
+            else if (channel->hasMode(Channel::INVITE_ONLY) && !channel->isOnInviteList(client))
+                ret.push_back(SERVER_NAME + ERR_INVITEONLYCHAN(client->nick, channel->name));
+            else if (channel->hasMode(Channel::KEY) && channel->password != it->second)
+                ret.push_back(SERVER_NAME + ERR_BADCHANNELKEY(client->nick, channel->name));
             else
             {
-                channel->addUser(user);
-                channel->broadcast(broadcastMessage, user, true);
+                channel->addUser(client);
+                channel->broadcast(broadcastMessage, client, true);
+                client->setRoleInChannel(channel->name, Client::VOICE);
+                if (!channel->topic.empty())
+                    ret.push_back(RPL_TOPIC(client->nick, channel->name, channel->topic));
+                std::vector<std::string> userList = getUserList(channel, client);
+                for (std::vector<std::string>::iterator it = userList.begin(); it != userList.end(); ++it)
+                    ret.push_back(*it);
+                ret.push_back(RPL_ENDOFNAMES(client->nick, channel->name));
             }
         }
     }
-    return "";
+    return ret;
 }

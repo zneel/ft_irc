@@ -43,7 +43,7 @@ class Channel
     std::string topic;
     int maxUser;
 
-    std::map<int, Client *> getUsers();
+    std::map<int, Client *> getClients();
     std::map<int, Client *> getOperators();
 
     int getMode();
@@ -65,13 +65,13 @@ class Channel
 
     std::string modeToString();
 
-    int getUserCount();
+    int getClientCount();
 
-    bool isUserBanned(Client *user);
+    bool isClientBanned(Client *user);
     void addBan(Client *user);
     void removeBan(Client *user);
 
-    bool isUserOnExceptionList(Client *user);
+    bool isClientOnExceptionList(Client *user);
     void addException(Client *user);
     void removeException(Client *user);
 
@@ -84,7 +84,7 @@ class Channel
   private:
     int mode_;
     int type_;
-    std::map<int, Client *> users_;
+    std::map<int, Client *> clients_;
     std::map<int, Client *> operators_;
     std::map<std::string, Client *> ban_;
     std::map<std::string, Client *> exceptionList_;

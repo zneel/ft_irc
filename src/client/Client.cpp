@@ -43,6 +43,26 @@ void Client::sendMany(std::vector<std::string> messages)
         send(*it);
 }
 
+Client::RolePrefix Client::getRoleInChannel(std::string const &channelName)
+{
+    return channelRoles_[channelName];
+}
+
+void Client::setRoleInChannel(std::string const &channelName, RolePrefix role)
+{
+    channelRoles_[channelName] = role;
+}
+
+std::string Client::RolePrefixToString(RolePrefix role)
+{
+    if (role == OPERATOR)
+        return "@";
+    else if (role == VOICE)
+        return "+";
+    else
+        return "";
+}
+
 void Client::send(std::string message)
 {
     if (message.empty())

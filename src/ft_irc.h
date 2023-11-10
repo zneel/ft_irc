@@ -3,6 +3,9 @@
 #include <csignal>
 #include <iostream>
 #include <signal.h>
+#include <vector>
+
+#define SERVER_NAME ":ft_irc "
 
 #define MAX_SIZE_SEND_BUFFER 510
 
@@ -64,7 +67,8 @@ std::string const RPL_MOTD(std::string const &client, std::string const &motd);
 // RPL CHANNELS
 std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
                                    std::string const &time);
-std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::string const &nicks);
+std::string const RPL_TOPIC(std::string const &client, std::string const &channel, std::string const &topic);
+std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::vector<std::string> nicks);
 std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel);
 
 // ERR
