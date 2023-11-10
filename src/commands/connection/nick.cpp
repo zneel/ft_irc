@@ -22,5 +22,7 @@ std::string nick(Message &msg, User *user, UserManager *uManager)
     if (isErrChar(msg.params[0]))
         return ERR_ERRONEUSNICKNAME("", "");
     user->nick = msg.params[0];
-    return ":" + oldNick + " NICK " + user->nick;
+    if (!oldNick.empty())
+        return ":" + oldNick + " NICK " + user->nick;
+    return "";
 }

@@ -55,11 +55,11 @@ Message::Message(std::string line)
         params = recupParams(line);
         trailling = recupTrailing(line);
     }
-    std::cout << "verb     :" << verb << ":" << std::endl;
+    std::cout << "verb     :\"" << verb << "\"" << std::endl;
     for (size_t i = 0; i < params.size(); i++)
-        std::cout << "params" << i << "  :" << params[i] << ":" << std::endl;
+        std::cout << "params" << i << "  :\"" << params[i] << "\"" << std::endl;
     if (params.empty())
-        std::cout << "params" << "   :" << "empty" << ":" << std::endl;
-    std::cout << "trailling:" << trailling << ":" << std::endl;
+        std::cout << "params" << "   :\"" << "empty" << "\"" << std::endl;
+    std::cout << "trailling:\"" << trailling << "\"" << std::endl;
     std::cout << "=============================================" << std::endl;
 }
