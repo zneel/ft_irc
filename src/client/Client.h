@@ -7,6 +7,7 @@
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <vector>
 
 class Client
 {
@@ -23,6 +24,7 @@ class Client
     void setRecvBuffer(std::string const &recvBuffer);
 
     void send(std::string message);
+    void sendMany(std::vector<std::string> message);
 
     bool shouldDisconnect() const;
     void setShouldDisconnect(bool shouldDisconnect);
