@@ -41,7 +41,7 @@ class Channel
     std::string name;
     std::string password;
     std::string topic;
-    int maxUser;
+    int maxClient;
 
     std::map<int, Client *> getClients();
     std::map<int, Client *> getOperators();
@@ -57,29 +57,31 @@ class Channel
     void addType(int type);
     bool hasType(int type);
 
-    void addUser(Client *user);
-    void removeUser(Client *user);
+    void addClient(Client *client);
+    void removeClient(Client *client);
 
-    void addOperator(Client *user);
-    void removeOperator(Client *user);
+    void addOperator(Client *client);
+    void removeOperator(Client *client);
 
     std::string modeToString();
 
     int getClientCount();
 
-    bool isClientBanned(Client *user);
-    void addBan(Client *user);
-    void removeBan(Client *user);
+    bool isClientBanned(Client *client);
+    void addBan(Client *client);
+    void removeBan(Client *client);
 
-    bool isClientOnExceptionList(Client *user);
-    void addException(Client *user);
-    void removeException(Client *user);
+    bool isClientOnExceptionList(Client *client);
+    void addException(Client *client);
+    void removeException(Client *client);
 
-    bool isOnInviteList(Client *user);
-    void addInvite(Client *user);
-    void removeInvite(Client *user);
+    bool isOnInviteList(Client *client);
+    void addInvite(Client *client);
+    void removeInvite(Client *client);
 
     void broadcast(std::string const &message, Client *sender, bool sendToSender = false);
+
+    bool isClientOnChannel(Client *client);
 
   private:
     int mode_;

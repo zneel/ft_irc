@@ -10,7 +10,8 @@
 // clang-format off
 typedef std::vector<std::pair<std::string, std::string> > PairChannelNameAndPassword;
 // clang-format on
-std::string errorCheck(std::string const &channelName, std::string const &nick, std::string const &channelPassword)
+static std::string errorCheck(std::string const &channelName, std::string const &nick,
+                              std::string const &channelPassword)
 {
     if (channelName[0] != '#' && channelName[0] != '&')
         return SERVER_NAME + ERR_NOSUCHCHANNEL(nick, channelName);
@@ -91,7 +92,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             newChannel = cManager->create(it->first, Channel::BAN, getChannelType(it->first));
             if (!it->second.empty())
                 newChannel->password = it->second;
-            newChannel->addUser(client);
+            newChannel->addClient(client);
             newChannel->addOperator(client);
             client->setRoleInChannel(newChannel->name, Client::OPERATOR);
             newChannel->broadcast(broadcastMessage, client, true);
@@ -114,7 +115,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             }
             else if (channel->hasMode(Channel::BAN) && channel->isClientBanned(client))
                 ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
-            else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getClientCount() >= channel->maxUser)
+            else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getClientCount() >= channel->maxClient)
                 ret.push_back(SERVER_NAME + ERR_CHANNELISFULL(client->nick, channel->name));
             else if (channel->hasMode(Channel::INVITE_ONLY) && !channel->isOnInviteList(client))
                 ret.push_back(SERVER_NAME + ERR_INVITEONLYCHAN(client->nick, channel->name));
@@ -122,7 +123,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
                 ret.push_back(SERVER_NAME + ERR_BADCHANNELKEY(client->nick, channel->name));
             else
             {
-                channel->addUser(client);
+                channel->addClient(client);
                 channel->broadcast(broadcastMessage, client, true);
                 client->setRoleInChannel(channel->name, Client::VOICE);
                 if (!channel->topic.empty())

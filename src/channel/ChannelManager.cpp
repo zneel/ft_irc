@@ -53,6 +53,11 @@ void ChannelManager::broadcast(std::string const &message, Channel *channel)
         it->second->send(message);
 }
 
+bool ChannelManager::channelExists(std::string const &name) const
+{
+    return channels_.find(name) != channels_.end();
+}
+
 ChannelManager &ChannelManager::operator=(ChannelManager const &rhs)
 {
     if (this != &rhs)
