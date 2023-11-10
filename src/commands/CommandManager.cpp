@@ -105,6 +105,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
                 sender->send(ping(msgs.front(), sender));
             if (msgs.front().verb.compare("JOIN") == 0)
                 sender->sendMany(join(msgs.front(), sender, cManager_));
+            if (msgs.front().verb.compare("PART") == 0)
+                sender->sendMany(part(msgs.front(), sender, cManager_));
             if (msgs.front().verb.compare("PRIVMSG") == 0)
                 sender->send(privmsg(msgs.front(), sender, cManager_));
         }

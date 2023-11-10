@@ -63,12 +63,12 @@ bool Channel::hasType(int type)
     return type_ & type;
 }
 
-void Channel::addUser(Client *user)
+void Channel::addClient(Client *user)
 {
     clients_[user->getFd()] = user;
 }
 
-void Channel::removeUser(Client *user)
+void Channel::removeClient(Client *user)
 {
     clients_.erase(user->getFd());
 }
@@ -166,4 +166,9 @@ void Channel::broadcast(std::string const &message, Client *sender, bool sendToS
         if (it->second != sender || sendToSender)
             it->second->send(message);
     }
+}
+
+bool Channel::isClientOnChannel(Client *client)
+{
+    return clients_.find(client->getFd()) != clients_.end();
 }

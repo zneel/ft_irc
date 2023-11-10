@@ -18,6 +18,7 @@ class ChannelManager
     void remove(std::string name);
     void removeAll();
     void broadcast(std::string const &message, Channel *channel);
+    bool channelExists(std::string const &name) const;
 
   private:
     ChannelManager &operator=(ChannelManager const &rhs);

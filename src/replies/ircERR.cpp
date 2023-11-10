@@ -100,3 +100,8 @@ std::string const ERR_CANNOTSENDTOCHAN(std::string const &client, std::string co
 {
     return "404 " + client + " " + channel + " :Cannot send to channel";
 }
+
+std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const &channel)
+{
+    return "442 " + client + " " + channel + " :You're not on that channel";
+}
