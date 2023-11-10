@@ -8,9 +8,9 @@ Channel::~Channel()
 {
 }
 
-std::map<int, Client *> Channel::getUsers()
+std::map<int, Client *> Channel::getClients()
 {
-    return users_;
+    return clients_;
 }
 
 std::map<int, Client *> Channel::getOperators()
@@ -65,12 +65,12 @@ bool Channel::hasType(int type)
 
 void Channel::addUser(Client *user)
 {
-    users_[user->getFd()] = user;
+    clients_[user->getFd()] = user;
 }
 
 void Channel::removeUser(Client *user)
 {
-    users_.erase(user->getFd());
+    clients_.erase(user->getFd());
 }
 
 void Channel::addOperator(Client *user)
@@ -109,12 +109,12 @@ std::string Channel::modeToString()
     return mode;
 }
 
-int Channel::getUserCount()
+int Channel::getClientCount()
 {
-    return users_.size();
+    return clients_.size();
 }
 
-bool Channel::isUserBanned(Client *user)
+bool Channel::isClientBanned(Client *user)
 {
     return ban_.find(user->nickmask) != ban_.end();
 }
@@ -129,7 +129,7 @@ void Channel::removeBan(Client *user)
     ban_.erase(user->nickmask);
 }
 
-bool Channel::isUserOnExceptionList(Client *user)
+bool Channel::isClientOnExceptionList(Client *user)
 {
     return exceptionList_.find(user->nickmask) != exceptionList_.end();
 }
@@ -161,7 +161,7 @@ void Channel::removeInvite(Client *user)
 
 void Channel::broadcast(std::string const &message, Client *sender, bool sendToSender)
 {
-    for (std::map<int, Client *>::iterator it = users_.begin(); it != users_.end(); ++it)
+    for (std::map<int, Client *>::iterator it = clients_.begin(); it != clients_.end(); ++it)
     {
         if (it->second != sender || sendToSender)
             it->second->send(message);

@@ -7,8 +7,7 @@
 #include "../message/Message.h"
 #include <deque>
 #include <string>
-
-#define SERVER_NAME ":ft_irc "
+#include <vector>
 
 class CommandManager
 {
@@ -35,5 +34,5 @@ std::string user(Message &msg, Client *client);
 std::string motd(std::string const &msg, Client *client);
 std::string ping(Message &msg, Client *client);
 std::string pong(std::string token);
-std::string join(Message &msg, Client *client, ChannelManager *cManager);
+std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager);
 std::string privmsg(Message &msg, Client *sender, ChannelManager *cManager);

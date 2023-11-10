@@ -1,5 +1,6 @@
 #include "../ft_irc.h"
 #include <string>
+#include <vector>
 
 std::string const RPL_WELCOME(std::string const &client, std::string const &nickmask)
 {
@@ -42,17 +43,29 @@ std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const 
     return "333 " + client + " " + channel + " " + nick + " " + time;
 }
 
-std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::string const &nicks)
+std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::vector<std::string> nicks)
 {
-    return "353 " + client + " = " + channel + " :" + nicks;
+    std::string ret = SERVER_NAME + std::string("353 " + client + " = " + channel + " :");
+    for (std::vector<std::string>::iterator it = nicks.begin(); it != nicks.end(); ++it)
+    {
+        ret += *it;
+        if (it + 1 != nicks.end())
+            ret += " ";
+    }
+    return ret;
 }
 
 std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel)
 {
-    return "366 " + client + " " + channel + " :End of /NAMES list";
+    return SERVER_NAME + std::string("366 " + client + " " + channel + " :End of /NAMES list");
 }
 
 std::string const RPL_MOTD(std::string const &client, std::string const &motd)
 {
     return "372 " + client + " :" + motd;
+}
+
+std::string const RPL_TOPIC(std::string const &client, std::string const &channel, std::string const &topic)
+{
+    return "332 " + client + " " + channel + " :" + topic;
 }
