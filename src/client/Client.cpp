@@ -37,6 +37,12 @@ void Client::setRecvBuffer(std::string const &recvBuffer)
     recvBuffer_ = recvBuffer;
 }
 
+void Client::sendMany(std::vector<std::string> messages)
+{
+    for (std::vector<std::string>::iterator it = messages.begin(); it != messages.end(); ++it)
+        send(*it);
+}
+
 void Client::send(std::string message)
 {
     if (message.empty())
