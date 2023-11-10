@@ -3,10 +3,7 @@
 
 std::string ping(Message &msg, Client *user)
 {
-    std::string token;
-
-    if (msg.parameters.empty())
+    if (msg.params.empty())
         return SERVER_NAME + ERR_NEEDMOREPARAMS(user->nick, "PING");
-    token = msg.parameters.substr(0, msg.parameters.find(" "));
-    return pong(token);
+    return pong(msg.params[0]);
 }
