@@ -9,51 +9,51 @@ ClientManager::~ClientManager()
     removeAll();
 }
 
-int ClientManager::getUserCount()
+int ClientManager::getClientCount()
 {
-    return users_.size();
+    return clients_.size();
 }
 
-std::map<int, Client *> &ClientManager::getUsers()
+std::map<int, Client *> &ClientManager::getClients()
 {
-    return users_;
+    return clients_;
 }
 
 Client *ClientManager::get(int fd)
 {
-    UserMapIterator it = users_.find(fd);
-    if (it != users_.end())
+    ClientMapIterator it = clients_.find(fd);
+    if (it != clients_.end())
         return it->second;
     return NULL;
 }
 
 Client *ClientManager::create(int fd, std::string ip, IObserver *observer)
 {
-    Client *newUser = new Client(fd, ip, observer);
-    users_[fd] = newUser;
-    return users_[fd];
+    Client *newClient = new Client(fd, ip, observer);
+    clients_[fd] = newClient;
+    return clients_[fd];
 }
 
 void ClientManager::remove(int fd)
 {
-    UserMapIterator it = users_.find(fd);
-    if (it != users_.end())
+    ClientMapIterator it = clients_.find(fd);
+    if (it != clients_.end())
     {
         delete it->second;
-        users_.erase(it);
+        clients_.erase(it);
     }
 }
 
 void ClientManager::removeAll()
 {
-    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
+    for (ClientMapIterator it = clients_.begin(); it != clients_.end(); ++it)
         delete it->second;
-    users_.clear();
+    clients_.clear();
 }
 
 bool ClientManager::nickAlreadyUsed(std::string const &nick)
 {
-    for (UserMapIterator it = users_.begin(); it != users_.end(); ++it)
+    for (ClientMapIterator it = clients_.begin(); it != clients_.end(); ++it)
     {
         if (it->second->nick == nick)
             return true;

@@ -13,30 +13,30 @@ class ClientManager
 {
 
   public:
-    typedef std::map<int, Client *>::iterator UserMapIterator;
+    typedef std::map<int, Client *>::iterator ClientMapIterator;
     typedef std::vector<epoll_event>::iterator EventsIterator;
 
     ClientManager();
     ~ClientManager();
-    int getUserCount();
-    std::map<int, Client *> &getUsers();
+    int getClientCount();
+    std::map<int, Client *> &getClients();
     Client *get(int fd);
 
     /**
-     * @brief Creates a new user.
+     * @brief Creates a new client.
      *
      */
     Client *create(int fd, std::string ip, IObserver *observer);
 
     /**
-     * @brief Removes a user from the user manager.
+     * @brief Removes a client from the client manager.
      *
-     * @param fd The file descriptor of the user to remove.
+     * @param fd The file descriptor of the client to remove.
      */
     void remove(int fd);
 
     /**
-     * @brief Removes all users from the user manager.
+     * @brief Removes all clients from the client manager.
      */
     void removeAll();
 
@@ -45,5 +45,5 @@ class ClientManager
   private:
     ClientManager &operator=(ClientManager const &rhs);
     ClientManager(ClientManager const &other);
-    std::map<int, Client *> users_;
+    std::map<int, Client *> clients_;
 };

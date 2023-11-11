@@ -63,7 +63,7 @@ class Server : public IObserver
 
     bool hasCRLF(std::string &buffer);
 
-    void disconnectUsers();
+    void disconnectClients();
 
     std::string const port_;
     std::string const password_;

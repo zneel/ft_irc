@@ -30,7 +30,7 @@ void Server::start()
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        disconnectUsers();
+        disconnectClients();
         ssize_t eventCount = epoll_wait(epollfd_, events_.data(), events_.size(), -1);
         if (eventCount < 0)
             throw std::runtime_error("epoll_wait: " + std::string(strerror(errno)));
@@ -197,10 +197,11 @@ bool Server::hasCRLF(std::string &buffer)
     return (buffer.find("\r\n") != std::string::npos);
 }
 
-void Server::disconnectUsers()
+void Server::disconnectClients()
 {
     std::vector<int> toRemove;
-    for (std::map<int, Client *>::iterator it = uManager_.getUsers().begin(); it != uManager_.getUsers().end(); ++it)
+    for (std::map<int, Client *>::iterator it = uManager_.getClients().begin(); it != uManager_.getClients().end();
+         ++it)
     {
         if (it->second->shouldDisconnect() && it->second->getSendBuffer().empty())
             toRemove.push_back(it->first);

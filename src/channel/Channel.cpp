@@ -63,24 +63,24 @@ bool Channel::hasType(int type)
     return type_ & type;
 }
 
-void Channel::addClient(Client *user)
+void Channel::addClient(Client *client)
 {
-    clients_[user->getFd()] = user;
+    clients_[client->getFd()] = client;
 }
 
-void Channel::removeClient(Client *user)
+void Channel::removeClient(Client *client)
 {
-    clients_.erase(user->getFd());
+    clients_.erase(client->getFd());
 }
 
-void Channel::addOperator(Client *user)
+void Channel::addOperator(Client *client)
 {
-    operators_[user->getFd()] = user;
+    operators_[client->getFd()] = client;
 }
 
-void Channel::removeOperator(Client *user)
+void Channel::removeOperator(Client *client)
 {
-    operators_.erase(user->getFd());
+    operators_.erase(client->getFd());
 }
 
 std::string Channel::modeToString()
@@ -114,49 +114,49 @@ int Channel::getClientCount()
     return clients_.size();
 }
 
-bool Channel::isClientBanned(Client *user)
+bool Channel::isClientBanned(Client *client)
 {
-    return ban_.find(user->nickmask) != ban_.end();
+    return ban_.find(client->nickmask) != ban_.end();
 }
 
-void Channel::addBan(Client *user)
+void Channel::addBan(Client *client)
 {
-    ban_[user->nickmask] = user;
+    ban_[client->nickmask] = client;
 }
 
-void Channel::removeBan(Client *user)
+void Channel::removeBan(Client *client)
 {
-    ban_.erase(user->nickmask);
+    ban_.erase(client->nickmask);
 }
 
-bool Channel::isClientOnExceptionList(Client *user)
+bool Channel::isClientOnExceptionList(Client *client)
 {
-    return exceptionList_.find(user->nickmask) != exceptionList_.end();
+    return exceptionList_.find(client->nickmask) != exceptionList_.end();
 }
 
-void Channel::addException(Client *user)
+void Channel::addException(Client *client)
 {
-    exceptionList_[user->nickmask] = user;
+    exceptionList_[client->nickmask] = client;
 }
 
-void Channel::removeException(Client *user)
+void Channel::removeException(Client *client)
 {
-    exceptionList_.erase(user->nickmask);
+    exceptionList_.erase(client->nickmask);
 }
 
-bool Channel::isOnInviteList(Client *user)
+bool Channel::isOnInviteList(Client *client)
 {
-    return inviteList_.find(user->nickmask) != inviteList_.end();
+    return inviteList_.find(client->nickmask) != inviteList_.end();
 }
 
-void Channel::addInvite(Client *user)
+void Channel::addInvite(Client *client)
 {
-    inviteList_[user->nickmask] = user;
+    inviteList_[client->nickmask] = client;
 }
 
-void Channel::removeInvite(Client *user)
+void Channel::removeInvite(Client *client)
 {
-    inviteList_.erase(user->nickmask);
+    inviteList_.erase(client->nickmask);
 }
 
 void Channel::broadcast(std::string const &message, Client *sender, bool sendToSender)
