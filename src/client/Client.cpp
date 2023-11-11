@@ -3,7 +3,7 @@
 #include <vector>
 
 Client::Client(int fd, std::string ip, IObserver *observer)
-    : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false),
+    : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false), modes_(0),
       capSent_(false), passSent_(false)
 {
     observer_ = observer;
@@ -63,6 +63,42 @@ std::string Client::RolePrefixToString(RolePrefix role)
         return "+";
     else
         return "";
+}
+
+Client::UserModes Client::getMode(char mode) const
+{
+    if (mode == 'i')
+        return (INVISIBLE);
+    else if (mode == 'o')
+        return (OPER);
+    else
+        return (NOT_SUPPORTED);
+}
+
+void Client::addMode(int modes)
+{
+    modes_ |= modes;
+}
+
+void Client::removeMode(int mode)
+{
+    modes_ &= ~mode;
+}
+
+int Client::getModes() const
+{
+    return modes_;
+}
+
+std::string Client::modesToStr()
+{
+    std::string ret;
+    ret += "+";
+    if (modes_ & INVISIBLE)
+        ret += "i";
+    if (modes_ & OPER)
+        ret += "o";
+    return (ret);
 }
 
 void Client::send(std::string message)
@@ -146,7 +182,7 @@ void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
 
 void Client::removePrivmsg(std::string &nick)
 {
-    for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); )
+    for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end();)
     {
         if ((*it)->nick.compare(nick) == 0)
             it = privmsgWith_.erase(it);

@@ -46,6 +46,16 @@ std::string const ERR_NOOPERHOST(std::string const &client)
     return "491 " + client + " :No O-lines for your host";
 }
 
+std::string const ERR_NOSUCHNICK(std::string const &client, std::string const &nick)
+{
+    return "401 " + client + " " + nick + " :No such nick/channel";
+}
+
+std::string const ERR_USERSDONTMATCH(std::string const &client)
+{
+    return "502 " + client + " :Cant change mode for other users";
+}
+
 ////
 // CHANNELS
 ////
@@ -106,8 +116,18 @@ std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const 
     return "442 " + client + " " + channel + " :You're not on that channel";
 }
 
-
-std::string const ERR_NOSUCHNICK(std::string const &client, std::string const &badNick)
+//// MODES
+std::string const ERR_UMODEUNKNOWNFLAG(std::string const &client)
 {
-    return "401 " + client + " " + badNick + " :No such nick/channel";
+    return "501 " + client + " :Unknown MODE flag";
+}
+
+std::string const ERR_UNKNOWNMODE(std::string const &client, std::string const &modechar)
+{
+    return "472 " + client + " " + modechar + " :is unknown mode char to me";
+}
+
+std::string const ERR_CHANOPRIVSNEEDED(std::string const &client, std::string const &channel)
+{
+    return "482 " + client + " " + channel + " :You're not channel operator";
 }

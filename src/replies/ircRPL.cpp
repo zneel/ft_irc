@@ -69,3 +69,15 @@ std::string const RPL_TOPIC(std::string const &client, std::string const &channe
 {
     return "332 " + client + " " + channel + " :" + topic;
 }
+
+//// MODE
+
+std::string const RPL_UMODEIS(std::string const &client, std::string const &umodes)
+{
+    return "221 " + client + " " + umodes;
+}
+
+std::string const RPL_CHANNELMODEIS(std::string const &client, std::string const &channel, std::string const &modes)
+{
+    return "324 " + client + " " + channel + " " + modes;
+}

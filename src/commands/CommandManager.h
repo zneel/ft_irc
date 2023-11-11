@@ -40,3 +40,4 @@ std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, Chann
 
 std::string error(Message &msg, Client *user);
 std::string quit(Message &msg, Client *user, ChannelManager *chanManager);
+std::vector<std::string> mode(Message &msg, Client *client, ClientManager *cManager, ChannelManager *chManager);

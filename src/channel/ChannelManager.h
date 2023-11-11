@@ -13,7 +13,7 @@ class ChannelManager
     ~ChannelManager();
 
     Channel *get(std::string &name) const;
-    Channel *create(std::string name, Channel::Mode mode, Channel::Type type);
+    Channel *create(std::string name, Channel::ChannelMode mode, Channel::Type type);
     std::map<std::string, Channel *> getAll() const;
     void remove(std::string name);
     void removeAll();
