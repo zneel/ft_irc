@@ -22,8 +22,9 @@ class Client
 
     enum UserModes
     {
-        INVISIBLE = 0,
-        OPER,
+        INVISIBLE = (1 << 0),
+        OPER = (1 << 1),
+        NOT_SUPPORTED = (1 << 2),
         USER_MODES_COUNT
     };
 
@@ -44,6 +45,12 @@ class Client
     RolePrefix getRoleInChannel(std::string const &channelName);
     void setRoleInChannel(std::string const &channelName, RolePrefix role);
     std::string RolePrefixToString(RolePrefix role);
+
+    UserModes getMode(char mode) const;
+    void addMode(int mode);
+    void removeMode(int mode);
+    int getModes() const;
+    std::string modesToStr();
 
     bool shouldDisconnect() const;
     void setShouldDisconnect(bool shouldDisconnect);
@@ -86,6 +93,7 @@ class Client
     int fd_;
     bool shouldDisconnect_;
     bool registered_;
+    int modes_;
 
     bool capSent_;
     bool passSent_;

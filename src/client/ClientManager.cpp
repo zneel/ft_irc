@@ -51,7 +51,7 @@ void ClientManager::removeAll()
     clients_.clear();
 }
 
-bool ClientManager::nickAlreadyUsed(std::string const &nick)
+bool ClientManager::nickExists(std::string const &nick)
 {
     for (ClientMapIterator it = clients_.begin(); it != clients_.end(); ++it)
     {
@@ -59,4 +59,9 @@ bool ClientManager::nickAlreadyUsed(std::string const &nick)
             return true;
     }
     return false;
+}
+
+bool ClientManager::isSameClient(Client *client, std::string const &nick)
+{
+    return client->nick == nick;
 }

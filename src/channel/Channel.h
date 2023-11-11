@@ -14,7 +14,7 @@ class Channel
     // k = key
     // o = channel operator
     // l = limit
-    enum Mode
+    enum ChannelMode
     {
         BAN = (1 << 0),                  // +b
         EXCEPTION = (1 << 1),            // +e
@@ -26,6 +26,7 @@ class Channel
         SECRET = (1 << 7),               // +s
         PROTECTED_TOPIC = (1 << 8),      // +t
         NO_EXTERNAL_MESSAGES = (1 << 9), // +n
+        NOT_SUPPORTED = (1 << 10),
     };
 
     // only #
@@ -35,7 +36,7 @@ class Channel
         LOCAL = (1 << 1),
     };
 
-    Channel(std::string name, Mode mode, Type type);
+    Channel(std::string name, ChannelMode mode, Type type);
     ~Channel();
 
     std::string name;
@@ -51,6 +52,10 @@ class Channel
     void addMode(int mode);
     bool hasMode(int mode);
     bool hasModes(int modes);
+    ChannelMode getMode(char mode) const;
+    void removeMode(int mode);
+    std::string modesToStr();
+    std::string modeToStr();
 
     int getType();
     void setType(int type);
@@ -62,8 +67,7 @@ class Channel
 
     void addOperator(Client *client);
     void removeOperator(Client *client);
-
-    std::string modeToString();
+    bool isOperator(Client *client);
 
     int getClientCount();
 
@@ -84,7 +88,7 @@ class Channel
     bool isClientOnChannel(Client *client);
 
   private:
-    int mode_;
+    int modes_;
     int type_;
     std::map<int, Client *> clients_;
     std::map<int, Client *> operators_;
