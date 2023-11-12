@@ -17,7 +17,6 @@ class Client
     {
         OPERATOR = 0,
         VOICE,
-        ROLE_PREFIX_COUNT
     };
 
     enum UserModes
@@ -25,7 +24,6 @@ class Client
         INVISIBLE = (1 << 0),
         OPER = (1 << 1),
         NOT_SUPPORTED = (1 << 2),
-        USER_MODES_COUNT
     };
 
     Client(int fd, std::string ip, IObserver *observer);

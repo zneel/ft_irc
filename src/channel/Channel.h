@@ -16,17 +16,13 @@ class Channel
     // l = limit
     enum ChannelMode
     {
-        BAN = (1 << 0),                  // +b
-        EXCEPTION = (1 << 1),            // +e
-        CLIENT_LIMIT = (1 << 2),         // +l
-        INVITE_ONLY = (1 << 3),          // +i
-        INVITE_EXCEPTION = (1 << 4),     // +I
-        KEY = (1 << 5),                  // +k
-        MODERATED = (1 << 6),            // +m
-        SECRET = (1 << 7),               // +s
-        PROTECTED_TOPIC = (1 << 8),      // +t
-        NO_EXTERNAL_MESSAGES = (1 << 9), // +n
-        NOT_SUPPORTED = (1 << 10),
+        BAN = (1 << 0),             // +b
+        CLIENT_LIMIT = (1 << 1),    // +l
+        INVITE_ONLY = (1 << 2),     // +i
+        KEY = (1 << 3),             // +k
+        PROTECTED_TOPIC = (1 << 4), // +t
+        OPERATOR = (1 << 5),        // +o
+        NOT_SUPPORTED = (1 << 6),
     };
 
     // only #
@@ -75,10 +71,6 @@ class Channel
     void addBan(Client *client);
     void removeBan(Client *client);
 
-    bool isClientOnExceptionList(Client *client);
-    void addException(Client *client);
-    void removeException(Client *client);
-
     bool isOnInviteList(Client *client);
     void addInvite(Client *client);
     void removeInvite(Client *client);
@@ -93,6 +85,5 @@ class Channel
     std::map<int, Client *> clients_;
     std::map<int, Client *> operators_;
     std::map<std::string, Client *> ban_;
-    std::map<std::string, Client *> exceptionList_;
     std::map<std::string, Client *> inviteList_;
 };

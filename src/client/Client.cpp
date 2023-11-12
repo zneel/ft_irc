@@ -59,8 +59,6 @@ std::string Client::RolePrefixToString(RolePrefix role)
 {
     if (role == OPERATOR)
         return "@";
-    else if (role == VOICE)
-        return "+";
     else
         return "";
 }
