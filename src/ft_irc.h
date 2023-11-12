@@ -10,32 +10,9 @@
 #define MAX_SIZE_SEND_BUFFER 510
 
 // TOKEN PACK 1
-#define AWAYLEN 200
-#define CASEMAPPING "ascii"
-#define CHANLIMIT "#:50"
-#define CHANMODES ""
 #define CHANNELLEN 32
-#define CHANTYPES "#"
-#define ELIST "T" // C for creation time | M for mask | N for !mask | T for topic | U for user count
-#define EXCEPTS ""
-#define EXTBAN ""
-#define HOSTLEN 64
-#define INVEX ""
-#define KICKLEN 200
-#define MAXLIST ""
-#define MAXTARGET 4
-#define MODES ""
-// TOKEN PACK 2
-#define NETWORK "ft_irc"
 #define NICKLEN 31
-#define PREFIX ""
-#define SAFELIST ""
-#define SILENCE 15
-#define STATUSMSG "@+"
-#define TARGMAX "KICK:1,LIST:1,PRIVMSG:4,WHOIS:1"
-#define TOPICLEN 300
 #define USERLEN 18
-#define MAX_SIZE_NICK 31
 #define CHANNEL_MAX_USER 20
 #define CHANNEL_MAX_KEY_SIZE 50
 #define CRLF "\r\n"

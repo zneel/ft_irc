@@ -27,6 +27,16 @@ Client *ClientManager::get(int fd)
     return NULL;
 }
 
+Client *ClientManager::getByNick(std::string const &nick)
+{
+    for (std::map<int, Client *>::const_iterator it = clients_.begin(); it != clients_.end(); ++it)
+    {
+        if (it->second->nick == nick)
+            return it->second;
+    }
+    return NULL;
+}
+
 Client *ClientManager::create(int fd, std::string ip, IObserver *observer)
 {
     Client *newClient = new Client(fd, ip, observer);

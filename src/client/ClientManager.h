@@ -21,6 +21,7 @@ class ClientManager
     int getClientCount();
     std::map<int, Client *> &getClients();
     Client *get(int fd);
+    Client *getByNick(std::string const &nick);
     Client *create(int fd, std::string ip, IObserver *observer);
     void remove(int fd);
     void removeAll();

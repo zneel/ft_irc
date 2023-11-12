@@ -20,53 +20,11 @@ std::string toString(int nb)
 
 void CommandManager::sendIsupport(Client *sender)
 {
-    {
-        std::string buf;
-        buf.append(" AWAYLEN=" + toString(AWAYLEN));
-        buf.append(" CASEMAPPING=");
-        buf.append(CASEMAPPING);
-        buf.append(" CHANLIMIT=");
-        buf.append(CHANLIMIT);
-        buf.append(" CHANMODES=");
-        buf.append(CHANMODES);
-        buf.append(" CHANNELLEN=" + toString(CHANNELLEN));
-        buf.append(" CHANTYPES=");
-        buf.append(CHANTYPES);
-        buf.append(" ELIST=");
-        buf.append(ELIST);
-        buf.append(" EXCEPTS=");
-        buf.append(EXCEPTS);
-        buf.append(" EXTBAN=");
-        buf.append(EXTBAN);
-        buf.append(" HOSTLEN=" + toString(HOSTLEN));
-        buf.append(" INVEX=");
-        buf.append(INVEX);
-        buf.append(" KICKLEN=" + toString(KICKLEN));
-        sender->send(SERVER_NAME + RPL_ISUPPORT(sender->nick, buf));
-    }
-    {
-        std::string buf;
-        buf.append(" MAXLIST=");
-        buf.append(MAXLIST);
-        buf.append(" MAXTARGET=" + toString(MAXTARGET));
-        buf.append(" MODES=");
-        buf.append(MODES);
-        buf.append(" NETWORK=");
-        buf.append(NETWORK);
-        buf.append(" NICKLEN=" + toString(NICKLEN));
-        buf.append(" PREFIX=");
-        buf.append(PREFIX);
-        buf.append(" SAFELIST");
-        buf.append(SAFELIST);
-        buf.append(" SILENCE=" + toString(SILENCE));
-        buf.append(" STATUSMSG=");
-        buf.append(STATUSMSG);
-        buf.append(" TARGMAX=");
-        buf.append(TARGMAX);
-        buf.append(" TOPICLEN=" + toString(TOPICLEN));
-        buf.append(" USERLEN=" + toString(USERLEN));
-        sender->send(SERVER_NAME + RPL_ISUPPORT(sender->nick, buf));
-    }
+    std::string buf;
+    buf.append(" CHANNELLEN=" + toString(CHANNELLEN));
+    buf.append(" NICKLEN=" + toString(NICKLEN));
+    buf.append(" USERLEN=" + toString(USERLEN));
+    sender->send(SERVER_NAME + RPL_ISUPPORT(sender->nick, buf));
 }
 
 void CommandManager::sendMotd(Client *sender)

@@ -49,27 +49,19 @@ Channel::ChannelMode Channel::getMode(char mode) const
     switch (mode)
     {
     case 'b':
-        return (BAN);
-    case 'e':
-        return (EXCEPTION);
+        return BAN;
     case 'l':
-        return (CLIENT_LIMIT);
+        return CLIENT_LIMIT;
     case 'i':
-        return (INVITE_ONLY);
-    case 'I':
-        return (INVITE_EXCEPTION);
+        return INVITE_ONLY;
     case 'k':
-        return (KEY);
-    case 'm':
-        return (MODERATED);
-    case 's':
-        return (SECRET);
+        return KEY;
     case 't':
-        return (PROTECTED_TOPIC);
-    case 'n':
-        return (NO_EXTERNAL_MESSAGES);
+        return PROTECTED_TOPIC;
+    case 'o':
+        return OPERATOR;
     default:
-        return (NOT_SUPPORTED);
+        return NOT_SUPPORTED;
     }
 }
 
@@ -81,27 +73,21 @@ void Channel::removeMode(int mode)
 std::string Channel::modesToStr()
 {
     std::string ret;
+    if (modes_ == 0)
+        return ret;
     ret += "+";
     if (hasMode(Channel::BAN))
         ret += "b";
-    if (hasMode(Channel::EXCEPTION))
-        ret += "e";
     if (hasMode(Channel::CLIENT_LIMIT))
         ret += "l";
     if (hasMode(Channel::INVITE_ONLY))
         ret += "i";
-    if (hasMode(Channel::INVITE_EXCEPTION))
-        ret += "I";
     if (hasMode(Channel::KEY))
         ret += "k";
-    if (hasMode(Channel::MODERATED))
-        ret += "m";
-    if (hasMode(Channel::SECRET))
-        ret += "s";
     if (hasMode(Channel::PROTECTED_TOPIC))
         ret += "t";
-    if (hasMode(Channel::NO_EXTERNAL_MESSAGES))
-        ret += "n";
+    if (hasMode(Channel::OPERATOR))
+        ret += "o";
     return ret;
 }
 
@@ -153,26 +139,17 @@ bool Channel::isOperator(Client *client)
 std::string Channel::modeToStr()
 {
     std::string mode;
-    if (hasMode(Channel::BAN))
-        mode += "+b";
-    if (hasMode(Channel::EXCEPTION))
-        mode += "+e";
-    if (hasMode(Channel::CLIENT_LIMIT))
-        mode += "+l";
+    mode += "+";
     if (hasMode(Channel::INVITE_ONLY))
-        mode += "+i";
-    if (hasMode(Channel::INVITE_EXCEPTION))
-        mode += "+I";
-    if (hasMode(Channel::KEY))
-        mode += "+k";
-    if (hasMode(Channel::MODERATED))
-        mode += "+m";
-    if (hasMode(Channel::SECRET))
-        mode += "+s";
+        mode += "i";
     if (hasMode(Channel::PROTECTED_TOPIC))
-        mode += "+t";
-    if (hasMode(Channel::NO_EXTERNAL_MESSAGES))
-        mode += "+n";
+        mode += "t";
+    if (hasMode(Channel::KEY))
+        mode += "k";
+    if (hasMode(Channel::CLIENT_LIMIT))
+        mode += "l";
+    if (hasMode(Channel::OPERATOR))
+        mode += "o";
     return mode;
 }
 
@@ -194,21 +171,6 @@ void Channel::addBan(Client *client)
 void Channel::removeBan(Client *client)
 {
     ban_.erase(client->nickmask);
-}
-
-bool Channel::isClientOnExceptionList(Client *client)
-{
-    return exceptionList_.find(client->nickmask) != exceptionList_.end();
-}
-
-void Channel::addException(Client *client)
-{
-    exceptionList_[client->nickmask] = client;
-}
-
-void Channel::removeException(Client *client)
-{
-    exceptionList_.erase(client->nickmask);
 }
 
 bool Channel::isOnInviteList(Client *client)

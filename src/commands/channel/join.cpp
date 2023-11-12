@@ -108,11 +108,6 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             channel = channels.find(it->first)->second;
             if (!channel)
                 ret.push_back(SERVER_NAME + ERR_NOSUCHCHANNEL(client->nick, it->first));
-            else if (channel->hasMode(Channel::BAN) && channel->hasMode(Channel::EXCEPTION) &&
-                     !channel->isClientOnExceptionList(client) && channel->isClientBanned(client))
-            {
-                ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
-            }
             else if (channel->hasMode(Channel::BAN) && channel->isClientBanned(client))
                 ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
             else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getClientCount() >= channel->maxClient)
@@ -124,7 +119,6 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             else
             {
                 channel->addClient(client);
-                client->setRoleInChannel(channel->name, Client::VOICE);
                 channel->broadcast(broadcastMessage, client, true);
                 if (!channel->topic.empty())
                     ret.push_back(RPL_TOPIC(client->nick, channel->name, channel->topic));
