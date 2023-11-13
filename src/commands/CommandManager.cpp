@@ -93,7 +93,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
         else if (msgs.front().verb.compare("PASS") == 0)
             sender->send(pass(msgs.front(), sender, pwd_));
         else if (sender->isPassSent() && msgs.front().verb.compare("NICK") == 0)
-            sender->send(nick(msgs.front(), sender, uManager_));
+            sender->send(nick(msgs.front(), sender, uManager_, cManager_));
         else if (sender->isPassSent() && msgs.front().verb.compare("USER") == 0)
             sender->send(user(msgs.front(), sender));
         else if (sender->isRegistered())
@@ -115,9 +115,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
         {
             sender->setRegistered(true);
-            sender->nickmask = sender->nick + "!" + sender->username + "@localhost";
             sendIsupport(sender);
-            sender->send(SERVER_NAME + RPL_WELCOME(sender->username, sender->nickmask));
+            sender->send(SERVER_NAME + RPL_WELCOME(sender->nick, sender->nickmask));
             sendMotd(sender);
         }
     }
