@@ -28,7 +28,7 @@ class CommandManager
 
 std::string cap(Message &msg, Client *client);
 std::string pass(Message &msg, Client *client, std::string &password);
-std::string nick(Message &msg, Client *client, ClientManager *uManager);
+std::string nick(Message &msg, Client *client, ClientManager *uManager, ChannelManager *cManager);
 std::string user(Message &msg, Client *client);
 
 std::string motd(std::string const &msg, Client *client);

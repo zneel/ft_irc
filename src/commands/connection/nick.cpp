@@ -8,9 +8,9 @@ bool isErrChar(std::string &nickname)
     return false;
 }
 
-std::string nick(Message &msg, Client *user, ClientManager *uManager)
+std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelManager *cManager)
 {
-    std::string oldNick(user->nick);
+    std::string ret = "";
     if (msg.params.empty())
         return SERVER_NAME + ERR_NONICKNAMEGIVEN("");
     else if (msg.params[0].length() > NICKLEN)
@@ -19,8 +19,16 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager)
         return SERVER_NAME + ERR_NICKNAMEINUSE(msg.params[0], msg.params[0]);
     if (isErrChar(msg.params[0]))
         return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.params[0]);
+    std::map<std::string, Channel *> channels = cManager->getAll();
+    ret = ":" + user->nickmask + " NICK " + msg.params[0];
+    for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); it++)
+    {
+        if (it->second->isClientOnChannel(user))
+        {
+            it->second->broadcast(ret, user);
+        }
+    }
     user->nick = msg.params[0];
-     if (!oldNick.empty())
-        return ":" + oldNick + " NICK " + user->nick + " ; " + oldNick + " changed his nickname to " + user->nick;
-    return "";
+    user->updtadeNickmask();
+    return ret;
 }

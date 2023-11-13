@@ -57,6 +57,8 @@ class Client
     void setOp(bool op);
     bool isOp() const;
 
+    void updtadeNickmask();
+
     void disconnect();
 
     IObserver *observer_;

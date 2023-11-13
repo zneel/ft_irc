@@ -108,6 +108,11 @@ bool Client::isOp() const
     return op_;
 }
 
+void Client::updtadeNickmask() 
+{
+    nickmask = nick + "!" + username + "@localhost";
+}
+
 bool Client::isPassSent() const
 {
     return passSent_ == true;
