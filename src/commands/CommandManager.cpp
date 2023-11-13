@@ -86,7 +86,6 @@ void CommandManager::sendMotd(Client *sender)
 
 void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
 {
-    (void)cManager_;
     while (!msgs.empty())
     {
         if (msgs.front().verb.compare("CAP") == 0)
@@ -101,14 +100,16 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
         {
             if (msgs.front().verb.compare("motd") == 0)
                 sendMotd(sender);
-            if (msgs.front().verb.compare("PING") == 0)
+            else if (msgs.front().verb.compare("PING") == 0)
                 sender->send(ping(msgs.front(), sender));
-            if (msgs.front().verb.compare("JOIN") == 0)
+            else if (msgs.front().verb.compare("JOIN") == 0)
                 sender->sendMany(join(msgs.front(), sender, cManager_));
-            if (msgs.front().verb.compare("PART") == 0)
+            else if (msgs.front().verb.compare("PART") == 0)
                 sender->sendMany(part(msgs.front(), sender, cManager_));
-            if (msgs.front().verb.compare("PRIVMSG") == 0)
+            else if (msgs.front().verb.compare("PRIVMSG") == 0)
                 sender->send(privmsg(msgs.front(), sender, cManager_));
+            else if (msgs.front().verb.compare("QUIT") == 0)
+                sender->send(quit(msgs.front(), sender, cManager_));
         }
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
