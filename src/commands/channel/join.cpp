@@ -35,7 +35,7 @@ std::vector<std::string> getUserList(Channel *channel, Client *client)
     int i = 0;
     for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
-        nicks.push_back(client->RolePrefixToString(client->getRoleInChannel(channel->name)) + it->second->nick);
+        nicks.push_back(it->second->RolePrefixToString(it->second->getRoleInChannel(channel->name)) + it->second->nick);
         if (i % 15 == 0)
         {
             ret.push_back(RPL_NAMREPLY(client->nick, channel->name, nicks));
@@ -124,8 +124,8 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             else
             {
                 channel->addClient(client);
-                channel->broadcast(broadcastMessage, client, true);
                 client->setRoleInChannel(channel->name, Client::VOICE);
+                channel->broadcast(broadcastMessage, client, true);
                 if (!channel->topic.empty())
                     ret.push_back(RPL_TOPIC(client->nick, channel->name, channel->topic));
                 std::vector<std::string> userList = getUserList(channel, client);
