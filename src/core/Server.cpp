@@ -208,6 +208,16 @@ void Server::disconnectClients()
     }
     for (std::vector<int>::iterator it = toRemove.begin(); it != toRemove.end(); ++it)
     {
+        std::map<std::string, Channel *> channels = cManager_.getAll();
+        for (std::map<std::string, Channel *>::iterator itChan = channels.begin(); itChan != channels.end(); itChan++) 
+        {
+            if (itChan->second->isClientOnChannel(uManager_.get(*it)))
+            {
+                itChan->second->removeClient(uManager_.get(*it));
+                if (itChan->second->getClients().empty())
+                    cManager_.remove(itChan->first);
+            }
+        }
         removeFromPolling(*it);
         uManager_.remove(*it);
     }
