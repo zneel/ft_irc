@@ -16,13 +16,12 @@ class Channel
     // l = limit
     enum ChannelMode
     {
-        BAN = (1 << 0),             // +b
-        CLIENT_LIMIT = (1 << 1),    // +l
-        INVITE_ONLY = (1 << 2),     // +i
-        KEY = (1 << 3),             // +k
-        PROTECTED_TOPIC = (1 << 4), // +t
-        OPERATOR = (1 << 5),        // +o
-        NOT_SUPPORTED = (1 << 6),
+        CLIENT_LIMIT = (1 << 0),    // +l
+        INVITE_ONLY = (1 << 1),     // +i
+        KEY = (1 << 2),             // +k
+        PROTECTED_TOPIC = (1 << 3), // +t
+        OPERATOR = (1 << 4),        // +o
+        NONE = (1 << 5),
     };
 
     // only #
@@ -32,7 +31,7 @@ class Channel
         LOCAL = (1 << 1),
     };
 
-    Channel(std::string name, ChannelMode mode, Type type);
+    Channel(std::string name, Type type);
     ~Channel();
 
     std::string name;

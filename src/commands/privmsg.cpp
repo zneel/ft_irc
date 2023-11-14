@@ -21,17 +21,14 @@ std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, Chann
             else
             {
                 Channel *channel = cManager->get(destName);
-                if (channel->hasMode(Channel::BAN))
-                {
-                    std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
-                                          sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
-                    // if (channel->hasMode(Channel::EXCEPTION) && channel->isUserOnExceptionList(sender))
-                    //     channel->broadcast(message);
-                    // else if (channel->isUserBanned(sender))
-                    //     return ERR_CANNOTSENDTOCHAN(sender->nick, msg.params);
-                    // else
-                    channel->broadcast(message, sender);
-                }
+                std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
+                                      sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
+                // if (channel->hasMode(Channel::EXCEPTION) && channel->isUserOnExceptionList(sender))
+                //     channel->broadcast(message);
+                // else if (channel->isUserBanned(sender))
+                //     return ERR_CANNOTSENDTOCHAN(sender->nick, msg.params);
+                // else
+                channel->broadcast(message, sender);
             }
         }
         else

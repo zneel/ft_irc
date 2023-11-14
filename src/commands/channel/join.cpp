@@ -89,7 +89,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             ret.push_back(errMessage);
         if (channels.find(it->first) == channels.end()) // create new channel
         {
-            newChannel = cManager->create(it->first, Channel::BAN, getChannelType(it->first));
+            newChannel = cManager->create(it->first, getChannelType(it->first));
             if (!it->second.empty())
                 newChannel->password = it->second;
             newChannel->addClient(client);
@@ -108,8 +108,6 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             channel = channels.find(it->first)->second;
             if (!channel)
                 ret.push_back(SERVER_NAME + ERR_NOSUCHCHANNEL(client->nick, it->first));
-            else if (channel->hasMode(Channel::BAN) && channel->isClientBanned(client))
-                ret.push_back(SERVER_NAME + ERR_BANNEDFROMCHAN(client->nick, channel->name));
             else if (channel->hasMode(Channel::CLIENT_LIMIT) && channel->getClientCount() >= channel->maxClient)
                 ret.push_back(SERVER_NAME + ERR_CHANNELISFULL(client->nick, channel->name));
             else if (channel->hasMode(Channel::INVITE_ONLY) && !channel->isOnInviteList(client))
@@ -118,6 +116,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
                 ret.push_back(SERVER_NAME + ERR_BADCHANNELKEY(client->nick, channel->name));
             else
             {
+                client->setRoleInChannel(channel->name, Client::VOICE);
                 channel->addClient(client);
                 channel->broadcast(broadcastMessage, client, true);
                 if (!channel->topic.empty())
