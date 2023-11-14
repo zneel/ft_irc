@@ -1,5 +1,24 @@
 #include "CommandManager.h"
+#include <arpa/inet.h>
+#include <cstdlib>
 #include <sys/socket.h>
+
+std::string getSendStr(Message &msg)
+{
+    std::string filename = msg.params[1];
+    std::string ip = msg.params[2];
+    int port = 0;
+    if (msg.params.size() > 3)
+    {
+        port = std::atoi(msg.params[3].c_str());
+        if (port < 1024 || port > 65535)
+            return "";
+        std::stringstream ss;
+        ss << ":DCC SEND" << filename << inet_addr(ip.c_str()) << ntohs(port);
+        return ss.str();
+    }
+    return "";
+}
 
 std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
 {
@@ -8,6 +27,15 @@ std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, Chann
     std::string ret;
     while (!msg.params.empty())
     {
+        if (msg.trailling.find(":DCC SEND") != std::string::npos)
+        {
+            std::string sendStr = getSendStr(msg);
+            if (sendStr.empty())
+                return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
+            sender->send(sendStr);
+            msg.params.pop_front();
+            continue;
+        }
         std::string destName = msg.params.front();
         std::string userMessage = msg.trailling;
         if (*(msg.params.front().begin()) == '#')
@@ -23,11 +51,6 @@ std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, Chann
                 Channel *channel = cManager->get(destName);
                 std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
                                       sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
-                // if (channel->hasMode(Channel::EXCEPTION) && channel->isUserOnExceptionList(sender))
-                //     channel->broadcast(message);
-                // else if (channel->isUserBanned(sender))
-                //     return ERR_CANNOTSENDTOCHAN(sender->nick, msg.params);
-                // else
                 channel->broadcast(message, sender);
             }
         }
