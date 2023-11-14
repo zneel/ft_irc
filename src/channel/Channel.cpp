@@ -1,7 +1,6 @@
 #include "Channel.h"
 
-Channel::Channel(std::string name, ChannelMode mode, Type type)
-    : name(name), password(""), topic(""), modes_(mode), type_(type)
+Channel::Channel(std::string name, Type type) : name(name), password(""), topic(""), modes_(Channel::NONE), type_(type)
 {
 }
 
@@ -46,23 +45,18 @@ bool Channel::hasModes(int modes)
 
 Channel::ChannelMode Channel::getMode(char mode) const
 {
-    switch (mode)
-    {
-    case 'b':
-        return BAN;
-    case 'l':
+    if (mode == 'l')
         return CLIENT_LIMIT;
-    case 'i':
+    else if (mode == 'i')
         return INVITE_ONLY;
-    case 'k':
+    else if (mode == 'k')
         return KEY;
-    case 't':
+    else if (mode == 't')
         return PROTECTED_TOPIC;
-    case 'o':
+    else if (mode == 'o')
         return OPERATOR;
-    default:
-        return NOT_SUPPORTED;
-    }
+    else
+        return NONE;
 }
 
 void Channel::removeMode(int mode)
@@ -76,8 +70,6 @@ std::string Channel::modesToStr()
     if (modes_ == 0)
         return ret;
     ret += "+";
-    if (hasMode(Channel::BAN))
-        ret += "b";
     if (hasMode(Channel::CLIENT_LIMIT))
         ret += "l";
     if (hasMode(Channel::INVITE_ONLY))

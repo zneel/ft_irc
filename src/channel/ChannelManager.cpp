@@ -17,9 +17,9 @@ Channel *ChannelManager::get(std::string &name) const
     return channels_.find(name)->second;
 }
 
-Channel *ChannelManager::create(std::string name, Channel::ChannelMode mode, Channel::Type type)
+Channel *ChannelManager::create(std::string name, Channel::Type type)
 {
-    Channel *channel = new Channel(name, mode, type);
+    Channel *channel = new Channel(name, type);
     channels_[name] = channel;
     return channels_[name];
 }
