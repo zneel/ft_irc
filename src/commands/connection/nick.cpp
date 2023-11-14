@@ -1,4 +1,6 @@
 #include "../CommandManager.h"
+#include <deque>
+#include <vector>
 
 bool isErrChar(std::string &nickname)
 {
@@ -13,22 +15,26 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
     std::string ret = "";
     if (msg.params.empty())
         return SERVER_NAME + ERR_NONICKNAMEGIVEN("");
-    else if (msg.params[0].length() > NICKLEN)
-        msg.params[0].erase(NICKLEN, std::string::npos);
-    if (uManager->nickAlreadyUsed(msg.params[0]))
-        return SERVER_NAME + ERR_NICKNAMEINUSE(msg.params[0], msg.params[0]);
-    if (isErrChar(msg.params[0]))
-        return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.params[0]);
+    else if (msg.params.front().length() > NICKLEN)
+        msg.params.front().erase(NICKLEN, std::string::npos);
+    if (uManager->nickAlreadyUsed(msg.params.front()))
+        return SERVER_NAME + ERR_NICKNAMEINUSE(msg.params.front(), msg.params.front());
+    if (isErrChar(msg.params.front()))
+        return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.params.front());
     std::map<std::string, Channel *> channels = cManager->getAll();
-    ret = ":" + user->nickmask + " NICK " + msg.params[0];
+    ret = ":" + user->nickmask + " NICK " + msg.params.front();
     for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); it++)
     {
         if (it->second->isClientOnChannel(user))
-        {
             it->second->broadcast(ret, user);
-        }
     }
-    user->nick = msg.params[0];
-    user->updtadeNickmask();
+    std::vector<Client *> privmsg = user->getPrivmsg();
+    for (std::vector<Client *>::iterator it = privmsg.begin(); it != privmsg.end(); it++)
+        (*it)->send(ret);
+    std::string oldNick(user->nick);
+    user->nick = msg.params.front();
+    user->updateNickmask();
+    for (std::vector<Client *>::iterator it = privmsg.begin(); it != privmsg.end(); it++)
+        (*it)->updatePrivmsg(oldNick, user);
     return ret;
 }

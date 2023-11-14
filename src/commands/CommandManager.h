@@ -36,7 +36,7 @@ std::string ping(Message &msg, Client *client);
 std::string pong(std::string token);
 std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager);
 std::vector<std::string> part(Message &msg, Client *client, ChannelManager *cManager);
-std::string privmsg(Message &msg, Client *sender, ChannelManager *cManager);
+std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, ChannelManager *cManager);
 
 std::string error(Message &msg, Client *user);
 std::string quit(Message &msg, Client *user, ChannelManager *chanManager);
