@@ -90,7 +90,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
     {
         if (msgs.front().verb.compare("CAP") == 0)
             sender->send(cap(msgs.front(), sender));
-        else if (msgs.front().verb.compare("PASS") == 0)
+        else if (sender->isCapSent() && msgs.front().verb.compare("PASS") == 0)
             sender->send(pass(msgs.front(), sender, pwd_));
         else if (sender->isPassSent() && msgs.front().verb.compare("NICK") == 0)
             sender->send(nick(msgs.front(), sender, uManager_, cManager_));
@@ -110,6 +110,10 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
                 sender->send(privmsg(msgs.front(), sender, uManager_, cManager_));
             else if (msgs.front().verb.compare("QUIT") == 0)
                 sender->send(quit(msgs.front(), sender, cManager_));
+        }
+        else 
+        {
+            sender->setShouldDisconnect(true);
         }
         msgs.pop_front();
         if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())

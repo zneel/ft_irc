@@ -4,7 +4,7 @@
 
 Client::Client(int fd, std::string ip, IObserver *observer)
     : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false),
-      passSent_(false)
+      capSent_(false), passSent_(false)
 {
     observer_ = observer;
 }
@@ -98,6 +98,16 @@ void Client::setRegistered(bool registered)
 void Client::setPassSent(bool passSent)
 {
     passSent_ = passSent;
+}
+
+void Client::setCapSent(bool capSent)
+{
+    capSent_ = capSent;
+}
+
+bool Client::isCapSent() const
+{
+    return capSent_;
 }
 
 void Client::setOp(bool op)
