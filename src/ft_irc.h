@@ -45,10 +45,10 @@ std::string const RPL_MOTD(std::string const &client, std::string const &motd);
 std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
                                    std::string const &time);
 std::string const RPL_TOPIC(std::string const &client, std::string const &channel, std::string const &topic);
+std::string const RPL_NOTOPIC(std::string const &client, std::string const &channel);
 std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::vector<std::string> nicks);
 std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel);
 std::string const RPL_CHANNELMODEIS(std::string const &client, std::string const &channel, std::string const &modes);
-
 // RPL MODE
 std::string const RPL_UMODEIS(std::string const &client, std::string const &umodes);
 

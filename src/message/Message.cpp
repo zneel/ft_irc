@@ -17,7 +17,7 @@ std::string recupVerb(std::string &line)
     return verb;
 }
 
-std::deque<std::string> recupParams(std::string &line)
+std::deque<std::string> recupParams(std::string &line, bool *isEmptyTrailling)
 {
     std::deque<std::string> params;
     size_t limiter = line.find_first_of(", :");
@@ -31,9 +31,15 @@ std::deque<std::string> recupParams(std::string &line)
     if (*(line.begin() + limiter) != ':' && !tmp.empty())
         params.push_back(tmp);
     if (limiter != std::string::npos)
+    {
+        *isEmptyTrailling = 1;
         line.erase(0, limiter + 1);
+    }
     else
+    {
+        *isEmptyTrailling = 0;
         line.erase(0, limiter);
+    }
     return params;
 }
 
@@ -52,7 +58,7 @@ Message::Message(std::string line)
     verb = recupVerb(line);
     if (!verb.empty())
     {
-        params = recupParams(line);
+        params = recupParams(line, &isEmptyTrailling);
         trailling = recupTrailing(line);
     }
     std::cout << "verb     :" << verb << ":" << std::endl;

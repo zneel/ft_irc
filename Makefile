@@ -30,13 +30,13 @@ SRCS        :=	src/main.cpp \
 								src/commands/channel/join.cpp \
 								src/commands/channel/part.cpp \
 								src/commands/privmsg.cpp \
+								src/commands/channel/topic.cpp \
 								src/commands/server/mode.cpp 
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \
 								# src/commands/notice.cpp \
 								# src/commands/channel/names.cpp \
-								# src/commands/channel/topic.cpp \
 								# src/commands/channel/list.cpp \
 								# src/commands/channel/invite.cpp \
 								# src/commands/channel/kick.cpp \

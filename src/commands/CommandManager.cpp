@@ -68,8 +68,10 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
                 sender->send(privmsg(msgs.front(), sender, uManager_, cManager_));
             else if (msgs.front().verb.compare("QUIT") == 0)
                 sender->send(quit(msgs.front(), sender, cManager_));
-            if (msgs.front().verb.compare("MODE") == 0)
+            else if (msgs.front().verb.compare("MODE") == 0)
                 sender->sendMany(mode(msgs.front(), sender, uManager_, cManager_));
+            else if (msgs.front().verb.compare("TOPIC") == 0)
+                sender->send(topic(msgs.front(), sender, cManager_));
         }
         else 
         {
