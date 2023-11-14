@@ -3,6 +3,6 @@
 std::string cap(Message &msg, Client *user)
 {
     (void)msg;
-    (void)user;
+    user->setCapSent(true);
     return "";
 }

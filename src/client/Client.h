@@ -54,6 +54,9 @@ class Client
     void setPassSent(bool passSent);
     bool isPassSent() const;
 
+    void setCapSent(bool capSent);
+    bool isCapSent() const;
+
     void setOp(bool op);
     bool isOp() const;
 
@@ -78,6 +81,7 @@ class Client
     bool shouldDisconnect_;
     bool registered_;
 
+    bool capSent_;
     bool passSent_;
 
     bool op_;
