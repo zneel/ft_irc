@@ -8,6 +8,7 @@ std::string user(Message &msg, Client *user)
     {
         user->username = msg.params[0];
         user->realname = msg.trailling;
+        user->updateNickmask();
         return "";
     }
     return SERVER_NAME + ERR_NEEDMOREPARAMS("", msg.verb);

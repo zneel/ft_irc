@@ -29,6 +29,6 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
         }
     }
     user->nick = msg.params[0];
-    user->updtadeNickmask();
+    user->updateNickmask();
     return ret;
 }

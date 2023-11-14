@@ -95,3 +95,6 @@ std::string const ERR_INVALIDMODEPARAM(std::string const &client, std::string co
 std::string const ERR_INVALIDKEY(std::string const &client, std::string const &channel);
 std::string const ERR_CANNOTSENDTOCHAN(std::string const &client, std::string const &channel);
 std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const &channel);
+
+
+std::string const ERR_NOSUCHNICK(std::string const &client, std::string const &badNick);

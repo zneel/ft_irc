@@ -108,7 +108,7 @@ bool Client::isOp() const
     return op_;
 }
 
-void Client::updtadeNickmask() 
+void Client::updateNickmask() 
 {
     nickmask = nick + "!" + username + "@localhost";
 }

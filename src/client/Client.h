@@ -57,7 +57,7 @@ class Client
     void setOp(bool op);
     bool isOp() const;
 
-    void updtadeNickmask();
+    void updateNickmask();
 
     void disconnect();
 

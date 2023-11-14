@@ -105,3 +105,9 @@ std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const 
 {
     return "442 " + client + " " + channel + " :You're not on that channel";
 }
+
+
+std::string const ERR_NOSUCHNICK(std::string const &client, std::string const &badNick)
+{
+    return "401 " + client + " " + badNick + " :No such nick/channel";
+}

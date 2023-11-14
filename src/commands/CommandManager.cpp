@@ -107,7 +107,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
             else if (msgs.front().verb.compare("PART") == 0)
                 sender->sendMany(part(msgs.front(), sender, cManager_));
             else if (msgs.front().verb.compare("PRIVMSG") == 0)
-                sender->send(privmsg(msgs.front(), sender, cManager_));
+                sender->send(privmsg(msgs.front(), sender, uManager_, cManager_));
             else if (msgs.front().verb.compare("QUIT") == 0)
                 sender->send(quit(msgs.front(), sender, cManager_));
         }
