@@ -43,6 +43,10 @@ std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, Chann
                 if (it->second->nick.compare(destName) == 0)
                 {
                     isFind = true;
+                    if (sender->isInPrivmsg(it->second->nick) == false)
+                        sender->addPrivmsg(it->second);
+                    if (it->second->isInPrivmsg(sender->nick) == false)
+                        it->second->addPrivmsg(sender);
                     std::string message =
                         ":" + sender->nickmask + " PRIVMSG " + it->second->nickmask + " :" + userMessage;
                     it->second->send(message);

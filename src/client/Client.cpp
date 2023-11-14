@@ -1,4 +1,6 @@
 #include "Client.h"
+#include <utility>
+#include <vector>
 
 Client::Client(int fd, std::string ip, IObserver *observer)
     : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false),
@@ -108,9 +110,49 @@ bool Client::isOp() const
     return op_;
 }
 
-void Client::updateNickmask() 
+void Client::updateNickmask()
 {
     nickmask = nick + "!" + username + "@localhost";
+}
+
+std::vector<Client *> Client::getPrivmsg()
+{
+    return privmsgWith_;
+}
+
+void Client::addPrivmsg(Client *newClientPrimsg)
+{
+    privmsgWith_.push_back(newClientPrimsg);
+}
+
+void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
+{
+    for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); it++)
+    {
+        if ((*it)->nick.compare(nickOldClient) == 0)
+            (*it) = updateClient;
+    }
+}
+
+void Client::removePrivmsg(std::string &nick)
+{
+    for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); )
+    {
+        if ((*it)->nick.compare(nick) == 0)
+            it = privmsgWith_.erase(it);
+        else
+            ++it;
+    }
+}
+
+bool Client::isInPrivmsg(std::string &nick)
+{
+    for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); it++)
+    {
+        if ((*it)->nick.compare(nick) == 0)
+            return true;
+    }
+    return false;
 }
 
 bool Client::isPassSent() const

@@ -59,6 +59,12 @@ class Client
 
     void updateNickmask();
 
+    std::vector<Client *> getPrivmsg();
+    void addPrivmsg(Client *newClientPrimsg);
+    void updatePrivmsg(std::string &nickOldClient, Client *updateClient);
+    void removePrivmsg(std::string &nick);
+    bool isInPrivmsg(std::string &nick);
+
     void disconnect();
 
     IObserver *observer_;
@@ -82,6 +88,7 @@ class Client
 
     bool op_;
     std::map<std::string, RolePrefix> channelRoles_;
+    std::vector<Client *> privmsgWith_;
 
     std::string sendBuffer_;
     std::string recvBuffer_;
