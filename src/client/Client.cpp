@@ -4,7 +4,6 @@
 
 Client::Client()
 {
-  
 }
 
 Client::Client(int fd, std::string ip, IObserver *observer)
@@ -199,7 +198,7 @@ void Client::removePrivmsg(std::string &nick)
 
 bool Client::isInPrivmsg(std::string &nick)
 {
-     if (nick.compare("BOT") == 0)
+    if (nick.compare("BOT") == 0)
         return false;
     for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); it++)
     {
@@ -218,6 +217,11 @@ void Client::disconnect()
 {
     close(fd_);
     fd_ = -1;
+}
+
+bool Client::doBotThings() const
+{
+    return false;
 }
 
 Client::Client(Client const &other) : fd_(other.fd_)

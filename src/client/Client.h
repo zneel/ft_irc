@@ -27,7 +27,7 @@ class Client
     };
     Client();
     Client(int fd, std::string ip, IObserver *observer);
-    ~Client();
+    virtual ~Client();
 
     int getFd() const;
 
@@ -74,6 +74,8 @@ class Client
     bool isInPrivmsg(std::string &nick);
 
     void disconnect();
+
+		virtual bool doBotThings() const;
 
     IObserver *observer_;
     std::string nick;

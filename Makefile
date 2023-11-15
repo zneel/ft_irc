@@ -10,6 +10,7 @@ SRCS        :=	src/main.cpp \
 								src/core/Logger.cpp \
 								src/client/Client.cpp \
 								src/client/ClientManager.cpp \
+								src/client/Bot.cpp \
 								src/buffer/Buffer.cpp \
 								src/message/Message.cpp \
 								src/channel/Channel.cpp \
@@ -32,8 +33,7 @@ SRCS        :=	src/main.cpp \
 								src/commands/privmsg.cpp \
 								src/commands/channel/topic.cpp \
 								src/commands/channel/invite.cpp \
-								src/commands/server/mode.cpp \
-								src/commands/bot.cpp
+								src/commands/server/mode.cpp 
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \

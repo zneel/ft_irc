@@ -26,8 +26,6 @@ class CommandManager
     std::string motd_;
 };
 
-bool bot(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
-
 std::string cap(Message &msg, Client *client);
 std::string pass(Message &msg, Client *client, std::string &password);
 std::string nick(Message &msg, Client *client, ClientManager *uManager, ChannelManager *cManager);
