@@ -74,6 +74,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
                 sender->send(topic(msgs.front(), sender, cManager_));
             else if (msgs.front().verb.compare("INVITE") == 0)
                 sender->send(invite(msgs.front(), sender, uManager_, cManager_));
+            else if (msgs.front().verb.compare("KICK") == 0)
+                sender->send(kick(msgs.front(), sender, uManager_, cManager_));
         }
         else 
         {
