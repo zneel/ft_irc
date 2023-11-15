@@ -171,7 +171,8 @@ std::vector<Client *> Client::getPrivmsg()
 
 void Client::addPrivmsg(Client *newClientPrimsg)
 {
-    privmsgWith_.push_back(newClientPrimsg);
+    if (newClientPrimsg->nick.compare("BOT"))
+        privmsgWith_.push_back(newClientPrimsg);
 }
 
 void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
@@ -185,6 +186,8 @@ void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
 
 void Client::removePrivmsg(std::string &nick)
 {
+    if (nick.compare("BOT") == 0)
+        return;
     for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end();)
     {
         if ((*it)->nick.compare(nick) == 0)
@@ -196,6 +199,8 @@ void Client::removePrivmsg(std::string &nick)
 
 bool Client::isInPrivmsg(std::string &nick)
 {
+     if (nick.compare("BOT") == 0)
+        return false;
     for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); it++)
     {
         if ((*it)->nick.compare(nick) == 0)
