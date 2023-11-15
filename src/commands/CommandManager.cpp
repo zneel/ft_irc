@@ -56,6 +56,8 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
             sender->send(user(msgs.front(), sender));
         else if (sender->isRegistered())
         {
+            bool isAnswerBot = bot(msgs.front(), sender, uManager_, cManager_);
+            std::cout << isAnswerBot << std::endl;
             if (msgs.front().verb.compare("motd") == 0)
                 sendMotd(sender);
             else if (msgs.front().verb.compare("PING") == 0)
@@ -64,7 +66,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
                 sender->sendMany(join(msgs.front(), sender, cManager_));
             else if (msgs.front().verb.compare("PART") == 0)
                 sender->sendMany(part(msgs.front(), sender, cManager_));
-            else if (msgs.front().verb.compare("PRIVMSG") == 0)
+            else if (msgs.front().verb.compare("PRIVMSG") == 0 && isAnswerBot == false)
                 sender->send(privmsg(msgs.front(), sender, uManager_, cManager_));
             else if (msgs.front().verb.compare("QUIT") == 0)
                 sender->send(quit(msgs.front(), sender, cManager_));
@@ -75,7 +77,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
             else if (msgs.front().verb.compare("INVITE") == 0)
                 sender->send(invite(msgs.front(), sender, uManager_, cManager_));
         }
-        else 
+        else
         {
             sender->setShouldDisconnect(true);
         }

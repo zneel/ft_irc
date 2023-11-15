@@ -32,7 +32,8 @@ SRCS        :=	src/main.cpp \
 								src/commands/privmsg.cpp \
 								src/commands/channel/topic.cpp \
 								src/commands/channel/invite.cpp \
-								src/commands/server/mode.cpp 
+								src/commands/server/mode.cpp \
+								src/commands/bot.cpp
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
 								# src/commands/user/whois.cpp \

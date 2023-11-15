@@ -26,6 +26,8 @@ class CommandManager
     std::string motd_;
 };
 
+bool bot(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
+
 std::string cap(Message &msg, Client *client);
 std::string pass(Message &msg, Client *client, std::string &password);
 std::string nick(Message &msg, Client *client, ClientManager *uManager, ChannelManager *cManager);
@@ -38,7 +40,7 @@ std::string topic(Message &msg, Client *user, ChannelManager *cManager);
 std::string invite(Message &msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager);
 std::vector<std::string> part(Message &msg, Client *client, ChannelManager *cManager);
-std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, ChannelManager *cManager);
+std::string privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager);
 
 std::string error(Message &msg, Client *user);
 std::string quit(Message &msg, Client *user, ChannelManager *chanManager);

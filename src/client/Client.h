@@ -25,7 +25,7 @@ class Client
         OPER = (1 << 1),
         NOT_SUPPORTED = (1 << 2),
     };
-
+    Client();
     Client(int fd, std::string ip, IObserver *observer);
     ~Client();
 
