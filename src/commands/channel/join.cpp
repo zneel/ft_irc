@@ -118,6 +118,7 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
             {
                 client->setRoleInChannel(channel->name, Client::VOICE);
                 channel->addClient(client);
+                channel->removeInvite(client);
                 channel->broadcast(broadcastMessage, client, true);
                 if (!channel->topic.empty())
                     ret.push_back(RPL_TOPIC(client->nick, channel->name, channel->topic));

@@ -70,6 +70,17 @@ std::string const RPL_TOPIC(std::string const &client, std::string const &channe
     return "332 " + client + " " + channel + " :" + topic;
 }
 
+std::string const RPL_NOTOPIC(std::string const &client, std::string const &channel)
+{
+    return "331 " + client + " " + channel + " :No topic is set";
+}
+
+std::string const RPL_INVITING(std::string const &client, std::string const &nick, std::string const &channel)
+{
+    return " 341 " + client + " " + nick + " " + channel;
+}
+
+
 //// MODE
 
 std::string const RPL_UMODEIS(std::string const &client, std::string const &umodes)

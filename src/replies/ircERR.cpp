@@ -116,6 +116,11 @@ std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const 
     return "442 " + client + " " + channel + " :You're not on that channel";
 }
 
+std::string const ERR_USERONCHANNEL(std::string const &client, std::string const &nick, std::string const &channel)
+{
+    return "443 " + client + " " + nick + " " + channel + " :is already on channel";
+}
+
 //// MODES
 std::string const ERR_UMODEUNKNOWNFLAG(std::string const &client)
 {

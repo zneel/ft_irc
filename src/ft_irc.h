@@ -45,9 +45,11 @@ std::string const RPL_MOTD(std::string const &client, std::string const &motd);
 std::string const RPL_TOPICWHOTIME(std::string const &client, std::string const &channel, std::string const &nick,
                                    std::string const &time);
 std::string const RPL_TOPIC(std::string const &client, std::string const &channel, std::string const &topic);
+std::string const RPL_NOTOPIC(std::string const &client, std::string const &channel);
 std::string const RPL_NAMREPLY(std::string const &client, std::string const &channel, std::vector<std::string> nicks);
 std::string const RPL_ENDOFNAMES(std::string const &client, std::string const &channel);
 std::string const RPL_CHANNELMODEIS(std::string const &client, std::string const &channel, std::string const &modes);
+std::string const RPL_INVITING(std::string const &client, std::string const &nick, std::string const &channel);
 
 // RPL MODE
 std::string const RPL_UMODEIS(std::string const &client, std::string const &umodes);
@@ -78,6 +80,7 @@ std::string const ERR_INVALIDMODEPARAM(std::string const &client, std::string co
 std::string const ERR_INVALIDKEY(std::string const &client, std::string const &channel);
 std::string const ERR_CANNOTSENDTOCHAN(std::string const &client, std::string const &channel);
 std::string const ERR_NOTONCHANNEL(std::string const &client, std::string const &channel);
+std::string const ERR_USERONCHANNEL(std::string const &client, std::string const &nick, std::string const &channel);
 
 // ERR MODE
 std::string const ERR_UMODEUNKNOWNFLAG(std::string const &client);
