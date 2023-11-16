@@ -22,7 +22,6 @@ std::string kick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
 		return "";
 	if (channel->isClientOnChannel(toKick) == false)
 		return SERVER_NAME + ERR_NOTONCHANNEL(nickname, channelName);
-	channel->removeClient(toKick);
 	channel->broadcast(":" + user->nickmask + " KICK " + channelName + " " + nickname + " " + comment, user, true);
 	return "";
 }
