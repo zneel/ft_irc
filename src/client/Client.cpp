@@ -208,6 +208,26 @@ bool Client::isInPrivmsg(std::string &nick)
     return false;
 }
 
+void Client::addAlreadyKnow(Client *newClient)
+{
+    alreadyKnow_.push_back(newClient);
+}
+
+void Client::clearAlreadyKnow()
+{
+    alreadyKnow_.clear();
+}
+
+bool Client::isInAlreadyKnow(std::string &nick)
+{
+    for (std::vector<Client *>::iterator itVector = alreadyKnow_.begin(); itVector != alreadyKnow_.end(); itVector++)
+    {
+        if ((*itVector)->nick.compare(nick) == 0)
+            return true;
+    }
+    return false;
+}
+
 bool Client::isPassSent() const
 {
     return passSent_ == true;
