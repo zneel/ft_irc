@@ -33,6 +33,7 @@ SRCS        :=	src/main.cpp \
 								src/commands/privmsg.cpp \
 								src/commands/channel/topic.cpp \
 								src/commands/channel/invite.cpp \
+								src/commands/channel/kick.cpp \
 								src/commands/server/mode.cpp 
 								# src/commands/user/who.cpp \
 								# src/commands/user/whowas.cpp \
@@ -40,7 +41,6 @@ SRCS        :=	src/main.cpp \
 								# src/commands/notice.cpp \
 								# src/commands/channel/names.cpp \
 								# src/commands/channel/list.cpp \
-								# src/commands/channel/kick.cpp \
 								# src/commands/connection/oper.cpp \
 								# src/commands/connection/authenticate.cpp \
 								# src/commands/server/version.cpp \
