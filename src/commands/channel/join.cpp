@@ -36,13 +36,15 @@ std::vector<std::string> getUserList(Channel *channel, Client *client)
     for (std::map<int, Client *>::iterator it = clients.begin(); it != clients.end(); ++it)
     {
         nicks.push_back(it->second->RolePrefixToString(it->second->getRoleInChannel(channel->name)) + it->second->nick);
-        if (i % 15 == 0)
+        if ((i + 1) % 10 == 0)
         {
             ret.push_back(RPL_NAMREPLY(client->nick, channel->name, nicks));
             nicks.clear();
         }
         i++;
     }
+    if (nicks.size() > 0)
+        ret.push_back(RPL_NAMREPLY(client->nick, channel->name, nicks));
     return ret;
 }
 
