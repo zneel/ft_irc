@@ -18,8 +18,11 @@ std::string kick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
 	if (uManager->nickExists(nickname) == false)
 		return SERVER_NAME + ERR_NOSUCHNICK(user->nick, nickname);
 	Client *toKick = uManager->getByNick(nickname);
+	if (user->nick.compare(nickname) == 0)
+		return "";
 	if (channel->isClientOnChannel(toKick) == false)
 		return SERVER_NAME + ERR_NOTONCHANNEL(nickname, channelName);
+	channel->removeClient(toKick);
 	channel->broadcast(":" + user->nickmask + " KICK " + channelName + " " + nickname + " " + comment, user, true);
 	return "";
 }
