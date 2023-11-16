@@ -189,6 +189,21 @@ void Channel::broadcast(std::string const &message, Client *sender, bool sendToS
     }
 }
 
+void Channel::broadcastUnique(std::string const &message, Client *sender, bool sendToSender)
+{
+    for (std::map<int, Client *>::iterator it = clients_.begin(); it != clients_.end(); ++it)
+    {
+        if (it->second != sender || sendToSender)
+        {
+            if (sender->isInAlreadyKnow(it->second->nick) == false)
+            {
+                sender->addAlreadyKnow(it->second);
+                it->second->send(message);
+            }
+        }
+    }
+}
+
 bool Channel::isClientOnChannel(Client *client)
 {
     return clients_.find(client->getFd()) != clients_.end();

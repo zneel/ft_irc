@@ -26,11 +26,15 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
     for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); it++)
     {
         if (it->second->isClientOnChannel(user))
-            it->second->broadcast(ret, user);
+            it->second->broadcastUnique(ret, user);
     }
     std::vector<Client *> privmsg = user->getPrivmsg();
     for (std::vector<Client *>::iterator it = privmsg.begin(); it != privmsg.end(); it++)
-        (*it)->send(ret);
+    {
+        if (user->isInAlreadyKnow((*it)->nick) == false)
+            (*it)->send(ret);
+    }
+    user->clearAlreadyKnow();
     std::string oldNick(user->nick);
     user->nick = msg.params.front();
     user->updateNickmask();
