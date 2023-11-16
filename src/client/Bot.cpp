@@ -14,7 +14,7 @@ Bot::~Bot()
 
 bool Bot::doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager)
 {
-	bool isAction = false;
+    bool isAction = false;
     while (!msg.params.empty())
     {
         if (msg.verb.compare("PRIVMSG") == 0 && *(msg.params.front().begin()) == '#' &&
@@ -90,7 +90,7 @@ bool Bot::doBotThings(Message msg, Client *user, ClientManager *uManager, Channe
                 Message msgCopy = msg;
                 privmsg(msgCopy, this, uManager, cManager);
             }
-			isAction = true;
+            isAction = true;
         }
         msg.params.pop_front();
     }
