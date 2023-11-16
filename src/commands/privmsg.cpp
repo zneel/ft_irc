@@ -20,7 +20,7 @@ std::string getSendStr(Message &msg)
     return "";
 }
 
-std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
+std::string privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
 {
     if (msg.params.empty())
         return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);

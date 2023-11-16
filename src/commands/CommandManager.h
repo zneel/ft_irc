@@ -38,7 +38,7 @@ std::string topic(Message &msg, Client *user, ChannelManager *cManager);
 std::string invite(Message &msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager);
 std::vector<std::string> part(Message &msg, Client *client, ChannelManager *cManager);
-std::string privmsg(Message &msg, Client *sender, ClientManager *uManager, ChannelManager *cManager);
+std::string privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager);
 std::string kick(Message &msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 
 std::string error(Message &msg, Client *user);

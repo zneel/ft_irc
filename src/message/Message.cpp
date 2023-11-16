@@ -69,3 +69,14 @@ Message::Message(std::string line)
     std::cout << "trailling:" << trailling << ":" << std::endl;
     std::cout << "=============================================" << std::endl;
 }
+
+Message Message::operator=(Message const &other) 
+{
+    if (this == &other)
+        return *this;
+    this->isEmptyTrailling = other.isEmptyTrailling;
+    this->trailling = other.trailling;
+    this->params = other.params;
+    this->verb = other.verb;
+    return *this;
+}

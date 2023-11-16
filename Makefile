@@ -10,6 +10,7 @@ SRCS        :=	src/main.cpp \
 								src/core/Logger.cpp \
 								src/client/Client.cpp \
 								src/client/ClientManager.cpp \
+								src/client/Bot.cpp \
 								src/buffer/Buffer.cpp \
 								src/message/Message.cpp \
 								src/channel/Channel.cpp \

@@ -1,4 +1,5 @@
 #include "ClientManager.h"
+#include "Bot.h"
 
 ClientManager::ClientManager()
 {
@@ -35,6 +36,13 @@ Client *ClientManager::getByNick(std::string const &nick)
             return it->second;
     }
     return NULL;
+}
+
+Client *ClientManager::createBot()
+{
+    Bot *newClient = new Bot();
+    clients_[-1] = newClient;
+    return clients_[-1];
 }
 
 Client *ClientManager::create(int fd, std::string ip, IObserver *observer)

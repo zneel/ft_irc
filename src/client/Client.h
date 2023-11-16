@@ -25,9 +25,9 @@ class Client
         OPER = (1 << 1),
         NOT_SUPPORTED = (1 << 2),
     };
-
+    Client();
     Client(int fd, std::string ip, IObserver *observer);
-    ~Client();
+    virtual ~Client();
 
     int getFd() const;
 
@@ -74,6 +74,8 @@ class Client
     bool isInPrivmsg(std::string &nick);
 
     void disconnect();
+
+		virtual bool doBotThings() const;
 
     IObserver *observer_;
     std::string nick;

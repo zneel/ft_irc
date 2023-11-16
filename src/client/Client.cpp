@@ -2,6 +2,10 @@
 #include <utility>
 #include <vector>
 
+Client::Client()
+{
+}
+
 Client::Client(int fd, std::string ip, IObserver *observer)
     : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false), modes_(0),
       capSent_(false), passSent_(false)
@@ -166,7 +170,8 @@ std::vector<Client *> Client::getPrivmsg()
 
 void Client::addPrivmsg(Client *newClientPrimsg)
 {
-    privmsgWith_.push_back(newClientPrimsg);
+    if (newClientPrimsg->nick.compare("BOT"))
+        privmsgWith_.push_back(newClientPrimsg);
 }
 
 void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
@@ -180,6 +185,8 @@ void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
 
 void Client::removePrivmsg(std::string &nick)
 {
+    if (nick.compare("BOT") == 0)
+        return;
     for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end();)
     {
         if ((*it)->nick.compare(nick) == 0)
@@ -191,6 +198,8 @@ void Client::removePrivmsg(std::string &nick)
 
 bool Client::isInPrivmsg(std::string &nick)
 {
+    if (nick.compare("BOT") == 0)
+        return false;
     for (std::vector<Client *>::iterator it = privmsgWith_.begin(); it != privmsgWith_.end(); it++)
     {
         if ((*it)->nick.compare(nick) == 0)
@@ -208,6 +217,11 @@ void Client::disconnect()
 {
     close(fd_);
     fd_ = -1;
+}
+
+bool Client::doBotThings() const
+{
+    return false;
 }
 
 Client::Client(Client const &other) : fd_(other.fd_)
