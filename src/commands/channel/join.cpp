@@ -56,6 +56,28 @@ Channel::Type getChannelType(std::string const &channelName)
         return Channel::LOCAL;
 }
 
+PairChannelNameAndPassword extractNameAndPass(Message &msg)
+{
+    bool isName = true;
+    PairChannelNameAndPassword ret;
+    for (std::deque<std::string>::iterator it = msg.params.begin(); it != msg.params.end(); ++it)
+    {
+        if (*it == "0" || *it == "1")
+            continue;
+        if (isName)
+        {
+            ret.push_back(std::make_pair(*it, ""));
+            isName = false;
+        }
+        else
+        {
+            ret.back().second = *it;
+            isName = true;
+        }
+    }
+    return ret;
+}
+
 std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager)
 {
     std::vector<std::string> ret;
@@ -70,25 +92,18 @@ std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cMan
         ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, msg.verb));
         return ret;
     }
-
+    nameAndPassword.reserve(msg.params.size());
     channels = cManager->getAll();
-
-    for (std::deque<std::string>::iterator it = msg.params.begin(); it != msg.params.end(); ++it)
-    {
-        if (*it == "0" || *it == "1")
-            continue;
-        if ((*it)[0] == '#' || (*it)[0] == '&')
-            nameAndPassword.push_back(std::make_pair(*it, ""));
-        else
-            nameAndPassword.back().second = *it;
-    }
-
+    nameAndPassword = extractNameAndPass(msg);
     for (PairChannelNameAndPassword::iterator it = nameAndPassword.begin(); it != nameAndPassword.end(); ++it)
     {
         std::string broadcastMessage = ":" + client->nickmask + " JOIN " + it->first;
         std::string errMessage = errorCheck(it->first, client->nick, it->second);
         if (!errMessage.empty())
+        {
             ret.push_back(errMessage);
+            continue;
+        }
         if (channels.find(it->first) == channels.end()) // create new channel
         {
             newChannel = cManager->create(it->first, getChannelType(it->first));
