@@ -31,7 +31,6 @@ void Server::start()
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        disconnectClients();
         ssize_t eventCount = epoll_wait(epollfd_, events_.data(), events_.size(), -1);
         if (eventCount < 0)
             throw std::runtime_error("epoll_wait: " + std::string(strerror(errno)));
@@ -53,6 +52,7 @@ void Server::start()
             }
             sendData(events_[i]);
         }
+        disconnectClients();
     }
 }
 
@@ -210,7 +210,7 @@ void Server::disconnectClients()
     for (std::vector<int>::iterator it = toRemove.begin(); it != toRemove.end(); ++it)
     {
         std::map<std::string, Channel *> channels = cManager_.getAll();
-        for (std::map<std::string, Channel *>::iterator itChan = channels.begin(); itChan != channels.end(); itChan++) 
+        for (std::map<std::string, Channel *>::iterator itChan = channels.begin(); itChan != channels.end(); itChan++)
         {
             if (itChan->second->isClientOnChannel(uManager_.get(*it)))
             {
