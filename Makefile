@@ -35,19 +35,7 @@ SRCS        :=	src/main.cpp \
 								src/commands/channel/topic.cpp \
 								src/commands/channel/invite.cpp \
 								src/commands/channel/kick.cpp \
-								src/commands/server/mode.cpp 
-								# src/commands/user/who.cpp \
-								# src/commands/user/whowas.cpp \
-								# src/commands/user/whois.cpp \
-								# src/commands/notice.cpp \
-								# src/commands/channel/names.cpp \
-								# src/commands/channel/list.cpp \
-								# src/commands/connection/oper.cpp \
-								# src/commands/connection/authenticate.cpp \
-								# src/commands/server/version.cpp \
-								# src/commands/server/admin.cpp \
-								# src/commands/server/help.cpp \
-								# src/commands/server/time.cpp \
+								src/commands/server/mode.cpp
 
 OBJS        := $(SRCS:src/%.cpp=$(BUILD_DIR)/%.o)
 DEPS        := $(OBJS:.o=.d)
