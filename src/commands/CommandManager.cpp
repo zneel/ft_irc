@@ -52,13 +52,13 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
             sender->send(cap(msgs.front(), sender));
         else if (sender->isCapSent() && msgs.front().verb.compare("PASS") == 0)
             sender->send(pass(msgs.front(), sender, pwd_));
-        else if (sender->isPassSent() && msgs.front().verb.compare("NICK") == 0)
+        else if (sender->isCapSent() && sender->isPassSent() && msgs.front().verb.compare("NICK") == 0)
             sender->send(nick(msgs.front(), sender, uManager_, cManager_));
-        else if (sender->isPassSent() && msgs.front().verb.compare("USER") == 0)
+        else if (sender->isCapSent() && sender->isPassSent() && msgs.front().verb.compare("USER") == 0)
             sender->send(user(msgs.front(), sender));
         else if (sender->isRegistered())
         {
-            bool isAnswerBot = bot->doBotThings(msgs.front(), sender, uManager_, cManager_);
+            bool isAnswerBot = doBotThings(msgs.front(), sender, uManager_, cManager_, bot);
             if (msgs.front().verb.compare("motd") == 0)
                 sendMotd(sender);
             else if (msgs.front().verb.compare("PING") == 0)
@@ -85,7 +85,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
             sender->setShouldDisconnect(true);
         }
         msgs.pop_front();
-        if (!sender->isRegistered() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
+        if (!sender->isRegistered() && sender->isCapSent() && sender->isPassSent() && !sender->nick.empty() && !sender->username.empty())
         {
             sender->setRegistered(true);
             sendIsupport(sender);

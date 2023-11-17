@@ -15,7 +15,8 @@ Client::Client(int fd, std::string ip, IObserver *observer)
 
 Client::~Client()
 {
-    disconnect();
+    if (nick.compare("BOT"))
+        disconnect();
 }
 
 int Client::getFd() const
@@ -170,8 +171,9 @@ std::vector<Client *> Client::getPrivmsg()
 
 void Client::addPrivmsg(Client *newClientPrimsg)
 {
-    if (newClientPrimsg->nick.compare("BOT"))
-        privmsgWith_.push_back(newClientPrimsg);
+    if (nick.compare("BOT") == 0)
+        return;
+    privmsgWith_.push_back(newClientPrimsg);
 }
 
 void Client::updatePrivmsg(std::string &nickOldClient, Client *updateClient)
@@ -237,11 +239,6 @@ void Client::disconnect()
 {
     close(fd_);
     fd_ = -1;
-}
-
-bool Client::doBotThings() const
-{
-    return false;
 }
 
 Client::Client(Client const &other) : fd_(other.fd_)
