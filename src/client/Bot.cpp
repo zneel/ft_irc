@@ -2,8 +2,8 @@
 
 Bot::Bot() : Client()
 {
-    nick = "BOT";
-    username = "BOT";
+    nick = BOT_NAME;
+    username = BOT_NAME;
     realname = "ROBOT";
     updateNickmask();
 }

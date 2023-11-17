@@ -17,7 +17,7 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
         return SERVER_NAME + ERR_NONICKNAMEGIVEN("");
     else if (msg.params.front().length() > NICKLEN)
         msg.params.front().erase(NICKLEN, std::string::npos);
-    if (uManager->nickExists(msg.params.front()) || msg.params.front().compare("BOT") == 0)
+    if (uManager->nickExists(msg.params.front()) || msg.params.front().compare(BOT_NAME) == 0)
         return SERVER_NAME + ERR_NICKNAMEINUSE(msg.params.front(), msg.params.front());
     if (isErrChar(msg.params.front()))
         return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.params.front());

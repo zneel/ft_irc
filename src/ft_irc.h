@@ -7,6 +7,8 @@
 
 #define SERVER_NAME ":ft_irc "
 
+#define BOT_NAME "BOT"
+
 #define MAX_SIZE_SEND_BUFFER 510
 
 // TOKEN PACK 1
