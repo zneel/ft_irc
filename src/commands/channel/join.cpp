@@ -48,12 +48,12 @@ std::vector<std::string> getUserList(Channel *channel, Client *client)
     return ret;
 }
 
-Channel::Type getChannelType(std::string const &channelName)
+Type getChannelType(std::string const &channelName)
 {
     if (channelName[0] == '#')
-        return Channel::REGULAR;
+        return REGULAR;
     else
-        return Channel::LOCAL;
+        return LOCAL;
 }
 
 std::vector<std::string> join(Message &msg, Client *client, ChannelManager *cManager)

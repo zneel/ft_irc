@@ -1,6 +1,10 @@
 #pragma once
 #include "../core/IObserver.h"
 #include "../ft_irc.h"
+#include "../message/Message.h"
+#include "ClientManager.h"
+class ChannelManager;
+#include "../channel/ChannelManager.h"
 
 #include <map>
 #include <netdb.h>
@@ -9,6 +13,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
+
+class ClientManager;
 
 class Client
 {
@@ -79,7 +85,7 @@ class Client
 
     void disconnect();
 
-    virtual bool doBotThings() const;
+    virtual bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 
     IObserver *observer_;
     std::string nick;

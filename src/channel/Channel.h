@@ -24,13 +24,6 @@ class Channel
         NONE = (1 << 5),
     };
 
-    // only #
-    enum Type
-    {
-        REGULAR = (1 << 0),
-        LOCAL = (1 << 1),
-    };
-
     Channel(std::string name, Type type);
     ~Channel();
 

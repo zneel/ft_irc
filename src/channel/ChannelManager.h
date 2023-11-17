@@ -1,5 +1,12 @@
 #pragma once
 
+class Channel;
+class ChannelManager;
+enum Type
+{
+    REGULAR = (1 << 0),
+    LOCAL = (1 << 1),
+};
 #include "Channel.h"
 #include <string>
 
@@ -13,7 +20,7 @@ class ChannelManager
     ~ChannelManager();
 
     Channel *get(std::string &name) const;
-    Channel *create(std::string name, Channel::Type type);
+    Channel *create(std::string name, Type type);
     std::map<std::string, Channel *> getAll() const;
     void remove(std::string name);
     void removeAll();

@@ -239,8 +239,12 @@ void Client::disconnect()
     fd_ = -1;
 }
 
-bool Client::doBotThings() const
+bool Client::doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager)
 {
+    (void) msg;
+    (void) user;
+    (void) uManager;
+    (void) cManager;
     return false;
 }
 

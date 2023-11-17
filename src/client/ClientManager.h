@@ -7,7 +7,9 @@
 #include <iostream>
 #include <utility>
 
+class Client;
 #include "Client.h"
+
 
 class ClientManager
 {
