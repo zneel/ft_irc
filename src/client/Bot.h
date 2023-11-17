@@ -1,12 +1,11 @@
 #pragma once
 
-#include "../commands/CommandManager.h"
+#include "../ft_irc.h"
+#include "Client.h"
 
 class Bot : public Client
 {
   public:
     Bot();
     ~Bot();
-
-    bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 };

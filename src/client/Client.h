@@ -79,8 +79,6 @@ class Client
 
     void disconnect();
 
-    virtual bool doBotThings() const;
-
     IObserver *observer_;
     std::string nick;
     std::string username;
