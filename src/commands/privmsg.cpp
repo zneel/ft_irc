@@ -63,9 +63,9 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
                 if (it->second->nick.compare(destName) == 0 && it->second->nick.compare(BOT_NAME))
                 {
                     isFind = true;
-                    if (sender->isInPrivmsg(it->second->nick) == false && sender->nick.compare(BOT_NAME))
+                    if (sender->nick.compare(BOT_NAME) && sender->isInPrivmsg(it->second->nick) == false)
                         sender->addPrivmsg(it->second);
-                    if (it->second->isInPrivmsg(sender->nick) == false && sender->nick.compare(BOT_NAME))
+                    if (sender->nick.compare(BOT_NAME) && it->second->isInPrivmsg(sender->nick) == false)
                         it->second->addPrivmsg(sender);
                     std::string message =
                         ":" + sender->nickmask + " PRIVMSG " + it->second->nickmask + " :" + userMessage;

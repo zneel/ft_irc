@@ -45,7 +45,7 @@ void CommandManager::sendMotd(Client *sender)
 
 void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
 {
-    Bot *bot = dynamic_cast<Bot *>(uManager_->get(-1));
+    Bot *bot = dynamic_cast<Bot *>(uManager_->get(-2));
     while (!msgs.empty())
     {
         if (msgs.front().verb.compare("CAP") == 0)
