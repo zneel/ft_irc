@@ -1,28 +1,27 @@
 #include "Server.h"
 #include "../buffer/Buffer.h"
+#include <algorithm>
+#include <cstddef>
 #include <sys/epoll.h>
+#include <sys/poll.h>
 
 Server::Server(std::string port, std::string password) : port_(port), password_(password), listener_(-1)
 {
-    events_.reserve(MAX_EVENTS);
 }
 
 Server::~Server()
 {
     cManager_.removeAll();
     uManager_.removeAll();
-    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
-        epoll_ctl(epollfd_, EPOLL_CTL_DEL, it->data.fd, NULL);
-    events_.clear();
+    for (PollFdsIterator it = poller_.begin(); it != poller_.end(); ++it)
+        close(it->fd);
+    poller_.clear();
     close(listener_);
-    close(epollfd_);
 }
 
 void Server::start()
 {
-    epollfd_ = epoll_create1(0);
-    if (epollfd_ < 0)
-        throw std::runtime_error("epoll_create1: " + std::string(strerror(errno)));
+
     if ((listener_ = listenForConnection()) < 0)
         throw std::runtime_error("listenForConnection");
     CommandManager commands(&cManager_, &uManager_, password_);
@@ -30,26 +29,20 @@ void Server::start()
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
     {
-        ssize_t eventCount = epoll_wait(epollfd_, events_.data(), events_.size(), -1);
-        if (eventCount < 0)
-            throw std::runtime_error("epoll_wait: " + std::string(strerror(errno)));
-        for (ssize_t i = 0; i < eventCount; ++i)
+        poll(poller_.data(), poller_.size(), -1);
+        for (size_t i = 0; i < poller_.size(); ++i)
         {
-            if (events_[i].events & (EPOLLHUP | EPOLLERR))
+            if (poller_[i].revents & POLLIN)
             {
-                removeFromPolling(events_[i].data.fd);
-                uManager_.remove(events_[i].data.fd);
-                break;
-            }
-            else if (events_[i].events & EPOLLIN)
-            {
-                if (events_[i].data.fd == listener_)
+                if (poller_[i].fd == listener_)
                     acceptConnection();
-                else if (uManager_.get(events_[i].data.fd) && uManager_.get(events_[i].data.fd)->shouldDisconnect())
+                else if (uManager_.get(poller_[i].fd) && uManager_.get(poller_[i].fd)->shouldDisconnect())
                     continue;
-                recvData(events_[i], commands);
+                else
+                    recvData(poller_[i], commands);
             }
-            sendData(events_[i]);
+            else if (poller_[i].revents & POLLOUT)
+                sendData(poller_[i]);
         }
         disconnectClients();
     }
@@ -60,14 +53,13 @@ void Server::setLogger(Logger &logger)
     logger_ = logger;
 }
 
-void Server::update(int fd, EPOLL_EVENTS event)
+void Server::update(int fd, int event)
 {
-    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
+    for (PollFdsIterator it = poller_.begin(); it != poller_.end(); ++it)
     {
-        if (it->data.fd == fd)
+        if (it->fd == fd)
         {
             it->events = event;
-            epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &(*it));
             return;
         }
     }
@@ -101,36 +93,33 @@ void Server::acceptConnection()
 
 void Server::addToPolling(int fd)
 {
-    struct epoll_event event;
-    memset(&event, 0, sizeof(event));
-    event.events = EPOLLIN;
-    event.data.fd = fd;
-    events_.push_back(event);
-    if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, fd, &event) < 0)
-        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
+    struct pollfd pfd;
+    memset(&pfd, 0, sizeof(pfd));
+    pfd.events = POLLIN;
+    pfd.revents = 0;
+    pfd.fd = fd;
+    poller_.push_back(pfd);
 }
 
 void Server::removeFromPolling(int fd)
 {
     logger_.log("connection closed", Logger::INFO);
-    if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, NULL) < 0)
-        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
-    for (EventsIterator it = events_.begin(); it != events_.end(); ++it)
+    for (PollFdsIterator it = poller_.begin(); it != poller_.end(); ++it)
     {
-        if (it->data.fd == fd)
+        if (it->fd == fd)
         {
-            events_.erase(it);
-            break;
+            poller_.erase(it);
+            return;
         }
     }
 }
 
-void Server::sendData(struct epoll_event &event)
+void Server::sendData(struct pollfd &event)
 {
-    if (!uManager_.get(event.data.fd))
+    if (!uManager_.get(event.fd))
         return;
-    ssize_t len = uManager_.get(event.data.fd)->getSendBuffer().size();
-    ssize_t bytesSent = ::send(event.data.fd, uManager_.get(event.data.fd)->getSendBuffer().c_str(), len, 0);
+    ssize_t len = uManager_.get(event.fd)->getSendBuffer().size();
+    ssize_t bytesSent = ::send(event.fd, uManager_.get(event.fd)->getSendBuffer().c_str(), len, 0);
     if (bytesSent == -1)
     {
         logger_.log("send: " + std::string(strerror(errno)), Logger::WARNING);
@@ -139,25 +128,24 @@ void Server::sendData(struct epoll_event &event)
     if (bytesSent > 0 && len - bytesSent == 0)
     {
         // debug
-        std::string s = uManager_.get(event.data.fd)->getSendBuffer();
+        std::string s = uManager_.get(event.fd)->getSendBuffer();
         for (size_t pos = 0; (pos = s.find("\r\n", pos)) != std::string::npos; s.replace(pos, 2, "\\r\\n"), pos += 2)
             ;
         logger_.log(">" + s, Logger::INFO);
         // end debug
-        uManager_.get(event.data.fd)->getSendBuffer().clear();
+        uManager_.get(event.fd)->getSendBuffer().clear();
+        event.events = POLLIN;
     }
     else
-        uManager_.get(event.data.fd)->getSendBuffer().erase(0, bytesSent);
-    event.events = EPOLLIN;
-    epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
+        uManager_.get(event.fd)->getSendBuffer().erase(0, bytesSent);
 }
 
-void Server::recvData(struct epoll_event &event, CommandManager &commands)
+void Server::recvData(struct pollfd &event, CommandManager &commands)
 {
-    if (!uManager_.get(event.data.fd))
+    if (!uManager_.get(event.fd))
         return;
     char tmpBuff[4096] = {0};
-    ssize_t bytesRead = recv(event.data.fd, tmpBuff, sizeof(tmpBuff), 0);
+    ssize_t bytesRead = recv(event.fd, tmpBuff, sizeof(tmpBuff), 0);
     if (bytesRead < 0)
     {
         logger_.log("recv: " + std::string(strerror(errno)), Logger::WARNING);
@@ -165,31 +153,29 @@ void Server::recvData(struct epoll_event &event, CommandManager &commands)
     }
     if (bytesRead == 0)
     {
-        removeFromPolling(event.data.fd);
-        uManager_.remove(event.data.fd);
+        removeFromPolling(event.fd);
+        uManager_.remove(event.fd);
         return;
     }
-    uManager_.get(event.data.fd)->getRecvBuffer().append(tmpBuff, bytesRead);
-    std::cout << "received buffer: " << uManager_.get(event.data.fd)->getRecvBuffer() << std::endl;
-    if (hasCRLF(uManager_.get(event.data.fd)->getRecvBuffer()))
+    uManager_.get(event.fd)->getRecvBuffer().append(tmpBuff, bytesRead);
+    std::cout << "received buffer: " << uManager_.get(event.fd)->getRecvBuffer() << std::endl;
+    if (hasCRLF(uManager_.get(event.fd)->getRecvBuffer()))
     {
         std::deque<Message> msgs;
-        Buffer::bufferToMessage(uManager_.get(event.data.fd)->getRecvBuffer(), msgs);
-        commands.doCommands(msgs, uManager_.get(event.data.fd));
-        event.events = EPOLLOUT;
-        epoll_ctl(epollfd_, EPOLL_CTL_MOD, event.data.fd, &event);
+        Buffer::bufferToMessage(uManager_.get(event.fd)->getRecvBuffer(), msgs);
+        commands.doCommands(msgs, uManager_.get(event.fd));
+        event.revents = POLLOUT;
     }
 }
 
 void Server::initListener()
 {
-    struct epoll_event event;
-    memset(&event, 0, sizeof(event));
-    event.events = EPOLLIN | EPOLLERR | EPOLLHUP;
-    event.data.fd = listener_;
-    events_.push_back(event);
-    if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, listener_, &event) < 0)
-        logger_.log(std::string("epoll_ctl: ") + strerror(errno), Logger::ERROR);
+    struct pollfd pfd;
+    memset(&pfd, 0, sizeof(pfd));
+    pfd.events = POLLIN;
+    pfd.revents = 0;
+    pfd.fd = listener_;
+    poller_.push_back(pfd);
 }
 
 bool Server::hasCRLF(std::string &buffer)
@@ -218,8 +204,8 @@ void Server::disconnectClients()
                     cManager_.remove(itChan->first);
             }
         }
-        removeFromPolling(*it);
         uManager_.remove(*it);
+        removeFromPolling(*it);
     }
 }
 

@@ -23,7 +23,7 @@
 #include <netinet/in.h>
 #include <stdexcept>
 #include <string>
-#include <sys/epoll.h>
+#include <sys/poll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -35,7 +35,7 @@
 class Server : public IObserver
 {
 
-    typedef std::vector<epoll_event>::iterator EventsIterator;
+    typedef std::vector<pollfd>::iterator PollFdsIterator;
 
   public:
     Server(std::string port, std::string password);
@@ -43,7 +43,7 @@ class Server : public IObserver
 
     void start();
     void setLogger(Logger &logger);
-    virtual void update(int fd, EPOLL_EVENTS event);
+    virtual void update(int fd, int event);
 
   private:
     Server(Server const &other);
@@ -58,8 +58,8 @@ class Server : public IObserver
     void removeFromPolling(int fd);
     void addToPolling(int fd);
 
-    void sendData(struct epoll_event &event);
-    void recvData(struct epoll_event &event, CommandManager &commands);
+    void sendData(struct pollfd &event);
+    void recvData(struct pollfd &event, CommandManager &commands);
 
     bool hasCRLF(std::string &buffer);
 
@@ -74,7 +74,7 @@ class Server : public IObserver
     ChannelManager cManager_;
 
     int epollfd_;
-    std::vector<epoll_event> events_;
+    std::vector<pollfd> poller_;
 
     int listener_;
 };
