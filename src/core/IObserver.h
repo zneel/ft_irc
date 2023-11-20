@@ -7,5 +7,5 @@ class IObserver
     virtual ~IObserver()
     {
     }
-    virtual void update(int fd, EPOLL_EVENTS event) = 0;
+    virtual void update(int fd, int event) = 0;
 };
