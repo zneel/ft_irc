@@ -45,5 +45,5 @@ std::string kick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
 std::string error(Message &msg, Client *user);
 std::string quit(Message &msg, Client *user, ChannelManager *chanManager);
 std::vector<std::string> mode(Message &msg, Client *client, ClientManager *cManager, ChannelManager *chManager);
-bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager, Bot *bot);
+bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager);
 

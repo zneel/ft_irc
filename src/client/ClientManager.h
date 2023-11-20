@@ -22,7 +22,6 @@ class ClientManager
     std::map<int, Client *> &getClients();
     Client *get(int fd);
     Client *getByNick(std::string const &nick);
-    Client *createBot();
     Client *create(int fd, std::string ip, IObserver *observer);
     void remove(int fd);
     void removeAll();
