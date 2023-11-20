@@ -1,9 +1,8 @@
 #include "../client/Bot.h"
 #include "CommandManager.h"
 
-bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager)
+bool doBotThings(Message msg, Client *user, ChannelManager *cManager)
 {
-    (void)uManager;
     bool isAction = false;
     while (!msg.params.empty())
     {
@@ -32,7 +31,6 @@ bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelMana
             botMessage.append(std::string(prefix + "/topic => to see the channel topic") + CRLF);
             botMessage.append(std::string(prefix + "/names => to see users in the channel") + CRLF);
             botMessage.append(std::string(prefix + "/part => to leave this channel") + CRLF);
-            Message msgCopy = msg;
             user->getSendBuffer().append(botMessage);
             isAction = true;
         }
