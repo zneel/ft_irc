@@ -204,7 +204,7 @@ void Server::disconnectClients()
     for (std::map<int, Client *>::iterator it = uManager_.getClients().begin(); it != uManager_.getClients().end();
          ++it)
     {
-        if (it->second->shouldDisconnect() && it->second->getSendBuffer().empty())
+        if (it->second->shouldDisconnect())
             toRemove.push_back(it->first);
     }
     for (std::vector<int>::iterator it = toRemove.begin(); it != toRemove.end(); ++it)
