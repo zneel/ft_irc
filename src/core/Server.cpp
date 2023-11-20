@@ -26,7 +26,7 @@ void Server::start()
     if ((listener_ = listenForConnection()) < 0)
         throw std::runtime_error("listenForConnection");
     CommandManager commands(&cManager_, &uManager_, password_);
-    uManager_.createBot();
+    // uManager_.createBot();
     initListener();
     logger_.log("ircserv listening on port " + port_, Logger::INFO);
     while (!stop)
@@ -69,7 +69,6 @@ void Server::update(int fd, EPOLL_EVENTS event)
         {
             it->events = event;
             epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &(*it));
-            return;
         }
     }
 }
