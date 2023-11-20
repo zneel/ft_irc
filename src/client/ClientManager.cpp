@@ -38,13 +38,6 @@ Client *ClientManager::getByNick(std::string const &nick)
     return NULL;
 }
 
-Client *ClientManager::createBot()
-{
-    Bot *newClient = new Bot();
-    clients_[-2] = newClient;
-    return clients_[-2];
-}
-
 Client *ClientManager::create(int fd, std::string ip, IObserver *observer)
 {
     Client *newClient = new Client(fd, ip, observer);

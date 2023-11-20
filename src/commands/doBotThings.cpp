@@ -1,7 +1,7 @@
 #include "../client/Bot.h"
 #include "CommandManager.h"
 
-bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelManager *cManager, Bot *bot)
+bool doBotThings(Message msg, Client *user, ChannelManager *cManager)
 {
     bool isAction = false;
     while (!msg.params.empty())
@@ -12,75 +12,26 @@ bool doBotThings(Message msg, Client *user, ClientManager *uManager, ChannelMana
             std::string channelName = msg.params.front();
 			if (cManager->get(channelName) == NULL)
 				return false;
-            msg.params.front() = user->nick;
-            {
-                msg.trailling = "Of course I can help you " + user->nick + " !";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
-            {
-                msg.trailling = "CHANNEL COMMAND on irssi:";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
+            Bot bot;
+            std::string prefix(":" + bot.nickmask + " PRIVMSG " + user->nickmask + " :");
+            std::string botMessage;
+            botMessage.append(prefix + "Of course I can help you " + user->nick + " !" + CRLF);
+            botMessage.append(prefix + "CHANNEL COMMAND on irssi for channel: " + channelName + CRLF);
             if (cManager->get(channelName)->isOperator(user))
             {
-                {
-                    msg.trailling = "";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
-                {
-                    msg.trailling = "As an operator you can do:";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
-                {
-                    msg.trailling = "/mode <mod> => to change the mode of the channel (l i k t o)";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
-                {
-                    msg.trailling = "/invite <nickToInvite> => to invite someone if the channel is on invite mode";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
-                {
-                    msg.trailling = "/topic <newTopic> => to set the channel topic";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
-                {
-                    msg.trailling = "/kick <user> => to kick an user from the channel";
-                    Message msgCopy = msg;
-                    privmsg(msgCopy, bot, uManager, cManager);
-                }
+                    botMessage.append(std::string(prefix + "") + CRLF);
+                    botMessage.append(std::string(prefix + "As an operator you can do:") + CRLF);
+                    botMessage.append(std::string(prefix + "/mode <mod> => to change the mode of the channel (l i k t o)") + CRLF);
+                    botMessage.append(std::string(prefix + "/invite <nickToInvite> => to invite someone if the channel is on invite mode") + CRLF);
+                    botMessage.append(std::string(prefix + "/topic <newTopic> => to set the channel topic") + CRLF);
+                    botMessage.append(std::string(prefix + "/kick <user> => to kick an user from the channel") + CRLF);
             }
-            {
-                msg.trailling = "";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
-            {
-                msg.trailling = "As a normal user you can do:";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
-            {
-                msg.trailling = "/topic => to see the channel topic";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
-            {
-                msg.trailling = "/names => to see users in the channel";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
-            {
-                msg.trailling = "/part => to leave this channel";
-                Message msgCopy = msg;
-                privmsg(msgCopy, bot, uManager, cManager);
-            }
+            botMessage.append(std::string(prefix + "") + CRLF);
+            botMessage.append(std::string(prefix + "As a normal user you can do:") + CRLF);
+            botMessage.append(std::string(prefix + "/topic => to see the channel topic") + CRLF);
+            botMessage.append(std::string(prefix + "/names => to see users in the channel") + CRLF);
+            botMessage.append(std::string(prefix + "/part => to leave this channel") + CRLF);
+            user->getSendBuffer().append(botMessage);
             isAction = true;
         }
         msg.params.pop_front();

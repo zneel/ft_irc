@@ -2,10 +2,6 @@
 #include <utility>
 #include <vector>
 
-Client::Client()
-{
-}
-
 Client::Client(int fd, std::string ip, IObserver *observer)
     : nick(""), username(""), realname(""), ip(ip), fd_(fd), shouldDisconnect_(false), registered_(false), modes_(0),
       capSent_(false), passSent_(false)

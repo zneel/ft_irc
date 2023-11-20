@@ -1,6 +1,6 @@
 #include "Bot.h"
 
-Bot::Bot() : Client()
+Bot::Bot()
 {
     nick = BOT_NAME;
     username = BOT_NAME;
@@ -10,4 +10,9 @@ Bot::Bot() : Client()
 
 Bot::~Bot()
 {
+}
+
+void Bot::updateNickmask() 
+{
+    nickmask = nick + "!" + username + "@localhost";
 }
