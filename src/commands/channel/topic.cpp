@@ -4,14 +4,16 @@ std::string topic(Message &msg, Client *user, ChannelManager *cManager)
 {
     if (msg.params.empty())
         return SERVER_NAME + ERR_NEEDMOREPARAMS(user->nick, msg.verb);
+    if (cManager->get(*(msg.params.begin())) == NULL)
+        return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, *(msg.params.begin()));
     Channel *chan = cManager->get(*(msg.params.begin()));
     if (msg.trailling.empty())
     {
         if (msg.isEmptyTrailling)
         {
-            if (chan->hasMode(8))
+            if (chan->hasMode(Channel::PROTECTED_TOPIC))
             {
-                if (user->getModes() == 8)
+                if (chan->isOperator(user))
                     chan->topic = "";
                 else
                     return SERVER_NAME + ERR_CHANOPRIVSNEEDED(user->nick, chan->name);
@@ -29,9 +31,9 @@ std::string topic(Message &msg, Client *user, ChannelManager *cManager)
     }
     else
     {
-        if (chan->hasMode(8))
+        if (chan->hasMode(Channel::PROTECTED_TOPIC))
         {
-            if (user->getModes() == 8)
+            if (chan->isOperator(user))
                 chan->topic = msg.trailling;
             else
                 return SERVER_NAME + ERR_CHANOPRIVSNEEDED(user->nick, chan->name);
