@@ -23,7 +23,7 @@ std::string getSendStr(Message &msg)
 std::string privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
 {
     if (msg.params.empty())
-        return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
+        return SERVER_NAME + ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
     std::string ret;
     while (!msg.params.empty())
     {
@@ -31,7 +31,7 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
         {
             std::string sendStr = getSendStr(msg);
             if (sendStr.empty())
-                return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
+                return SERVER_NAME + ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
             sender->send(sendStr);
             msg.params.pop_front();
             continue;
@@ -46,12 +46,18 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
                     ret.append(CRLF);
                 ret.append(ERR_NOSUCHCHANNEL(sender->nick, msg.params.front()));
             }
-            else
+            else if (cManager->get(destName)->isClientOnChannel(sender) == true)
             {
                 Channel *channel = cManager->get(destName);
                 std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
                                       sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
                 channel->broadcast(message, sender);
+            }
+            else
+            {
+                if (!ret.empty())
+                    ret.append(CRLF);
+                ret.append(ERR_CANNOTSENDTOCHAN(sender->nick, msg.params.front()));
             }
         }
         else
@@ -81,5 +87,5 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
         }
         msg.params.pop_front();
     }
-    return ret;
+    return SERVER_NAME + ret;
 }
