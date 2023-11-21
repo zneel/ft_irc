@@ -119,7 +119,7 @@ void Server::sendData(struct pollfd &event)
     if (!uManager_.get(event.fd))
         return;
     ssize_t len = uManager_.get(event.fd)->getSendBuffer().size();
-    ssize_t bytesSent = ::send(event.fd, uManager_.get(event.fd)->getSendBuffer().c_str(), len, 0);
+    ssize_t bytesSent = ::send(event.fd, uManager_.get(event.fd)->getSendBuffer().c_str(), len, MSG_NOSIGNAL);
     if (bytesSent == -1)
     {
         logger_.log("send: " + std::string(strerror(errno)), Logger::WARNING);
@@ -145,7 +145,7 @@ void Server::recvData(struct pollfd &event, CommandManager &commands)
     if (!uManager_.get(event.fd))
         return;
     char tmpBuff[4096] = {0};
-    ssize_t bytesRead = recv(event.fd, tmpBuff, sizeof(tmpBuff), 0);
+    ssize_t bytesRead = recv(event.fd, tmpBuff, sizeof(tmpBuff), MSG_NOSIGNAL);
     if (bytesRead < 0)
     {
         logger_.log("recv: " + std::string(strerror(errno)), Logger::WARNING);

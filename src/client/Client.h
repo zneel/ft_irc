@@ -16,14 +16,14 @@ class Client
     enum RolePrefix
     {
         OPERATOR = 0,
-        VOICE,
+        VOICE
     };
 
     enum UserModes
     {
         INVISIBLE = (1 << 0),
         OPER = (1 << 1),
-        NOT_SUPPORTED = (1 << 2),
+        NOT_SUPPORTED = (1 << 2)
     };
 
     Client(int fd, std::string ip, IObserver *observer);

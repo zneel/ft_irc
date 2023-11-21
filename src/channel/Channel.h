@@ -21,14 +21,14 @@ class Channel
         KEY = (1 << 2),             // +k
         PROTECTED_TOPIC = (1 << 3), // +t
         OPERATOR = (1 << 4),        // +o
-        NONE = (1 << 5),
+        NONE = (1 << 5)
     };
 
     // only #
     enum Type
     {
         REGULAR = (1 << 0),
-        LOCAL = (1 << 1),
+        LOCAL = (1 << 1)
     };
 
     Channel(std::string name, Type type);
