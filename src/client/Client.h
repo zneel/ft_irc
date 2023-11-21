@@ -73,10 +73,6 @@ class Client
     void removePrivmsg(std::string &nick);
     bool isInPrivmsg(std::string &nick);
 
-    void addAlreadyKnow(Client *newClient);
-    void clearAlreadyKnow();
-    bool isInAlreadyKnow(std::string &nick);
-
     void disconnect();
 
     IObserver *observer_;
@@ -103,8 +99,9 @@ class Client
     bool op_;
     std::map<std::string, RolePrefix> channelRoles_;
     std::vector<Client *> privmsgWith_;
-    std::vector<Client *> alreadyKnow_;
 
     std::string sendBuffer_;
     std::string recvBuffer_;
 };
+
+bool isInAlreadyKnow(std::string toCherch, std::vector<Client *> alreadyKnow);

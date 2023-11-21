@@ -23,18 +23,18 @@ std::string nick(Message &msg, Client *user, ClientManager *uManager, ChannelMan
         return SERVER_NAME + ERR_ERRONEUSNICKNAME(user->nick, msg.params.front());
     std::map<std::string, Channel *> channels = cManager->getAll();
     ret = ":" + user->nickmask + " NICK " + msg.params.front();
+    std::vector<Client *> alreadyKnow;
     for (std::map<std::string, Channel *>::iterator it = channels.begin(); it != channels.end(); it++)
     {
         if (it->second->isClientOnChannel(user))
-            it->second->broadcastUnique(ret, user);
+            it->second->broadcastUnique(ret, user, alreadyKnow);
     }
     std::vector<Client *> privmsg = user->getPrivmsg();
     for (std::vector<Client *>::iterator it = privmsg.begin(); it != privmsg.end(); it++)
     {
-        if (user->isInAlreadyKnow((*it)->nick) == false)
+        if (isInAlreadyKnow((*it)->nick, alreadyKnow) == false)
             (*it)->send(ret);
     }
-    user->clearAlreadyKnow();
     std::string oldNick(user->nick);
     user->nick = msg.params.front();
     user->updateNickmask();
