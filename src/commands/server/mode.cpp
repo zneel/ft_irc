@@ -1,5 +1,8 @@
 #include "../CommandManager.h"
 #include <cctype>
+#include <cerrno>
+#include <cstdlib>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -8,6 +11,28 @@ struct Mode
     char mode;
     bool set;
 };
+
+int getMaxClient(std::string const &maxClientStr)
+{
+    char *endPtr;
+
+    long maxClient = std::strtol(maxClientStr.c_str(), &endPtr, 10);
+    if (endPtr == maxClientStr.c_str() || *endPtr != '\0')
+        return 0;
+    if ((errno == ERANGE &&
+         (maxClient == std::numeric_limits<long>::max() || maxClient == std::numeric_limits<long>::min())) ||
+        maxClient > std::numeric_limits<int>::max() || maxClient < std::numeric_limits<int>::min())
+    {
+        return 0;
+    }
+
+    if (maxClient < 0)
+        maxClient = 0;
+    else if (maxClient > 9999)
+        maxClient = 9999;
+
+    return static_cast<int>(maxClient);
+}
 
 std::vector<Mode> parseModeStr(std::string const &modeStr)
 {
@@ -98,10 +123,13 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
                 }
                 if (it->mode == 'k') // key
                 {
-                    if (msg.params.size() < 3 || msg.params[2].empty())
-                        ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, "MODE"));
-                    else if (it->set)
+                    if (it->set)
                     {
+                        if (msg.params.size() < 3 || msg.params[2].empty())
+                        {
+                            ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, "MODE"));
+                            continue;
+                        }
                         chan->addMode(chan->getMode(it->mode));
                         chan->password = msg.params[2];
                     }
@@ -113,10 +141,13 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
                 }
                 else if (it->mode == 'o') // operator
                 {
-                    if (msg.params.size() < 3 || msg.params[2].empty())
-                        ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, "MODE"));
-                    else if (it->set)
+                    if (it->set)
                     {
+                        if (msg.params.size() < 3 || msg.params[2].empty())
+                        {
+                            ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, "MODE"));
+                            continue;
+                        }
                         Client *target = cManager->getByNick(msg.params[2]);
                         if (!target)
                         {
@@ -140,6 +171,24 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
                         target->setRoleInChannel(chan->name, Client::VOICE);
                     }
                 }
+                else if (it->mode == 'l')
+                {
+                    if (it->set)
+                    {
+                        if (msg.params.size() < 3 || msg.params[2].empty() || !std::isdigit(msg.params[2][0]))
+                        {
+                            ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(client->nick, "MODE"));
+                            continue;
+                        }
+                        chan->addMode(chan->getMode(it->mode));
+                        chan->maxClient = getMaxClient(msg.params[2]);
+                    }
+                    else
+                    {
+                        chan->removeMode(chan->getMode(it->mode));
+                        chan->maxClient = CHANNEL_MAX_USER;
+                    }
+                }
                 else
                 {
                     if (it->set)
@@ -151,6 +200,8 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
         }
         std::string extra;
         extra = chan->modesToStr();
+        if (extra.size() == 1)
+            extra = "";
         if (msg.params.size() > 2)
             extra += " :" + msg.params[2];
         chan->broadcast(SERVER_NAME + RPL_CHANNELMODEIS(client->nick, msg.params[0], extra), client, true);
