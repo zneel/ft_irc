@@ -28,7 +28,7 @@ std::deque<std::string> recupParams(std::string &line, bool *isEmptyTrailling)
         limiter = line.find_first_of(", :");
     }
     std::string tmp(line, 0, limiter);
-    if (*(line.begin() + limiter) != ':' && !tmp.empty())
+    if (!tmp.empty() && *(line.begin() + limiter) != ':')
         params.push_back(tmp);
     if (limiter != std::string::npos)
     {
