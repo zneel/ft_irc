@@ -75,7 +75,7 @@ class Channel
     void removeInvite(Client *client);
 
     void broadcast(std::string const &message, Client *sender, bool sendToSender = false);
-    void broadcastUnique(std::string const &message, Client *sender, bool sendToSender = false);
+    void broadcastUnique(std::string const &message, Client *sender, std::vector<Client *> &alreadyKnow, bool sendToSender = false);
 
     bool isClientOnChannel(Client *client);
 

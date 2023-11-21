@@ -189,15 +189,15 @@ void Channel::broadcast(std::string const &message, Client *sender, bool sendToS
     }
 }
 
-void Channel::broadcastUnique(std::string const &message, Client *sender, bool sendToSender)
+void Channel::broadcastUnique(std::string const &message, Client *sender, std::vector<Client *> &alreadyKnow, bool sendToSender)
 {
     for (std::map<int, Client *>::iterator it = clients_.begin(); it != clients_.end(); ++it)
     {
         if (it->second != sender || sendToSender)
         {
-            if (sender->isInAlreadyKnow(it->second->nick) == false)
+            if (isInAlreadyKnow(it->second->nick, alreadyKnow) == false)
             {
-                sender->addAlreadyKnow(it->second);
+                alreadyKnow.push_back(it->second);
                 it->second->send(message);
             }
         }
