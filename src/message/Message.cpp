@@ -28,10 +28,10 @@ std::deque<std::string> recupParams(std::string &line, bool *isEmptyTrailling)
         limiter = line.find_first_of(", :");
     }
     std::string tmp(line, 0, limiter);
+    if (!tmp.empty() && *(line.begin() + limiter) != ':')
+        params.push_back(tmp);
     if (limiter != std::string::npos)
     {
-        if (*(line.begin() + limiter) != ':' && !tmp.empty())
-            params.push_back(tmp);
         *isEmptyTrailling = 1;
         line.erase(0, limiter + 1);
     }
