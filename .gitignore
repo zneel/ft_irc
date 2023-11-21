@@ -3,3 +3,4 @@ build
 compile_commands.json
 ircserv
 .idea
+tester.py
