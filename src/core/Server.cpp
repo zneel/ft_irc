@@ -2,6 +2,7 @@
 #include "../buffer/Buffer.h"
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <sys/epoll.h>
 #include <sys/poll.h>
 
@@ -32,7 +33,21 @@ void Server::start()
         poll(poller_.data(), poller_.size(), -1);
         for (size_t i = 0; i < poller_.size(); ++i)
         {
-            if (poller_[i].revents & POLLIN)
+            if (poller_[i].revents & POLLERR || poller_[i].revents & POLLHUP)
+            {
+                removeFromPolling(poller_[i].fd);
+                Client *client = uManager_.get(poller_[i].fd);
+                if (client)
+                {
+                    cManager_.removeClientFromAll(client);
+                    uManager_.remove(client->getFd());
+                }
+                close(poller_[i].fd);
+                poller_[i].fd = -1;
+                poller_[i].events = 0;
+                poller_[i].revents = 0;
+            }
+            else if (poller_[i].revents & POLLIN)
             {
                 if (poller_[i].fd == listener_)
                     acceptConnection();
@@ -95,7 +110,7 @@ void Server::addToPolling(int fd)
 {
     struct pollfd pfd;
     memset(&pfd, 0, sizeof(pfd));
-    pfd.events = POLLIN;
+    pfd.events = POLLIN | POLLERR | POLLHUP;
     pfd.revents = 0;
     pfd.fd = fd;
     poller_.push_back(pfd);
@@ -154,7 +169,16 @@ void Server::recvData(struct pollfd &event, CommandManager &commands)
     if (bytesRead == 0)
     {
         removeFromPolling(event.fd);
-        uManager_.remove(event.fd);
+        Client *client = uManager_.get(event.fd);
+        if (client)
+        {
+            cManager_.removeClientFromAll(client);
+            uManager_.remove(client->getFd());
+        }
+        close(event.fd);
+        event.fd = -1;
+        event.events = 0;
+        event.revents = 0;
         return;
     }
     uManager_.get(event.fd)->getRecvBuffer().append(tmpBuff, bytesRead);

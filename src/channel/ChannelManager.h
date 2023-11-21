@@ -17,6 +17,7 @@ class ChannelManager
     std::map<std::string, Channel *> getAll() const;
     void remove(std::string name);
     void removeAll();
+    void removeClientFromAll(Client *client);
     void broadcast(std::string const &message, Channel *channel);
     bool channelExists(std::string const &name) const;
 
