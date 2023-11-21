@@ -20,18 +20,24 @@ std::string getSendStr(Message &msg)
     return "";
 }
 
-std::string privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
+std::vector<std::string> privmsg(Message msg, Client *sender, ClientManager *uManager, ChannelManager *cManager)
 {
+    std::vector<std::string> ret;
     if (msg.params.empty())
-        return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
-    std::string ret;
+    {
+        ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(sender->nick, msg.verb));
+        return ret;
+    }
     while (!msg.params.empty())
     {
         if (msg.trailling.find(":DCC SEND") != std::string::npos)
         {
             std::string sendStr = getSendStr(msg);
             if (sendStr.empty())
-                return ERR_NEEDMOREPARAMS(sender->nick, msg.verb);
+            {
+                ret.push_back(SERVER_NAME + ERR_NEEDMOREPARAMS(sender->nick, msg.verb));
+                return ret;
+            }
             sender->send(sendStr);
             msg.params.pop_front();
             continue;
@@ -41,18 +47,16 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
         if (*(msg.params.front().begin()) == '#')
         {
             if (cManager->get(destName) == NULL)
-            {
-                if (!ret.empty())
-                    ret.append(CRLF);
-                ret.append(ERR_NOSUCHCHANNEL(sender->nick, msg.params.front()));
-            }
-            else
+                ret.push_back(SERVER_NAME + ERR_NOSUCHCHANNEL(sender->nick, msg.params.front()));
+            else if (cManager->get(destName)->isClientOnChannel(sender) == true)
             {
                 Channel *channel = cManager->get(destName);
                 std::string message = ":" + sender->RolePrefixToString(sender->getRoleInChannel(channel->name)) +
                                       sender->nickmask + " PRIVMSG " + channel->name + " :" + userMessage;
                 channel->broadcast(message, sender);
             }
+            else
+                ret.push_back(SERVER_NAME + ERR_CANNOTSENDTOCHAN(sender->nick, msg.params.front()));
         }
         else
         {
@@ -73,11 +77,7 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
                 }
             }
             if (isFind == false)
-            {
-                if (!ret.empty())
-                    ret.append(CRLF);
-                ret.append(ERR_NOSUCHNICK(sender->nick, destName));
-            }
+                ret.push_back(SERVER_NAME + ERR_NOSUCHNICK(sender->nick, destName));
         }
         msg.params.pop_front();
     }

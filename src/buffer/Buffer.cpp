@@ -24,5 +24,7 @@ void Buffer::bufferToMessage(std::string &recvBuffer, std::deque<Message> &msgs)
             msgs.push_back(Message(std::string(begin, nextCRLF)));
             recvBuffer.erase(0, nextCRLF - begin + 2);
         }
+        else if (nextCRLF == recvBuffer.begin())
+            recvBuffer.erase(0, 2);
     }
 }
