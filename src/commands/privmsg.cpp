@@ -44,7 +44,7 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
             {
                 if (!ret.empty())
                     ret.append(CRLF);
-                ret.append(ERR_NOSUCHCHANNEL(sender->nick, msg.params.front()));
+                ret.append(SERVER_NAME + ERR_NOSUCHCHANNEL(sender->nick, msg.params.front()));
             }
             else if (cManager->get(destName)->isClientOnChannel(sender) == true)
             {
@@ -57,7 +57,7 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
             {
                 if (!ret.empty())
                     ret.append(CRLF);
-                ret.append(ERR_CANNOTSENDTOCHAN(sender->nick, msg.params.front()));
+                ret.append(SERVER_NAME + ERR_CANNOTSENDTOCHAN(sender->nick, msg.params.front()));
             }
         }
         else
@@ -82,10 +82,10 @@ std::string privmsg(Message msg, Client *sender, ClientManager *uManager, Channe
             {
                 if (!ret.empty())
                     ret.append(CRLF);
-                ret.append(ERR_NOSUCHNICK(sender->nick, destName));
+                ret.append(SERVER_NAME + ERR_NOSUCHNICK(sender->nick, destName));
             }
         }
         msg.params.pop_front();
     }
-    return SERVER_NAME + ret;
+    return ret;
 }
