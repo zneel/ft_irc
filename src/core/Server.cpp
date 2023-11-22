@@ -27,7 +27,7 @@ void Server::start()
         throw std::runtime_error("listenForConnection");
     CommandManager commands(&cManager_, &uManager_, password_);
     initListener();
-    logger_.log("ircserv listening on port " + port_, Logger::INFO);
+    logger_.log("ircserv listening on port " + port_ + "\n", Logger::INFO);
     while (!stop)
     {
         poll(poller_.data(), poller_.size(), -1);
@@ -99,7 +99,7 @@ void Server::acceptConnection()
         fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
         uManager_.create(fd, this);
-        logger_.log("new connection", Logger::INFO);
+        logger_.log("new connection\n", Logger::INFO);
     }
 }
 
