@@ -67,7 +67,7 @@ void Channel::removeMode(int mode)
 std::string Channel::modesToStr()
 {
     std::string ret;
-    if (modes_ == 0)
+    if (modes_ == Channel::NONE)
         return ret;
     ret += "+";
     if (hasMode(Channel::CLIENT_LIMIT))
@@ -189,7 +189,8 @@ void Channel::broadcast(std::string const &message, Client *sender, bool sendToS
     }
 }
 
-void Channel::broadcastUnique(std::string const &message, Client *sender, std::vector<Client *> &alreadyKnow, bool sendToSender)
+void Channel::broadcastUnique(std::string const &message, Client *sender, std::vector<Client *> &alreadyKnow,
+                              bool sendToSender)
 {
     for (std::map<int, Client *>::iterator it = clients_.begin(); it != clients_.end(); ++it)
     {

@@ -38,9 +38,9 @@ Client *ClientManager::getByNick(std::string const &nick)
     return NULL;
 }
 
-Client *ClientManager::create(int fd, std::string ip, IObserver *observer)
+Client *ClientManager::create(int fd, IObserver *observer)
 {
-    Client *newClient = new Client(fd, ip, observer);
+    Client *newClient = new Client(fd, observer);
     clients_[fd] = newClient;
     return clients_[fd];
 }
