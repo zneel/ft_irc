@@ -1,8 +1,8 @@
 #include "Message.h"
-#include <iostream>
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
+#include <iostream>
 
 std::string recupVerb(std::string &line)
 {
@@ -21,7 +21,7 @@ std::deque<std::string> recupParams(std::string &line, bool *isEmptyTrailling)
 {
     std::deque<std::string> params;
     size_t limiter = line.find_first_of(", :");
-    while (limiter != std::string::npos && *(line.begin() + limiter) != ':') 
+    while (limiter != std::string::npos && *(line.begin() + limiter) != ':')
     {
         params.push_back(std::string(line, 0, limiter));
         line.erase(0, limiter + 1);
@@ -54,23 +54,23 @@ Message::Message(std::string line)
 {
     if (line.size() > 512)
         line.erase(512, std::string::npos);
-   
+
     verb = recupVerb(line);
     if (!verb.empty())
     {
         params = recupParams(line, &isEmptyTrailling);
         trailling = recupTrailing(line);
     }
-    std::cout << "verb     :" << verb << ":" << std::endl;
-    for (size_t i = 0; i < params.size(); i++)
-        std::cout << "params" << i << "  :" << params[i] << ":" << std::endl;
-    if (params.empty())
-        std::cout << "params" << "   :" << "empty" << ":" << std::endl;
-    std::cout << "trailling:" << trailling << ":" << std::endl;
-    std::cout << "=============================================" << std::endl;
+    // std::cout << "verb     :" << verb << ":" << std::endl;
+    // for (size_t i = 0; i < params.size(); i++)
+    //     std::cout << "params" << i << "  :" << params[i] << ":" << std::endl;
+    // if (params.empty())
+    //     std::cout << "params" << "   :" << "empty" << ":" << std::endl;
+    // std::cout << "trailling:" << trailling << ":" << std::endl;
+    // std::cout << "=============================================" << std::endl;
 }
 
-Message Message::operator=(Message const &other) 
+Message Message::operator=(Message const &other)
 {
     if (this == &other)
         return *this;

@@ -96,13 +96,10 @@ void Server::acceptConnection()
         logger_.log(std::string("accept: ") + strerror(errno), Logger::ERROR);
     else
     {
-        char remoteIp[INET6_ADDRSTRLEN];
-        // @TODO REWRITE inet_ntop
-        inet_ntop(remAddr.ss_family, getInAddr_((struct sockaddr *)&remAddr), remoteIp, INET6_ADDRSTRLEN);
         fcntl(fd, F_SETFL, O_NONBLOCK);
         addToPolling(fd);
-        uManager_.create(fd, remoteIp, this);
-        logger_.log("new connection from " + std::string(remoteIp), Logger::INFO);
+        uManager_.create(fd, this);
+        logger_.log("new connection", Logger::INFO);
     }
 }
 
@@ -144,8 +141,8 @@ void Server::sendData(struct pollfd &event)
     {
         // debug
         std::string s = uManager_.get(event.fd)->getSendBuffer();
-        for (size_t pos = 0; (pos = s.find("\r\n", pos)) != std::string::npos; s.replace(pos, 2, "\\r\\n"), pos += 2)
-            ;
+        // for (size_t pos = 0; (pos = s.find("\r\n", pos)) != std::string::npos; s.replace(pos, 2, "\\r\\n"), pos += 2)
+        // ;
         logger_.log(">" + s, Logger::INFO);
         // end debug
         uManager_.get(event.fd)->getSendBuffer().clear();
@@ -182,7 +179,8 @@ void Server::recvData(struct pollfd &event, CommandManager &commands)
         return;
     }
     uManager_.get(event.fd)->getRecvBuffer().append(tmpBuff, bytesRead);
-    std::cout << "received buffer: " << uManager_.get(event.fd)->getRecvBuffer() << std::endl;
+    std::string r = uManager_.get(event.fd)->getRecvBuffer();
+    logger_.log("<" + r, Logger::INFO);
     if (hasCRLF(uManager_.get(event.fd)->getRecvBuffer()))
     {
         std::deque<Message> msgs;

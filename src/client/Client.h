@@ -26,7 +26,7 @@ class Client
         NOT_SUPPORTED = (1 << 2)
     };
 
-    Client(int fd, std::string ip, IObserver *observer);
+    Client(int fd, IObserver *observer);
     virtual ~Client();
 
     int getFd() const;
@@ -79,7 +79,6 @@ class Client
     std::string nick;
     std::string username;
     std::string realname;
-    std::string ip;
     std::string nickmask;
 
   private:

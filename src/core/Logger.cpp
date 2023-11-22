@@ -27,7 +27,7 @@ void Logger::log(const std::string &message, LoggerLevel level) const
     std::string levelStr;
     int levelWidth = 8;
     *stream << "[" << getTimestamp() << "] " << getColor(level) << std::left << std::setw(levelWidth)
-            << getLevelStr(level) << getResetColor() << message << std::endl;
+            << getLevelStr(level) << getResetColor() << message;
 }
 
 std::string Logger::getLevelStr(LoggerLevel level) const

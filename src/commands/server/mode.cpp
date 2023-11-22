@@ -95,7 +95,7 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
 {
     std::string const CHANNEL_MODES = "+-itkol";
     std::vector<std::string> ret;
-
+    bool changed = false;
     if (!chManager->channelExists(msg.params[0]))
         ret.push_back(SERVER_NAME + ERR_NOSUCHCHANNEL(client->nick, msg.params[0]));
 
@@ -110,7 +110,12 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
         if (!chan->isClientOnChannel(client))
             ret.push_back(SERVER_NAME + ERR_NOTONCHANNEL(client->nick, msg.params[0]));
         else if (!chan->isOperator(client))
-            ret.push_back(SERVER_NAME + ERR_CHANOPRIVSNEEDED(client->nick, msg.params[0]));
+        {
+            if (msg.params.size() < 3 && msg.params[1] == "b")
+                ;
+            else
+                ret.push_back(SERVER_NAME + ERR_CHANOPRIVSNEEDED(client->nick, msg.params[0]));
+        }
         else
         {
             std::vector<Mode> modes = parseModeStr(msg.params[1]);
@@ -196,15 +201,19 @@ std::vector<std::string> handleChannelModes(ChannelManager *chManager, Client *c
                     else
                         chan->removeMode(chan->getMode(it->mode));
                 }
+                changed = true;
             }
         }
-        std::string extra;
-        extra = chan->modesToStr();
-        if (extra.size() == 1)
-            extra = "";
-        if (msg.params.size() > 2)
-            extra += " :" + msg.params[2];
-        chan->broadcast(SERVER_NAME + RPL_CHANNELMODEIS(client->nick, msg.params[0], extra), client, true);
+        if (changed)
+        {
+            std::string extra;
+            extra = chan->modesToStr();
+            if (extra.size() == 1)
+                extra = "";
+            if (msg.params.size() > 2)
+                extra += " :" + msg.params[2];
+            chan->broadcast(SERVER_NAME + RPL_CHANNELMODEIS(client->nick, msg.params[0], extra), client, true);
+        }
     }
 
     return ret;
