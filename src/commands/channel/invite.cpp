@@ -13,7 +13,7 @@ std::string invite(Message &msg, Client *user, ClientManager *uManager, ChannelM
 	if (channel->isClientOnChannel(user) == false)
 		return SERVER_NAME + ERR_NOTONCHANNEL(user->nick, channelToInvite);
 	Client *client = uManager->getByNick(nickToInvite);
-	if (channel->hasMode(2) == true && channel->isOperator(user) == false)
+	if (channel->hasMode(Channel::INVITE_ONLY) == true && channel->isOperator(user) == false)
 		return SERVER_NAME + ERR_CHANOPRIVSNEEDED(user->nick, channelToInvite);
 	if (channel->isClientOnChannel(client))
 		return SERVER_NAME + ERR_USERONCHANNEL(user->nick, nickToInvite, channelToInvite);

@@ -7,6 +7,8 @@ std::string topic(Message &msg, Client *user, ChannelManager *cManager)
     if (cManager->get(*(msg.params.begin())) == NULL)
         return SERVER_NAME + ERR_NOSUCHCHANNEL(user->nick, *(msg.params.begin()));
     Channel *chan = cManager->get(*(msg.params.begin()));
+    if (chan->isClientOnChannel(user) == false)
+        return SERVER_NAME + ERR_NOTONCHANNEL(user->nick, chan->name);
     if (msg.trailling.empty())
     {
         if (msg.isEmptyTrailling)
