@@ -58,7 +58,7 @@ void CommandManager::doCommands(std::deque<Message> &msgs, Client *sender)
         else if (sender->isRegistered())
         {
             bool isAnswerBot = doBotThings(msgs.front(), sender, cManager_);
-            if (msgs.front().verb.compare("motd") == 0)
+            if (msgs.front().verb.compare("MOTD") == 0)
                 sendMotd(sender);
             else if (msgs.front().verb.compare("PING") == 0)
                 sender->send(ping(msgs.front(), sender));
