@@ -12,6 +12,8 @@ bool doBotThings(Message msg, Client *user, ChannelManager *cManager)
             std::string channelName = msg.params.front();
 			if (cManager->get(channelName) == NULL)
 				return false;
+            if (cManager->get(channelName)->isClientOnChannel(user) == false)
+                return false;
             Bot bot;
             std::string prefix(":" + bot.nickmask + " PRIVMSG " + user->nickmask + " :");
             std::vector<std::string> botMessages;
