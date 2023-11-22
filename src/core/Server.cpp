@@ -115,7 +115,7 @@ void Server::addToPolling(int fd)
 
 void Server::removeFromPolling(int fd)
 {
-    logger_.log("connection closed", Logger::INFO);
+    logger_.log("connection closed\n", Logger::INFO);
     for (PollFdsIterator it = poller_.begin(); it != poller_.end(); ++it)
     {
         if (it->fd == fd)
